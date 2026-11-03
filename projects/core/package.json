@@ -1,0 +1,38 @@
+{
+  "name": "@ckui/core",
+  "version": "0.0.0",
+  "description": "Accessible, themeable Angular UI components for phone and desktop.",
+  "keywords": [
+    "angular",
+    "ui",
+    "components",
+    "accessibility",
+    "a11y",
+    "design-tokens"
+  ],
+  "license": "MIT",
+  "author": "Christoph Kugler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChristophK93/ckui.git",
+    "directory": "projects/core"
+  },
+  "homepage": "https://christophk93.github.io/ckui/",
+  "bugs": {
+    "url": "https://github.com/ChristophK93/ckui/issues"
+  },
+  "peerDependencies": {
+    "@angular/cdk": "^22.2.0",
+    "@angular/common": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

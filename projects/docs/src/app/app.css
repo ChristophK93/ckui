@@ -1,0 +1,32 @@
+.skip-link {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  transform: translateY(-300%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.header {
+  padding: 1rem;
+  border-block-end: 1px solid #d0d0d0;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+main {
+  padding: 1rem;
+}
+
+main:focus {
+  outline: none;
+}

@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      # Publishing uses npm trusted publishing (OIDC), no NPM_TOKEN secret. Trusted publishing
+      # must be configured for @ckui/core on npmjs.com after the first manual publish.
+      - uses: changesets/action@v2.1.2
+        with:
+          version-script: npm run version-packages
+          publish-script: npm run release
