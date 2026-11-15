@@ -34,9 +34,17 @@ jobs:
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
           fi
+          # 0.1.0-next.3 -> next, 0.1.0 -> latest
+          case "$version" in
+            *-*) tag=$(echo "${version#*-}" | cut -d. -f1) ;;
+            *) tag=latest ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
       # Publishing uses npm trusted publishing (OIDC), no NPM_TOKEN secret. Trusted publishing
       # must be configured for @ckui/core on npmjs.com after the first manual publish.
       - uses: changesets/action@v2.1.2
         with:
           version-script: npm run version-packages
           publish-script: ${{ steps.publishable.outputs.publish == 'true' && 'npm run release' || '' }}
+        env:
+          NPM_DIST_TAG: ${{ steps.publishable.outputs.tag }}
