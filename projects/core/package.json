@@ -30,7 +30,12 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./styles.css": "./styles/styles.css"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true

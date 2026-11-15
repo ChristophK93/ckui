@@ -1,0 +1,137 @@
+@layer ckui {
+  :root {
+    --ck-white: oklch(1 0 0);
+    --ck-black: oklch(0 0 0);
+
+    --ck-gray-50: oklch(0.985 0.003 260);
+    --ck-gray-100: oklch(0.967 0.005 260);
+    --ck-gray-200: oklch(0.928 0.008 260);
+    --ck-gray-300: oklch(0.872 0.012 260);
+    --ck-gray-400: oklch(0.707 0.02 260);
+    --ck-gray-500: oklch(0.554 0.025 260);
+    --ck-gray-600: oklch(0.446 0.025 260);
+    --ck-gray-700: oklch(0.372 0.025 260);
+    --ck-gray-800: oklch(0.278 0.025 260);
+    --ck-gray-900: oklch(0.21 0.025 260);
+    --ck-gray-950: oklch(0.145 0.02 260);
+
+    --ck-indigo-50: oklch(0.962 0.018 272);
+    --ck-indigo-100: oklch(0.93 0.034 272);
+    --ck-indigo-200: oklch(0.87 0.065 274);
+    --ck-indigo-300: oklch(0.785 0.115 274);
+    --ck-indigo-400: oklch(0.68 0.17 273);
+    --ck-indigo-500: oklch(0.585 0.22 272);
+    --ck-indigo-600: oklch(0.51 0.23 271);
+    --ck-indigo-700: oklch(0.457 0.215 270);
+    --ck-indigo-800: oklch(0.398 0.18 270);
+    --ck-indigo-900: oklch(0.359 0.14 270);
+    --ck-indigo-950: oklch(0.26 0.09 270);
+
+    --ck-red-50: oklch(0.971 0.013 17);
+    --ck-red-100: oklch(0.936 0.032 17);
+    --ck-red-200: oklch(0.885 0.062 18);
+    --ck-red-300: oklch(0.808 0.114 19);
+    --ck-red-400: oklch(0.704 0.191 22);
+    --ck-red-500: oklch(0.637 0.237 25);
+    --ck-red-600: oklch(0.577 0.245 27);
+    --ck-red-700: oklch(0.505 0.213 27);
+    --ck-red-800: oklch(0.444 0.177 26);
+    --ck-red-900: oklch(0.396 0.141 26);
+    --ck-red-950: oklch(0.258 0.092 26);
+
+    --ck-green-50: oklch(0.982 0.018 155);
+    --ck-green-100: oklch(0.962 0.044 156);
+    --ck-green-200: oklch(0.925 0.084 156);
+    --ck-green-300: oklch(0.871 0.15 155);
+    --ck-green-400: oklch(0.792 0.209 152);
+    --ck-green-500: oklch(0.723 0.219 150);
+    --ck-green-600: oklch(0.627 0.194 149);
+    --ck-green-700: oklch(0.527 0.154 150);
+    --ck-green-800: oklch(0.448 0.119 151);
+    --ck-green-900: oklch(0.393 0.095 152);
+    --ck-green-950: oklch(0.266 0.065 153);
+
+    --ck-amber-50: oklch(0.987 0.022 95);
+    --ck-amber-100: oklch(0.962 0.059 95);
+    --ck-amber-200: oklch(0.924 0.12 95);
+    --ck-amber-300: oklch(0.879 0.169 91);
+    --ck-amber-400: oklch(0.828 0.189 84);
+    --ck-amber-500: oklch(0.769 0.188 70);
+    --ck-amber-600: oklch(0.666 0.179 58);
+    --ck-amber-700: oklch(0.555 0.163 48);
+    --ck-amber-800: oklch(0.473 0.137 46);
+    --ck-amber-900: oklch(0.414 0.112 45);
+    --ck-amber-950: oklch(0.279 0.077 45);
+
+    --ck-space-1: 0.25rem;
+    --ck-space-2: 0.5rem;
+    --ck-space-3: 0.75rem;
+    --ck-space-4: 1rem;
+    --ck-space-5: 1.25rem;
+    --ck-space-6: 1.5rem;
+    --ck-space-8: 2rem;
+    --ck-space-10: 2.5rem;
+    --ck-space-12: 3rem;
+    --ck-space-16: 4rem;
+
+    --ck-radius-sm: 0.25rem;
+    --ck-radius-md: 0.5rem;
+    --ck-radius-lg: 0.75rem;
+    --ck-radius-xl: 1rem;
+    --ck-radius-full: 9999px;
+
+    --ck-font-sans:
+      system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --ck-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+    --ck-font-size-xs: 0.75rem;
+    --ck-font-size-sm: 0.875rem;
+    --ck-font-size-md: 1rem;
+    --ck-font-size-lg: 1.125rem;
+    --ck-font-size-xl: 1.25rem;
+    --ck-font-size-2xl: 1.5rem;
+    --ck-font-weight-regular: 400;
+    --ck-font-weight-medium: 500;
+    --ck-font-weight-semibold: 600;
+    --ck-font-weight-bold: 700;
+    --ck-line-height-tight: 1.25;
+    --ck-line-height-normal: 1.5;
+
+    --ck-duration-fast: 100ms;
+    --ck-duration-normal: 200ms;
+    --ck-duration-slow: 300ms;
+    --ck-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ck-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+    --ck-control-height-sm: 2rem;
+    --ck-control-height-md: 2.5rem;
+    --ck-control-height-lg: 3rem;
+    --ck-control-padding-inline-sm: 0.5rem;
+    --ck-control-padding-inline-md: 0.75rem;
+    --ck-control-padding-inline-lg: 1rem;
+    --ck-control-font-size-sm: var(--ck-font-size-sm);
+    --ck-control-font-size-md: var(--ck-font-size-md);
+    --ck-control-font-size-lg: var(--ck-font-size-lg);
+    --ck-control-radius: var(--ck-radius-md);
+    --ck-target-min: 1.5rem;
+    --ck-focus-ring-width: 2px;
+    --ck-focus-ring-offset: 2px;
+  }
+
+  @media (pointer: coarse) {
+    :root {
+      --ck-control-height-sm: 2.75rem;
+      --ck-control-height-md: 2.75rem;
+      --ck-control-font-size-sm: var(--ck-font-size-md);
+      --ck-control-font-size-md: var(--ck-font-size-md);
+      --ck-target-min: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --ck-duration-fast: 0ms;
+      --ck-duration-normal: 0ms;
+      --ck-duration-slow: 0ms;
+    }
+  }
+}

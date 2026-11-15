@@ -62,7 +62,7 @@
                 "input": "projects/docs/public"
               }
             ],
-            "styles": ["projects/docs/src/styles.css"]
+            "styles": ["projects/core/styles/styles.css", "projects/docs/src/styles.css"]
           },
           "configurations": {
             "production": {
