@@ -1,30 +1,78 @@
 .skip-link {
   position: absolute;
-  inset-block-start: 0.5rem;
-  inset-inline-start: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #fff;
-  color: #1a1a1a;
-  border: 2px solid #1a1a1a;
+  inset-block-start: var(--ck-space-2);
+  inset-inline-start: var(--ck-space-2);
+  z-index: 1;
+  padding: var(--ck-space-2) var(--ck-space-4);
+  background: var(--ck-color-surface);
+  color: var(--ck-color-fg);
+  border: var(--ck-focus-ring-width) solid var(--ck-color-fg);
+  border-radius: var(--ck-radius-md);
   transform: translateY(-300%);
 }
 
 .skip-link:focus-visible {
   transform: none;
+  outline: var(--ck-focus-ring);
+  outline-offset: var(--ck-focus-ring-offset);
 }
 
 .header {
-  padding: 1rem;
-  border-block-end: 1px solid #d0d0d0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ck-space-1) var(--ck-space-6);
+  padding: var(--ck-space-2) var(--ck-space-4);
+  border-block-end: 1px solid var(--ck-color-border);
+  background: var(--ck-color-surface);
 }
 
 .brand {
-  font-weight: 700;
-  font-size: 1.25rem;
+  font-weight: var(--ck-font-weight-bold);
+  font-size: var(--ck-font-size-xl);
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ck-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--ck-target-min);
+  padding-inline: var(--ck-space-3);
+  border-radius: var(--ck-radius-md);
+  color: var(--ck-color-fg);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background: var(--ck-color-primary-subtle);
+}
+
+.nav-link-active {
+  background: var(--ck-color-primary-subtle);
+  color: var(--ck-color-primary-fg);
+  font-weight: var(--ck-font-weight-semibold);
+  text-decoration: underline;
+  text-decoration-thickness: var(--ck-focus-ring-width);
+  text-underline-offset: var(--ck-space-1);
+}
+
+.switcher {
+  margin-inline-start: auto;
 }
 
 main {
-  padding: 1rem;
+  box-sizing: border-box;
+  max-inline-size: 60rem;
+  margin-inline: auto;
+  padding: var(--ck-space-4);
 }
 
 main:focus {

@@ -1,11 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="ck-root">
   <head>
     <meta charset="utf-8" />
     <title>ckui</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      (function () {
+        try {
+          var storedTheme = localStorage.getItem('ckui-docs-theme');
+          if (storedTheme === 'light' || storedTheme === 'dark') {
+            document.documentElement.setAttribute('data-ck-theme', storedTheme);
+          }
+        } catch (error) {}
+      })();
+    </script>
   </head>
   <body>
     <docs-root></docs-root>

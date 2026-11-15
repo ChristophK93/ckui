@@ -1,11 +1,26 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, ElementRef, viewChild } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ThemeSwitcher } from './theme-switcher/theme-switcher';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ThemeSwitcher],
   selector: 'docs-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class App {}
+export class App {
+  private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
+
+  protected readonly links = [
+    { path: '/', label: 'Home', exact: true },
+    { path: '/theming', label: 'Theming', exact: false },
+    { path: '/tokens', label: 'Tokens', exact: false },
+  ] as const;
+
+  /** A plain `#main` link would resolve against the base href and leave the current route. */
+  protected skipToContent(event: Event): void {
+    event.preventDefault();
+    this.main().nativeElement.focus();
+  }
+}

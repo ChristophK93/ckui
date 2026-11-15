@@ -1,0 +1,142 @@
+<h1>Theming</h1>
+<p>
+  ckui ships one stylesheet. It declares custom properties and a few <code>.ck-*</code> classes,
+  nothing more, so it never restyles your page by itself.
+</p>
+
+<h2 id="setup">Set up</h2>
+<p>Import the stylesheet once, in <code>angular.json</code>:</p>
+<pre class="code"><code>{{ samples.importAngularJson }}</code></pre>
+<p>or at the top of your global CSS:</p>
+<pre class="code"><code>{{ samples.importCss }}</code></pre>
+<p>
+  To use the library's font, text colour, background and <code>color-scheme</code> for the whole
+  page, add the class <code>ck-root</code> to <code>&lt;html&gt;</code> (not
+  <code>&lt;body&gt;</code>: its <code>color-scheme</code> would not reach the viewport and
+  scrollbars). Without it your page keeps its own look and only the components use the tokens.
+</p>
+<pre class="code"><code>{{ samples.rootClass }}</code></pre>
+
+<h2 id="light-dark">Light and dark</h2>
+<p>
+  The light theme is the default and the dark theme follows
+  <code>prefers-color-scheme</code>. Force one with <code>data-ck-theme="light"</code> or
+  <code>data-ck-theme="dark"</code> on any element: the whole page or a single section. Themes nest,
+  and a nested section recomputes every theme token and sets its <code>color-scheme</code>. It does
+  not repaint by itself: text colour and background are inherited from the surrounding page, so a
+  section that should look different also needs the class <code>ck-root</code> (or its own
+  <code>color</code> and <code>background</code> from the tokens). The theme switcher in the header
+  of this site sets the attribute on <code>&lt;html&gt;</code>.
+</p>
+<pre class="code"><code>{{ samples.forceTheme }}</code></pre>
+
+<h2 id="layers">Three layers of tokens</h2>
+<ol>
+  <li>
+    <strong>Primitive:</strong> raw values such as <code>--ck-indigo-600</code>,
+    <code>--ck-space-4</code> or <code>--ck-radius-md</code>.
+  </li>
+  <li>
+    <strong>Semantic:</strong> meaning built on the primitives, such as
+    <code>--ck-color-primary</code> or <code>--ck-color-surface</code>. Colours change with the
+    theme.
+  </li>
+  <li>
+    <strong>Component:</strong> per-component knobs such as <code>--ck-button-radius</code>. The
+    library never declares these. Each component reads its own with a fallback to a semantic or
+    primitive token, so setting one anywhere in your CSS changes only that component, and nested
+    themes keep working.
+  </li>
+</ol>
+<p>The full list with live values is on the <a routerLink="/tokens">token reference</a>.</p>
+
+<h3 id="override-semantic">Override a semantic token</h3>
+<p>
+  Set it on <code>:root</code> or on any element. Semantic colours are declared per theme, so
+  override the dark values as well if your app supports dark mode, and check the contrast of the
+  text colour that sits on top (for example <code>--ck-color-on-primary</code>).
+</p>
+<pre class="code"><code>{{ samples.semanticOverride }}</code></pre>
+
+<h3 id="override-component">Override a component token</h3>
+<pre class="code"><code>{{ samples.componentToken }}</code></pre>
+
+<h2 id="cascade-layer">Why your CSS wins</h2>
+<p>
+  Every rule in the library sits in one cascade layer, <code>&#64;layer ckui</code>. Any CSS you
+  write outside a layer beats it regardless of selector specificity or source order, so you never
+  need <code>!important</code> or deeper selectors to restyle a component.
+</p>
+<pre class="code"><code>{{ samples.layerWins }}</code></pre>
+
+<h2 id="adaptive">Touch and motion</h2>
+<ul>
+  <li>
+    <strong>Coarse pointer</strong> (<code>(pointer: coarse)</code>): the <code>sm</code> and
+    <code>md</code> control heights become 2.75rem (44px), control font sizes become at least 1rem
+    so iOS does not zoom into inputs, and <code>--ck-target-min</code> grows from 1.5rem to 2.75rem.
+    Use <code>--ck-target-min</code> for your own tap targets.
+  </li>
+  <li>
+    <strong>Reduced motion</strong> (<code>prefers-reduced-motion: reduce</code>): every
+    <code>--ck-duration-*</code> becomes <code>0ms</code>. Use the duration tokens for your own
+    transitions and they follow along.
+  </li>
+</ul>
+
+<h2 id="configuration">Configuration with provideCkui</h2>
+<p>
+  <code>provideCkui()</code> sets app-wide defaults. All options are optional and invalid values
+  throw a <code>TypeError</code> when <code>provideCkui()</code> is called for <code>size</code> and
+  <code>sheetBreakpoint</code>. A <code>labels</code> factory that does not return a signal throws
+  when the labels are first read.
+</p>
+<pre class="code"><code>{{ samples.provideCkui }}</code></pre>
+<ul>
+  <li>
+    <code>size</code>: <code>'sm'</code>, <code>'md'</code> or <code>'lg'</code>, the size a
+    component uses when its own <code>size</code> input is unset. Default <code>'md'</code>.
+  </li>
+  <li>
+    <code>sheetBreakpoint</code>: a finite number of px above 0. A coarse pointer on a viewport
+    narrower than this shows overlays as bottom sheets instead of popovers. CSS cannot use a custom
+    property in a media query, so this is configuration, not a token. Default <code>640</code>.
+  </li>
+  <li><code>labels</code>: the built-in strings, see below.</li>
+</ul>
+
+<h3 id="labels">Labels</h3>
+<p>
+  Built-in strings (a close button's name, a loading message) come from a signal injected as
+  <code>CK_LABELS</code>. Pass only the keys you want to change: missing, blank or non-string values
+  fall back to the English default and unknown keys are ignored. Every component package adds its
+  own keys, which is not a breaking change because you pass a partial object. Current defaults:
+</p>
+<dl class="labels">
+  @for (label of defaultLabels; track label[0]) {
+    <div class="label-row">
+      <dt>
+        <code>{{ label[0] }}</code>
+      </dt>
+      <dd>{{ label[1] }}</dd>
+    </div>
+  }
+</dl>
+<p>
+  <code>labels</code> accepts a partial object (fixed), a signal of one (changes at runtime), or a
+  factory that returns such a signal. Here is a signal:
+</p>
+<pre class="code"><code>{{ samples.labelsSignal }}</code></pre>
+<p>
+  The factory runs in an injection context, which fits any i18n library: inject its service and
+  return a <code>computed</code> that re-reads the translations when the language changes. ckui does
+  not depend on a particular library.
+</p>
+<pre class="code"><code>{{ samples.labelsFactory }}</code></pre>
+
+<h3 id="labels-subtree">Override labels for one part of the app</h3>
+<p>
+  Provide <code>CK_LABELS</code> yourself on a component or route injector. The value is a
+  <code>Signal&lt;CkLabels&gt;</code> with every key, so spread the defaults first.
+</p>
+<pre class="code"><code>{{ samples.labelsSubtree }}</code></pre>

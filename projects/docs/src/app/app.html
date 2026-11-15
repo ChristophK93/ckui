@@ -1,7 +1,24 @@
-<a class="skip-link" href="#main">Skip to content</a>
+<a class="skip-link" href="#main" (click)="skipToContent($event)">Skip to content</a>
 <header class="header">
   <span class="brand">ckui</span>
+  <nav aria-label="Main">
+    <ul class="nav-list">
+      @for (link of links; track link.path) {
+        <li>
+          <a
+            class="nav-link"
+            [routerLink]="link.path"
+            routerLinkActive="nav-link-active"
+            ariaCurrentWhenActive="page"
+            [routerLinkActiveOptions]="{ exact: link.exact }"
+            >{{ link.label }}</a
+          >
+        </li>
+      }
+    </ul>
+  </nav>
+  <docs-theme-switcher class="switcher" />
 </header>
-<main id="main" tabindex="-1">
+<main id="main" #main tabindex="-1">
   <router-outlet />
 </main>

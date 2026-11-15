@@ -22,11 +22,13 @@ Import the stylesheet once, for example in `angular.json`:
 or in your global CSS: `@import '@ckui/core/styles.css';`
 
 It only declares `--ck-*` custom properties and `.ck-*` classes, all inside `@layer ckui`, and
-styles no element. Add the class `ck-root` to your page root (usually `<html>` or `<body>`) to apply
-the font, text colour, background and `color-scheme`.
+styles no element. Add the class `ck-root` to `<html>` to apply the font, text colour, background
+and `color-scheme` (on `<body>`, `color-scheme` would not reach the viewport and scrollbars).
 
 The light theme is the default and the dark theme follows `prefers-color-scheme`. Force a theme for
 the whole page or any subtree with `data-ck-theme="light"` or `data-ck-theme="dark"`. Themes nest.
+A nested theme switches only the tokens and `color-scheme`; to repaint the section, give it
+`ck-root` as well (or your own `color` and `background` from the tokens).
 
 ## Configuration
 

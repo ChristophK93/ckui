@@ -1,0 +1,16 @@
+<fieldset class="switcher">
+  <legend class="legend">Theme</legend>
+  @for (choice of choices; track choice) {
+    <label class="option">
+      <input
+        type="radio"
+        name="docs-theme"
+        class="radio"
+        [value]="choice"
+        [checked]="themeService.theme() === choice"
+        (change)="select(choice)"
+      />
+      <span class="option-label">{{ labels[choice] }}</span>
+    </label>
+  }
+</fieldset>

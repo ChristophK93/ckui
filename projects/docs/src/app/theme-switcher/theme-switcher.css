@@ -1,0 +1,30 @@
+.switcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ck-space-1) var(--ck-space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.legend {
+  float: inline-start;
+  padding: 0;
+  margin-inline-end: var(--ck-space-1);
+  font-weight: var(--ck-font-weight-semibold);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ck-space-2);
+  min-block-size: var(--ck-target-min);
+  cursor: pointer;
+}
+
+.radio {
+  margin: 0;
+  accent-color: var(--ck-color-primary);
+}

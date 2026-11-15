@@ -1,0 +1,49 @@
+.code {
+  margin-block: var(--ck-space-2) var(--ck-space-4);
+  padding: var(--ck-space-3) var(--ck-space-4);
+  border: 1px solid var(--ck-color-border);
+  border-radius: var(--ck-radius-md);
+  background: var(--ck-color-surface);
+  color: var(--ck-color-fg);
+  font-family: var(--ck-font-mono);
+  font-size: var(--ck-font-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+code {
+  font-family: var(--ck-font-mono);
+  font-size: 0.95em;
+}
+
+.code code {
+  font-size: inherit;
+}
+
+li {
+  margin-block-end: var(--ck-space-2);
+}
+
+h2,
+h3 {
+  scroll-margin-block-start: var(--ck-space-4);
+}
+
+.labels {
+  margin-block: var(--ck-space-2) var(--ck-space-4);
+}
+
+.label-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ck-space-1) var(--ck-space-4);
+}
+
+.label-row dt,
+.label-row dd {
+  margin: 0;
+}
+
+.label-row dt {
+  min-inline-size: var(--ck-space-16);
+}

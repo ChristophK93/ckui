@@ -1,0 +1,75 @@
+<h1>Tokens</h1>
+<p>
+  Every <code>--ck-*</code> custom property in <code>&#64;ckui/core/styles.css</code>. Values are
+  read from the page right now, so they follow the theme switcher, the system colour scheme, a
+  coarse pointer and reduced motion. See <a routerLink="/theming">Theming</a> for how the layers fit
+  together.
+</p>
+
+<nav aria-label="On this page" class="toc">
+  <ul class="toc-list">
+    @for (layer of layers; track layer.id) {
+      <li>
+        <a [href]="'#' + layer.id" (click)="jump($event, layer.id)">{{ layer.title }}</a>
+        <ul class="toc-list">
+          @for (group of layer.groups; track group.id) {
+            <li>
+              <a [href]="'#' + group.id" (click)="jump($event, group.id)">{{ group.title }}</a>
+            </li>
+          }
+        </ul>
+      </li>
+    }
+  </ul>
+</nav>
+
+@for (layer of layers; track layer.id) {
+  <h2 [id]="layer.id" class="layer-title" tabindex="-1">{{ layer.title }}</h2>
+  <p>{{ layer.description }}</p>
+  @for (group of layer.groups; track group.id) {
+    <section class="group">
+      <h3 [id]="group.id" class="group-title" tabindex="-1">{{ group.title }}</h3>
+      <p class="group-description">{{ group.description }}</p>
+      <table class="table" [attr.aria-labelledby]="group.id">
+        <thead>
+          <tr>
+            @if (group.preview !== 'none') {
+              <th scope="col" class="preview-column">
+                <span class="ck-visually-hidden">Preview</span>
+              </th>
+            }
+            <th scope="col" class="token-column">Token</th>
+            <th scope="col">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (token of group.tokens; track token) {
+            <tr [attr.data-token]="token">
+              @if (group.preview === 'color') {
+                <td class="preview-column">
+                  <span
+                    class="chip"
+                    aria-hidden="true"
+                    [style.background]="'var(' + token + ')'"
+                  ></span>
+                </td>
+              } @else if (group.preview === 'shadow') {
+                <td class="preview-column">
+                  <span
+                    class="chip chip-shadow"
+                    aria-hidden="true"
+                    [style.box-shadow]="'var(' + token + ')'"
+                  ></span>
+                </td>
+              }
+              <td class="token-name">
+                <code>{{ token }}</code>
+              </td>
+              <td class="token-value">{{ values()[token] }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+}

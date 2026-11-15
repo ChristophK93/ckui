@@ -1,29 +1,23 @@
-h1 {
-  margin-block: 0 0.5rem;
-  font-size: 2rem;
-}
-
-h2 {
-  margin-block: 1.5rem 0.5rem;
-  font-size: 1.25rem;
-}
-
-p {
-  margin: 0;
-  max-inline-size: 60ch;
-}
-
 .sizes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--ck-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .sizes li {
-  padding: 0.25rem 0.75rem;
+  padding: var(--ck-space-1) var(--ck-space-3);
   border: 1px solid currentcolor;
-  border-radius: 0.5rem;
+  border-radius: var(--ck-radius-md);
+}
+
+.links {
+  margin: 0;
+  padding-inline-start: var(--ck-space-5);
+}
+
+.links li {
+  min-block-size: var(--ck-target-min);
 }
