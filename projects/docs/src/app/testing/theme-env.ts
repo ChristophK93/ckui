@@ -31,3 +31,11 @@ export function breakStorage(): void {
   vi.spyOn(Storage.prototype, 'setItem').mockImplementation(failure);
   vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(failure);
 }
+
+/** Waits for finite transitions and animations, so axe never reads a colour halfway between two values. */
+export async function settleAnimations(): Promise<void> {
+  const finite = document
+    .getAnimations()
+    .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity);
+  await Promise.all(finite.map((animation) => animation.finished.catch(() => undefined)));
+}

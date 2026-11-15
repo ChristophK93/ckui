@@ -7,7 +7,7 @@ body {
   outline-offset: var(--ck-focus-ring-offset);
 }
 
-a {
+a:not(.ck-button) {
   color: var(--ck-color-primary-fg);
 }
 

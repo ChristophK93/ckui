@@ -15,6 +15,22 @@
           >
         </li>
       }
+      <li class="nav-group">
+        <span class="nav-group-label" id="nav-components">Components</span>
+        <ul class="nav-list" aria-labelledby="nav-components">
+          @for (link of componentLinks; track link.path) {
+            <li>
+              <a
+                class="nav-link"
+                [routerLink]="link.path"
+                routerLinkActive="nav-link-active"
+                ariaCurrentWhenActive="page"
+                >{{ link.label }}</a
+              >
+            </li>
+          }
+        </ul>
+      </li>
     </ul>
   </nav>
   <docs-theme-switcher class="switcher" />

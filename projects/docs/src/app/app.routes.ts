@@ -9,6 +9,18 @@ export const routes: Routes = [
     title: 'Theming · ckui',
   },
   {
+    path: 'components/button',
+    loadComponent: () =>
+      import('./pages/components/button/button-page').then((module) => module.ButtonPage),
+    title: 'Button · ckui',
+  },
+  {
+    path: 'components/field',
+    loadComponent: () =>
+      import('./pages/components/field/field-page').then((module) => module.FieldPage),
+    title: 'Field · ckui',
+  },
+  {
     path: 'tokens',
     loadComponent: () => import('./pages/tokens/tokens').then((module) => module.Tokens),
     title: 'Tokens · ckui',

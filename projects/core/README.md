@@ -50,6 +50,31 @@ Built-in strings are a signal that resolves to the English defaults plus your ov
 values fall back to the default. To override them for one part of the app, provide `CK_LABELS`
 yourself, as a `Signal<CkLabels>`, on that subtree's injector.
 
+## Button
+
+```ts
+import { CkButton } from '@ckui/core/button';
+```
+
+```html
+<button ckButton variant="primary">Save</button>
+<button ckButton variant="ghost" [loading]="saving()">Send</button>
+<button ckButton iconOnly aria-label="Close"><svg>...</svg></button>
+<a ckButton routerLink="/settings">Settings</a>
+```
+
+`ckButton` styles a native `<button>` or `<a>`; there is no `<ck-button>` element, so `type`, `form`,
+`aria-*` and `routerLink` stay on the real element. Inputs: `variant` (`'primary' | 'secondary' |
+'ghost' | 'danger'`, default `secondary`), `size` (default from `provideCkui`), `iconOnly`,
+`loading` and `disabled`. A button without a `type` gets `type="button"`. A loading button stays
+focusable, ignores clicks and announces the `loading` label once; a disabled link gets
+`aria-disabled` and leaves the tab order. An icon-only button needs an accessible name (development
+builds warn). Component token: `--ck-button-radius`.
+
+Global element styles: your own unlayered rules such as `a { color: … }` or
+`a:hover { text-decoration: … }` beat the layered button, by design. Scope them with
+`a:not(.ck-button)`, or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
 ## Status
 
 Pre-release. Version 0.1 is in progress and the API is not stable yet.

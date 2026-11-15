@@ -1,4 +1,5 @@
 import { contrastRatio, resolveToken } from '../../core/testing/contrast';
+import { compositeOver } from './app/testing/composite';
 
 /** Every token the theme blocks must declare in full, so nested themes recompute all of them. */
 const THEME_TOKENS = [
@@ -6,6 +7,8 @@ const THEME_TOKENS = [
   '--ck-color-bg',
   '--ck-color-surface',
   '--ck-color-surface-raised',
+  '--ck-color-surface-hover',
+  '--ck-color-surface-active',
   '--ck-color-fg',
   '--ck-color-fg-muted',
   '--ck-color-fg-disabled',
@@ -43,6 +46,8 @@ interface Target {
   foreground: string;
   background: string;
   minimum: number;
+  /** Set when `background` is translucent: it is composited over this opaque token first. */
+  over?: string;
 }
 
 function buildTargets(): Target[] {
@@ -60,6 +65,18 @@ function buildTargets(): Target[] {
   };
   const surfaces = ['bg', 'surface', 'surface-raised'];
   add(['fg', 'fg-muted'], surfaces, 4.5);
+  for (const overlay of ['surface-hover', 'surface-active']) {
+    for (const base of surfaces) {
+      for (const foreground of ['fg', 'primary-fg']) {
+        targets.push({
+          foreground: `--ck-color-${foreground}`,
+          background: `--ck-color-${overlay}`,
+          over: `--ck-color-${base}`,
+          minimum: 4.5,
+        });
+      }
+    }
+  }
   for (const role of ['primary', 'danger']) {
     add([`on-${role}`], [role, `${role}-hover`, `${role}-active`], 4.5);
   }
@@ -183,24 +200,29 @@ describe('theme stylesheet', () => {
 
   function failures(element: Element): string[] {
     const problems: string[] = [];
-    for (const { foreground, background, minimum } of buildTargets()) {
+    for (const { foreground, background, minimum, over } of buildTargets()) {
+      const label = over ? `${background} over ${over}` : background;
       const foregroundValue = resolveToken(element, foreground);
-      const backgroundValue = resolveToken(element, background);
-      if (!foregroundValue || !backgroundValue) {
-        problems.push(`${foreground} on ${background}: token is not declared`);
+      let backgroundValue = resolveToken(element, background);
+      const baseValue = over ? resolveToken(element, over) : 'unused';
+      if (!foregroundValue || !backgroundValue || !baseValue) {
+        problems.push(`${foreground} on ${label}: token is not declared`);
         continue;
+      }
+      if (over) {
+        backgroundValue = compositeOver(backgroundValue, baseValue);
       }
       const ratio = contrastRatio(foregroundValue, backgroundValue);
       if (ratio < minimum) {
-        problems.push(`${foreground} on ${background}: ${ratio.toFixed(2)} < ${minimum}`);
+        problems.push(`${foreground} on ${label}: ${ratio.toFixed(2)} < ${minimum}`);
       }
     }
     return problems;
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 6 + 1 + 1 + 12 text pairs, 8 non-text pairs
-    expect(buildTargets().length).toBe(34);
+    // 6 + 12 + 6 + 1 + 1 + 12 text pairs, 8 non-text pairs
+    expect(buildTargets().length).toBe(46);
   });
 
   describe('contrast', () => {
@@ -239,6 +261,18 @@ describe('theme stylesheet', () => {
         expect(resolveToken(document.documentElement, '--ck-color-bg')).toBe(
           resolveToken(themed(`<div data-ck-theme="${theme}" data-target></div>`), '--ck-color-bg'),
         );
+      },
+    );
+
+    it.each(['light', 'dark'] as const)(
+      'keeps fg-disabled dimmer than fg-muted in the %s theme',
+      (theme) => {
+        const element = themed(`<div data-ck-theme="${theme}" data-target></div>`);
+        const background = resolveToken(element, '--ck-color-surface');
+        const muted = contrastRatio(resolveToken(element, '--ck-color-fg-muted'), background);
+        const disabled = contrastRatio(resolveToken(element, '--ck-color-fg-disabled'), background);
+        expect(disabled).toBeLessThan(muted);
+        expect(disabled).toBeGreaterThan(1.8);
       },
     );
 

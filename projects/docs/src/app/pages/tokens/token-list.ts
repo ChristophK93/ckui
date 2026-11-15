@@ -120,6 +120,8 @@ export const TOKEN_GROUPS: readonly TokenGroup[] = [
       'bg',
       'surface',
       'surface-raised',
+      'surface-hover',
+      'surface-active',
       'fg',
       'fg-muted',
       'fg-disabled',

@@ -18,6 +18,11 @@ export class App {
     { path: '/tokens', label: 'Tokens', exact: false },
   ] as const;
 
+  protected readonly componentLinks = [
+    { path: '/components/button', label: 'Button' },
+    { path: '/components/field', label: 'Field' },
+  ] as const;
+
   /** A plain `#main` link would resolve against the base href and leave the current route. */
   protected skipToContent(event: Event): void {
     event.preventDefault();

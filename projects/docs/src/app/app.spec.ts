@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { page } from 'vitest/browser';
 import { expectNoAxeViolations } from '../../../core/testing/axe';
 import { App } from './app';
 import { routes } from './app.routes';
-import { resetTestTheme, setTestTheme } from './testing/theme-env';
+import { resetTestTheme, setTestTheme, settleAnimations } from './testing/theme-env';
 
 describe('App', () => {
   async function render(url = '/'): Promise<HTMLElement> {
@@ -50,12 +51,20 @@ describe('App', () => {
     expect(element.querySelector('main h1')?.textContent).toBe('ckui');
   });
 
-  it('has a main navigation with Home, Theming and Tokens and the theme switcher', async () => {
+  it('has a main navigation with Home, Theming, Tokens and a Components group, and the theme switcher', async () => {
     const element = await render();
     const labels = Array.from(element.querySelectorAll('nav[aria-label="Main"] a'), (link) =>
       link.textContent!.trim(),
     );
-    expect(labels).toEqual(['Home', 'Theming', 'Tokens']);
+    expect(labels).toEqual(['Home', 'Theming', 'Tokens', 'Button', 'Field']);
+    const group = element.querySelector(
+      'nav[aria-label="Main"] ul[aria-labelledby="nav-components"]',
+    )!;
+    expect(element.querySelector('#nav-components')?.textContent?.trim()).toBe('Components');
+    expect(Array.from(group.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
+      '/components/button',
+      '/components/field',
+    ]);
     expect(element.querySelector('header fieldset legend')?.textContent?.trim()).toBe('Theme');
   });
 
@@ -63,6 +72,8 @@ describe('App', () => {
     ['/', 'Home'],
     ['/theming', 'Theming'],
     ['/tokens', 'Tokens'],
+    ['/components/button', 'Button'],
+    ['/components/field', 'Field'],
   ])('marks only the active link as the current page on %s', async (url, label) => {
     const element = await render(url);
     expect(currentLinks(element)).toEqual([label]);
@@ -81,6 +92,34 @@ describe('App', () => {
     expect(document.title).toBe('Theming · ckui');
     await TestBed.inject(Router).navigateByUrl('/tokens');
     expect(document.title).toBe('Tokens · ckui');
+    await TestBed.inject(Router).navigateByUrl('/components/button');
+    expect(document.title).toBe('Button · ckui');
+    await TestBed.inject(Router).navigateByUrl('/components/field');
+    expect(document.title).toBe('Field · ckui');
+  });
+
+  it('shows the Field stub page', async () => {
+    const element = await render('/components/field');
+    expect(element.querySelector('main h1')?.textContent).toBe('Field');
+    expect(element.querySelector('main p')?.textContent).toBe('Documentation follows.');
+  });
+
+  it('keeps every nav target at least the minimum size and does not overflow at 390px', async () => {
+    const original = { width: window.innerWidth, height: window.innerHeight };
+    try {
+      await page.viewport(390, 800);
+      const element = await render('/components/button');
+      for (const link of Array.from(element.querySelectorAll('nav a'))) {
+        expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
+      }
+      expect(window.innerWidth).toBe(390);
+      expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      expect(element.querySelector('header')!.getBoundingClientRect().right).toBeLessThanOrEqual(
+        390,
+      );
+    } finally {
+      await page.viewport(original.width, original.height);
+    }
   });
 
   it.each([
@@ -90,8 +129,14 @@ describe('App', () => {
     ['/theming', 'dark'],
     ['/tokens', 'light'],
     ['/tokens', 'dark'],
+    ['/components/button', 'light'],
+    ['/components/button', 'dark'],
+    ['/components/field', 'light'],
+    ['/components/field', 'dark'],
   ] as const)('has no axe violations on %s in the %s theme', async (url, theme) => {
     setTestTheme(theme);
-    await expectNoAxeViolations(await render(url));
+    const element = await render(url);
+    await settleAnimations();
+    await expectNoAxeViolations(element);
   });
 });

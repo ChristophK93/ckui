@@ -15,13 +15,13 @@ module.exports = defineConfig([
           style: 'camelCase',
         },
       ],
+      // One array of configs: ck- elements, and attribute components such as button[ckButton].
       '@angular-eslint/component-selector': [
         'error',
-        {
-          type: 'element',
-          prefix: 'ck',
-          style: 'kebab-case',
-        },
+        [
+          { type: 'element', prefix: 'ck', style: 'kebab-case' },
+          { type: 'attribute', prefix: 'ck', style: 'camelCase' },
+        ],
       ],
     },
   },

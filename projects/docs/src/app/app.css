@@ -41,6 +41,19 @@
   list-style: none;
 }
 
+.nav-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ck-space-1);
+}
+
+.nav-group-label {
+  padding-inline: var(--ck-space-3);
+  color: var(--ck-color-fg-muted);
+  font-size: var(--ck-font-size-sm);
+}
+
 .nav-link {
   display: inline-flex;
   align-items: center;

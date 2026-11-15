@@ -1,0 +1,262 @@
+<h1>Button</h1>
+<p>
+  <code>ckButton</code> styles a native <code>&lt;button&gt;</code> or <code>&lt;a&gt;</code>. There
+  is no <code>&lt;ck-button&gt;</code> element, so <code>type</code>, <code>form</code>,
+  <code>aria-*</code> and <code>routerLink</code> stay on the real element. Import
+  <code>CkButton</code> from <code>&#64;ckui/core/button</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="variants">Variants</h3>
+<p>
+  Primary and danger are filled, secondary has a border, ghost has neither. Pick one primary button
+  per view.
+</p>
+<div class="demo">
+  <button ckButton variant="primary">Primary</button>
+  <button ckButton>Secondary</button>
+  <button ckButton variant="ghost">Ghost</button>
+  <button ckButton variant="danger">Danger</button>
+</div>
+<p>
+  Hover and pressed fills are translucent overlays, so they show on the page, on a surface and on a
+  raised surface alike:
+</p>
+<div class="demo demo-raised">
+  <button ckButton>Secondary</button>
+  <button ckButton variant="ghost">Ghost</button>
+  <button ckButton disabled>Disabled</button>
+</div>
+<pre class="code"><code>{{ samples.variants }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. Under a coarse pointer
+  <code>sm</code> and <code>md</code> are 44px high.
+</p>
+<div class="demo">
+  <button ckButton variant="primary" size="sm">Small</button>
+  <button ckButton variant="primary" size="md">Medium</button>
+  <button ckButton variant="primary" size="lg">Large</button>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="icons">Icons</h3>
+<p>
+  Any projected <code>&lt;svg&gt;</code> or icon component that wraps one is sized to
+  <code>1em</code> and takes the text colour. An icon-only button is square and must be named.
+</p>
+<div class="demo">
+  <button ckButton variant="primary">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 8.5l3.5 3.5L13 4.5" />
+    </svg>
+    Save
+  </button>
+  <button ckButton iconOnly aria-label="Close">
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 4l8 8M12 4l-8 8" />
+    </svg>
+  </button>
+</div>
+<pre class="code"><code>{{ samples.icons }}</code></pre>
+
+<h3 id="loading">Loading</h3>
+<p>
+  A loading button keeps its width and its name, stays focusable and ignores clicks, so a double
+  submit cannot happen. The demo toggles it by hand; in your app, bind it to the pending request.
+</p>
+<div class="demo">
+  <button ckButton variant="primary" [loading]="loading()" (click)="toggleLoading()">
+    Save changes
+  </button>
+  <button ckButton variant="ghost" [attr.aria-pressed]="loading()" (click)="toggleLoading()">
+    Toggle loading
+  </button>
+</div>
+<pre class="code"><code>{{ samples.loading }}</code></pre>
+
+<h3 id="links">Links</h3>
+<p>
+  On an anchor, <code>routerLink</code> and <code>href</code> work as usual. A disabled link is
+  removed from the tab order and its click is blocked.
+</p>
+<div class="demo">
+  <a ckButton variant="primary" routerLink="/theming">Read the theming guide</a>
+  <a ckButton routerLink="/tokens" disabled>Unavailable</a>
+</div>
+<pre class="code"><code>{{ samples.links }}</code></pre>
+
+<h3 id="states">Disabled and type</h3>
+<p>
+  A button without a <code>type</code> gets <code>type="button"</code>, so it never submits a form
+  by accident. Set <code>type="submit"</code> to submit.
+</p>
+<div class="demo">
+  <button ckButton variant="primary" disabled>Disabled</button>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of ckButton">
+  <table class="table">
+    <caption>
+      Inputs of ckButton
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The host gets the classes <code>ck-button</code>, <code>ck-button--&#123;variant&#125;</code>,
+  <code>ck-button--&#123;size&#125;</code>, and <code>ck-button--icon-only</code>,
+  <code>ck-button--loading</code> or <code>ck-button--disabled</code> while those are on. A label
+  that is too long for its container wraps instead of overflowing.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys on a button">
+  <table class="table">
+    <caption>
+      Keys on a button
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row"><kbd>Enter</kbd>, <kbd>Space</kbd></th>
+        <td>Activates a button.</td>
+      </tr>
+      <tr>
+        <th scope="row"><kbd>Enter</kbd></th>
+        <td>Follows a link button. Space does nothing on a link, as with any link.</td>
+      </tr>
+      <tr>
+        <th scope="row"><kbd>Tab</kbd></th>
+        <td>
+          Moves focus to the button. A disabled button and a disabled link are skipped; a loading
+          one is reachable but does nothing.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>It is the native element, so role, name, form behaviour and keys come from the browser.</li>
+  <li>
+    A loading button gets <code>aria-disabled="true"</code>. The label stays in the page, faded, so
+    the accessible name does not change, and the spinner is hidden from assistive technology. A
+    polite live region announces the <code>loading</code> label once when loading starts, and
+    nothing when it ends.
+  </li>
+  <li>
+    Focus is never moved when loading turns on or off, so a keyboard user stays where they were.
+  </li>
+  <li>
+    The focus ring is an outline on <code>:focus-visible</code>. Every variant has a transparent 1px
+    border, which becomes visible in forced-colors mode. The spinner stops turning under
+    <code>prefers-reduced-motion</code>.
+  </li>
+  <li>Hover styles apply only on devices that can hover.</li>
+  <li>
+    <strong>Global element styles.</strong> Your own unlayered rules such as
+    <code>a &#123; color: … &#125;</code> or
+    <code>a:hover &#123; text-decoration: … &#125;</code> beat the layered button, by design. Scope
+    them with <code>a:not(.ck-button)</code>, or put resets in a layer declared before ckui:
+    <code>&#64;layer reset, ckui;</code>.
+  </li>
+  <li>
+    Text and borders meet WCAG 2.2 AA contrast in both themes. Heights follow
+    <code>--ck-control-height-*</code>, so touch targets are at least 44px under a coarse pointer.
+  </li>
+</ul>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component token is read with a fallback and never declared by the library. Set it anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ckButton">
+  <table class="table">
+    <caption>
+      Component tokens of ckButton
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.radius }}</code></pre>
+<p>
+  The button also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
