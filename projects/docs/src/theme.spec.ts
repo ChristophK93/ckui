@@ -9,6 +9,8 @@ const THEME_TOKENS = [
   '--ck-color-surface-raised',
   '--ck-color-surface-hover',
   '--ck-color-surface-active',
+  '--ck-color-control',
+  '--ck-color-control-border',
   '--ck-color-fg',
   '--ck-color-fg-muted',
   '--ck-color-fg-disabled',
@@ -65,9 +67,10 @@ function buildTargets(): Target[] {
   };
   const surfaces = ['bg', 'surface', 'surface-raised'];
   add(['fg', 'fg-muted'], surfaces, 4.5);
+  add(['fg', 'fg-muted'], ['control'], 4.5);
   for (const overlay of ['surface-hover', 'surface-active']) {
-    for (const base of surfaces) {
-      for (const foreground of ['fg', 'primary-fg']) {
+    for (const base of [...surfaces, 'control']) {
+      for (const foreground of base === 'control' ? ['fg'] : ['fg', 'primary-fg']) {
         targets.push({
           foreground: `--ck-color-${foreground}`,
           background: `--ck-color-${overlay}`,
@@ -85,7 +88,7 @@ function buildTargets(): Target[] {
   for (const role of ['primary', 'danger', 'success', 'warning']) {
     add([`${role}-fg`], ['bg', 'surface', `${role}-subtle`], 4.5);
   }
-  add(['border', 'focus-ring', 'primary', 'danger'], ['bg', 'surface'], 3);
+  add(['border', 'control-border', 'focus-ring', 'primary', 'danger'], ['bg', 'surface'], 3);
   return targets;
 }
 
@@ -221,8 +224,8 @@ describe('theme stylesheet', () => {
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 12 + 6 + 1 + 1 + 12 text pairs, 8 non-text pairs
-    expect(buildTargets().length).toBe(46);
+    // 6 + 2 + 14 + 6 + 1 + 1 + 12 text pairs, 10 non-text pairs
+    expect(buildTargets().length).toBe(52);
   });
 
   describe('contrast', () => {

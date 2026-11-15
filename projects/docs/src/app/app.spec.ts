@@ -98,10 +98,10 @@ describe('App', () => {
     expect(document.title).toBe('Field · ckui');
   });
 
-  it('shows the Field stub page', async () => {
+  it('shows the Field page', async () => {
     const element = await render('/components/field');
     expect(element.querySelector('main h1')?.textContent).toBe('Field');
-    expect(element.querySelector('main p')?.textContent).toBe('Documentation follows.');
+    expect(element.querySelectorAll('main h2')).toHaveLength(5);
   });
 
   it('keeps every nav target at least the minimum size and does not overflow at 390px', async () => {

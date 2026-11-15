@@ -59,8 +59,11 @@ function labelsProvider(labels: NonNullable<CkOptions['labels']>): Provider {
 
 /** Configures size, sheet breakpoint and built-in strings for the whole app. */
 export function provideCkui(options: CkOptions = {}): EnvironmentProviders {
-  const size = options.size ?? CK_DEFAULT_CONFIG.size;
-  const sheetBreakpoint = options.sheetBreakpoint ?? CK_DEFAULT_CONFIG.sheetBreakpoint;
+  const size = options.size === undefined ? CK_DEFAULT_CONFIG.size : options.size;
+  const sheetBreakpoint =
+    options.sheetBreakpoint === undefined
+      ? CK_DEFAULT_CONFIG.sheetBreakpoint
+      : options.sheetBreakpoint;
   if (!CK_SIZES.includes(size)) {
     throw new TypeError(`provideCkui: size must be one of ${CK_SIZES.join(', ')}, got "${size}".`);
   }

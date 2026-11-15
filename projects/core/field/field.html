@@ -1,0 +1,12 @@
+<div class="ck-field__box">
+  <div class="ck-field__prefix"><ng-content select="[ckPrefix]" /></div>
+  <div class="ck-field__main" #main>
+    <ng-content select="label" />
+    <ng-content select="[ckInput]" />
+  </div>
+  <div class="ck-field__suffix"><ng-content select="[ckSuffix]" /></div>
+</div>
+<div class="ck-field__messages">
+  <div class="ck-field__hints"><ng-content select="ck-hint" /></div>
+  <div class="ck-field__errors" aria-live="polite"><ng-content select="ck-error" /></div>
+</div>

@@ -24,6 +24,7 @@ import { CkButton } from '@ckui/core/button';
     <button ckButton variant="primary" size="sm">Small</button>
     <button ckButton variant="primary" size="md">Medium</button>
     <button ckButton variant="primary" size="lg">Large</button>
+    <button ckButton variant="primary" size="xl">Extra large</button>
   \`,
 })
 export class Sizes {}`,

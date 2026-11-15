@@ -7,13 +7,13 @@ module.exports = defineConfig([
   {
     files: ['**/*.ts'],
     rules: {
+      // Attribute directives (ckPrefix) and element directives that are only markers (ck-hint).
       '@angular-eslint/directive-selector': [
         'error',
-        {
-          type: 'attribute',
-          prefix: 'ck',
-          style: 'camelCase',
-        },
+        [
+          { type: 'attribute', prefix: 'ck', style: 'camelCase' },
+          { type: 'element', prefix: 'ck', style: 'kebab-case' },
+        ],
       ],
       // One array of configs: ck- elements, and attribute components such as button[ckButton].
       '@angular-eslint/component-selector': [

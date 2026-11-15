@@ -36,7 +36,7 @@ export class ButtonPage {
     },
     {
       name: 'size',
-      type: "'sm' | 'md' | 'lg'",
+      type: "'sm' | 'md' | 'lg' | 'xl'",
       defaultValue: 'the size from provideCkui()',
       description: 'Height, padding and font size.',
     },
@@ -74,8 +74,10 @@ export class ButtonPage {
   protected readonly semanticTokens: readonly string[] = [
     '--ck-color-primary, -hover, -active and --ck-color-on-primary',
     '--ck-color-danger, -hover, -active and --ck-color-on-danger',
-    '--ck-color-surface, --ck-color-surface-hover, --ck-color-surface-active',
-    '--ck-color-fg, --ck-color-fg-disabled, --ck-color-primary-fg, --ck-color-border',
+    '--ck-color-control, --ck-color-control-border (the secondary variant)',
+    '--ck-color-surface-hover, --ck-color-surface-active',
+    '--ck-color-fg, --ck-color-fg-disabled, --ck-color-primary-fg',
+    '--ck-font-variant-numeric',
     '--ck-control-height-*, --ck-control-padding-inline-*, --ck-control-font-size-*',
     '--ck-focus-ring, --ck-focus-ring-offset',
   ];

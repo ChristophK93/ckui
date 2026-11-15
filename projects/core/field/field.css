@@ -1,0 +1,367 @@
+@layer ckui {
+  .ck-field {
+    display: block;
+    min-inline-size: 0;
+    color-scheme: var(--ck-color-scheme);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+  }
+
+  .ck-field--sm,
+  .ck-input--sm {
+    --_ck-height: var(--ck-control-height-sm);
+    --_ck-pad-x: var(--ck-control-padding-inline-sm);
+    --_ck-font: var(--ck-control-font-size-sm);
+  }
+
+  .ck-field--md,
+  .ck-input--md {
+    --_ck-height: var(--ck-control-height-md);
+    --_ck-pad-x: var(--ck-control-padding-inline-md);
+    --_ck-font: var(--ck-control-font-size-md);
+  }
+
+  .ck-field--lg,
+  .ck-input--lg {
+    --_ck-height: var(--ck-control-height-lg);
+    --_ck-pad-x: var(--ck-control-padding-inline-lg);
+    --_ck-font: var(--ck-control-font-size-lg);
+  }
+
+  .ck-field--xl,
+  .ck-input--xl {
+    --_ck-height: var(--ck-control-height-xl);
+    --_ck-pad-x: var(--ck-control-padding-inline-xl);
+    --_ck-font: var(--ck-control-font-size-xl);
+  }
+
+  /* The vertical padding that centres one text line in the control, for a textarea. */
+  .ck-field--textarea,
+  .ck-input--textarea {
+    --_ck-line: calc(var(--_ck-font) * var(--ck-line-height-normal));
+    --_ck-pad-y: calc((var(--_ck-height) - 2px - var(--_ck-line)) / 2);
+  }
+
+  .ck-field__box {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-block-size: var(--_ck-height);
+    padding-inline: var(--_ck-pad-x);
+    border: 1px solid var(--ck-field-border-color, var(--ck-color-border));
+    border-radius: var(--ck-field-radius, var(--ck-control-radius));
+    background: var(--ck-field-bg, var(--ck-color-surface));
+    color: var(--ck-color-fg);
+    font-size: var(--_ck-font);
+    line-height: var(--ck-line-height-normal);
+    transition: border-color var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  /*
+   * The border itself becomes the ring: no outside offset, so it never crosses the floated label,
+   * and the notch interrupts it like the border. The inset shadow keeps the box size stable.
+   */
+  .ck-field:has(.ck-input:focus-visible) .ck-field__box {
+    border-color: var(--ck-color-focus-ring);
+    box-shadow: inset 0 0 0 calc(var(--ck-focus-ring-width) - 1px) var(--ck-color-focus-ring);
+  }
+
+  .ck-field--invalid .ck-field__box,
+  .ck-field--invalid:has(.ck-input:focus-visible) .ck-field__box {
+    border-color: var(--ck-color-danger);
+  }
+
+  .ck-field--invalid:has(.ck-input:focus-visible) .ck-field__box {
+    box-shadow: inset 0 0 0 calc(var(--ck-focus-ring-width) - 1px) var(--ck-color-danger);
+  }
+
+  .ck-field--disabled .ck-field__box {
+    border-color: var(--ck-color-border-subtle);
+    background-image: linear-gradient(var(--ck-color-surface-hover), var(--ck-color-surface-hover));
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-field__prefix,
+  .ck-field__suffix {
+    display: flex;
+    flex: none;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--ck-space-1);
+    box-sizing: border-box;
+    min-block-size: var(--_ck-height);
+    margin-block: -1px;
+    color: var(--ck-color-fg-muted);
+  }
+
+  .ck-field__prefix {
+    margin-inline-end: var(--ck-space-2);
+  }
+
+  .ck-field__suffix {
+    margin-inline-start: var(--ck-space-2);
+  }
+
+  .ck-field__prefix:empty,
+  .ck-field__suffix:empty {
+    display: none;
+  }
+
+  .ck-field--disabled :is(.ck-field__prefix, .ck-field__suffix) {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-field__main {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    align-self: stretch;
+    min-inline-size: 0;
+    min-block-size: calc(var(--_ck-height) - 2px);
+  }
+
+  .ck-field__label {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: calc(-1 * var(--ck-space-1));
+    box-sizing: border-box;
+    max-inline-size: calc(100% + var(--ck-space-1));
+    margin: 0;
+    padding-inline: var(--ck-space-1);
+    overflow: hidden;
+    color: var(--ck-color-fg-muted);
+    font-size: var(--_ck-font);
+    line-height: var(--ck-line-height-tight);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    /* At rest the label lets clicks through to the control it sits on. */
+    pointer-events: none;
+    transition:
+      inset-block-start var(--ck-duration-fast) var(--ck-ease-standard),
+      font-size var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  .ck-field--textarea .ck-field__label {
+    inset-block-start: calc(var(--_ck-pad-y) + var(--_ck-line) / 2);
+  }
+
+  /*
+   * Floated: centred on the top border. The bottom half is opaque, so it hides the border behind
+   * the label; the top half stays transparent and shows whatever the page is.
+   */
+  :is(.ck-field--floated, .ck-field:has(.ck-input:autofill)) .ck-field__label {
+    inset-block-start: -1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      var(--ck-field-bg, var(--ck-color-surface)) 50%
+    );
+    font-size: var(--ck-font-size-xs);
+    pointer-events: auto;
+  }
+
+  /* The box carries the disabled overlay, so the notch paints it too. */
+  .ck-field.ck-field--disabled.ck-field--floated .ck-field__label {
+    background:
+      linear-gradient(to bottom, transparent 50%, var(--ck-color-surface-hover) 50%),
+      linear-gradient(to bottom, transparent 50%, var(--ck-field-bg, var(--ck-color-surface)) 50%);
+  }
+
+  .ck-field--invalid .ck-field__label {
+    color: var(--ck-color-danger-fg);
+  }
+
+  .ck-field__label--required {
+    padding-inline-end: calc(var(--ck-space-1) + 0.75em);
+  }
+
+  /* Pinned to the end of the label's box, so the ellipsis never cuts it off. */
+  .ck-field__required {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: var(--ck-space-1);
+  }
+
+  .ck-field--disabled .ck-field__label {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-input {
+    --_ck-border-y: 0px;
+    box-sizing: border-box;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  .ck-input::placeholder {
+    color: var(--ck-color-fg-muted);
+    opacity: 1;
+  }
+
+  .ck-input:disabled {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-input::-webkit-search-decoration,
+  .ck-input::-webkit-search-cancel-button,
+  .ck-input::-webkit-search-results-button,
+  .ck-input::-webkit-search-results-decoration {
+    display: none;
+    appearance: none;
+  }
+
+  /* Chrome paints its own fill on an autofilled control; keep the field's. */
+  .ck-input:autofill {
+    box-shadow: inset 0 0 0 100vmax var(--ck-field-bg, var(--ck-color-surface));
+    -webkit-text-fill-color: var(--ck-color-fg);
+  }
+
+  .ck-field .ck-input {
+    flex: 1 1 auto;
+    inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: calc(var(--_ck-height) - 2px);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    outline: none;
+  }
+
+  .ck-input--textarea {
+    padding-block: var(--_ck-pad-y);
+    resize: vertical;
+  }
+
+  .ck-field .ck-input--textarea {
+    align-self: stretch;
+    padding-block: var(--_ck-pad-y);
+  }
+
+  .ck-input--standalone {
+    --_ck-border-y: 2px;
+    display: block;
+    inline-size: 100%;
+    min-block-size: var(--_ck-height);
+    padding-block: 0;
+    padding-inline: var(--_ck-pad-x);
+    border: 1px solid var(--ck-field-border-color, var(--ck-color-border));
+    border-radius: var(--ck-field-radius, var(--ck-control-radius));
+    background: var(--ck-field-bg, var(--ck-color-surface));
+    color-scheme: var(--ck-color-scheme);
+    color: var(--ck-color-fg);
+    font-size: var(--_ck-font);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-normal);
+  }
+
+  .ck-input--standalone.ck-input--textarea {
+    padding-block: var(--_ck-pad-y);
+  }
+
+  .ck-input--standalone[aria-invalid='true'] {
+    border-color: var(--ck-color-danger);
+  }
+
+  .ck-input--standalone:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  .ck-input--standalone:disabled {
+    border-color: var(--ck-color-border-subtle);
+    background-image: linear-gradient(var(--ck-color-surface-hover), var(--ck-color-surface-hover));
+  }
+
+  /* Autosize: CSS where `field-sizing` exists, a measured height (set by script) where it doesn't. */
+  .ck-input--autosize,
+  .ck-field .ck-input--autosize {
+    field-sizing: content;
+    min-block-size: calc(
+      var(--_ck-rows-min) * var(--_ck-line) + 2 * var(--_ck-pad-y) + var(--_ck-border-y)
+    );
+    resize: none;
+  }
+
+  .ck-input--autosize.ck-input--max-rows {
+    max-block-size: calc(
+      var(--_ck-rows-max) * var(--_ck-line) + 2 * var(--_ck-pad-y) + var(--_ck-border-y)
+    );
+  }
+
+  .ck-input--autosize-js {
+    field-sizing: fixed;
+    overflow-y: auto;
+  }
+
+  .ck-hint,
+  .ck-error {
+    display: block;
+    margin-block-start: var(--ck-space-1);
+    padding-inline: var(--_ck-pad-x);
+    font-size: var(--ck-font-size-sm);
+    line-height: var(--ck-line-height-normal);
+    overflow-wrap: break-word;
+  }
+
+  .ck-hint {
+    color: var(--ck-color-fg-muted);
+  }
+
+  .ck-error {
+    color: var(--ck-color-danger-fg);
+  }
+
+  .ck-error[hidden] {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-field__box,
+    .ck-field__label {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-field__box,
+    .ck-input--standalone {
+      border-color: CanvasText;
+    }
+
+    .ck-field--invalid .ck-field__box,
+    .ck-input--standalone[aria-invalid='true'] {
+      border-color: Mark;
+    }
+
+    :is(.ck-field--floated, .ck-field:has(.ck-input:autofill)) .ck-field__label {
+      background: linear-gradient(to bottom, transparent 50%, Canvas 50%);
+    }
+
+    .ck-field:has(.ck-input:focus-visible) .ck-field__box {
+      border-color: Highlight;
+      outline: calc(var(--ck-focus-ring-width) - 1px) solid Highlight;
+      outline-offset: calc(-1 * var(--ck-focus-ring-width));
+    }
+
+    .ck-field.ck-field--disabled.ck-field--floated .ck-field__label {
+      background: linear-gradient(to bottom, transparent 50%, Canvas 50%);
+    }
+
+    .ck-field--disabled .ck-field__box,
+    .ck-input--standalone:disabled {
+      border-color: GrayText;
+    }
+
+    .ck-field--disabled .ck-field__label,
+    .ck-field--disabled :is(.ck-field__prefix, .ck-field__suffix),
+    .ck-input:disabled {
+      color: GrayText;
+    }
+  }
+}

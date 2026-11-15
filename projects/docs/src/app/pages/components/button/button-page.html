@@ -10,8 +10,8 @@
 
 <h3 id="variants">Variants</h3>
 <p>
-  Primary and danger are filled, secondary has a border, ghost has neither. Pick one primary button
-  per view.
+  Primary and danger are filled, secondary has a control fill and border, ghost has neither. Pick
+  one primary button per view.
 </p>
 <div class="demo">
   <button ckButton variant="primary">Primary</button>
@@ -33,12 +33,13 @@
 <h3 id="sizes">Sizes</h3>
 <p>
   The size follows <code>provideCkui()</code> unless you set it. Under a coarse pointer
-  <code>sm</code> and <code>md</code> are 44px high.
+  <code>sm</code> and <code>md</code> are 44px high; <code>xl</code> is 60px and stays 60px.
 </p>
 <div class="demo">
   <button ckButton variant="primary" size="sm">Small</button>
   <button ckButton variant="primary" size="md">Medium</button>
   <button ckButton variant="primary" size="lg">Large</button>
+  <button ckButton variant="primary" size="xl">Extra large</button>
 </div>
 <pre class="code"><code>{{ samples.sizes }}</code></pre>
 

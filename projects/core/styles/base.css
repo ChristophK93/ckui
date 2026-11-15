@@ -6,6 +6,7 @@
     color: var(--ck-color-fg);
     background: var(--ck-color-bg);
     color-scheme: var(--ck-color-scheme);
+    font-variant-numeric: var(--ck-font-variant-numeric);
   }
 
   .ck-visually-hidden {

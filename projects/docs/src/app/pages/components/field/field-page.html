@@ -1,0 +1,587 @@
+<h1>Field</h1>
+<p>
+  <code>ck-field</code> wraps one native <code>&lt;input&gt;</code> or
+  <code>&lt;textarea&gt;</code> marked with <code>ckInput</code>, and gives it a floating label, a
+  hint, an error, and prefix and suffix content. It works with Reactive Forms,
+  <code>ngModel</code> and Signal Forms. Import <code>CK_FIELD_IMPORTS</code> from
+  <code>&#64;ckui/core/field</code>.
+</p>
+
+<ng-template #eye>
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M1.5 8s2.3-4.5 6.5-4.5S14.5 8 14.5 8s-2.3 4.5-6.5 4.5S1.5 8 1.5 8z" />
+    <circle cx="8" cy="8" r="2" />
+  </svg>
+</ng-template>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Label and hint</h3>
+<p>
+  The label is a plain <code>&lt;label&gt;</code> inside the field. It rests inside the control and
+  floats onto the top border while the control is focused or has a value. The field links label and
+  control with <code>for</code> and <code>id</code>, so you write neither.
+</p>
+<div class="demo demo-form">
+  <ck-field>
+    <label>Full name</label>
+    <input ckInput autocomplete="name" />
+    <ck-hint>As it appears on your ID.</ck-hint>
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="forms">One form, three form APIs</h3>
+<p>
+  The same sign-up form three times. Errors stay hidden until the control was touched or the form
+  was submitted, whichever form API you use. Submit each one empty to see them.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo demo-form">
+  <form class="form" [formGroup]="reactiveForm" (ngSubmit)="submitReactive()">
+    <ck-field>
+      <label>Email</label>
+      <input ckInput type="email" autocomplete="email" formControlName="email" />
+      <ck-hint>We only use it to send the receipt.</ck-hint>
+      @if (reactiveForm.controls.email.errors; as errors) {
+        <ck-error>{{ errors['required'] ? 'Enter your email.' : 'Enter a valid email.' }}</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Password</label>
+      <input
+        ckInput
+        [type]="reveal.reactive() ? 'text' : 'password'"
+        autocomplete="new-password"
+        formControlName="password"
+      />
+      <button
+        ckButton
+        ckSuffix
+        type="button"
+        variant="ghost"
+        iconOnly
+        size="sm"
+        aria-label="Show password"
+        [attr.aria-pressed]="reveal.reactive()"
+        (click)="toggle('reactive')"
+      >
+        <ng-container [ngTemplateOutlet]="eye" />
+      </button>
+      @if (reactiveForm.controls.password.errors) {
+        <ck-error>Use at least 8 characters.</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Message</label>
+      <textarea ckInput autosize [minRows]="2" [maxRows]="5" formControlName="message"></textarea>
+    </ck-field>
+    <div class="actions">
+      <button ckButton variant="primary" type="submit">Send</button>
+      <span class="status" role="status">{{ status.reactive() }}</span>
+    </div>
+  </form>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo demo-form">
+  <form
+    class="form"
+    #templateForm="ngForm"
+    (ngSubmit)="submitTemplate(templateForm.valid)"
+    aria-label="Sign up with ngModel"
+  >
+    <ck-field>
+      <label>Email</label>
+      <input
+        ckInput
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        email
+        [(ngModel)]="templateModel.email"
+        #templateEmail="ngModel"
+      />
+      <ck-hint>We only use it to send the receipt.</ck-hint>
+      @if (templateEmail.errors; as errors) {
+        <ck-error>{{ errors['required'] ? 'Enter your email.' : 'Enter a valid email.' }}</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Password</label>
+      <input
+        ckInput
+        [type]="reveal.template() ? 'text' : 'password'"
+        name="password"
+        autocomplete="new-password"
+        required
+        minlength="8"
+        [(ngModel)]="templateModel.password"
+        #templatePassword="ngModel"
+      />
+      <button
+        ckButton
+        ckSuffix
+        type="button"
+        variant="ghost"
+        iconOnly
+        size="sm"
+        aria-label="Show password"
+        [attr.aria-pressed]="reveal.template()"
+        (click)="toggle('template')"
+      >
+        <ng-container [ngTemplateOutlet]="eye" />
+      </button>
+      @if (templatePassword.errors) {
+        <ck-error>Use at least 8 characters.</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Message</label>
+      <textarea
+        ckInput
+        autosize
+        [minRows]="2"
+        [maxRows]="5"
+        name="message"
+        [(ngModel)]="templateModel.message"
+      ></textarea>
+    </ck-field>
+    <div class="actions">
+      <button ckButton variant="primary" type="submit">Send</button>
+      <span class="status" role="status">{{ status.template() }}</span>
+    </div>
+  </form>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo demo-form">
+  <form class="form" [formRoot]="signalForm" aria-label="Sign up with Signal Forms">
+    <ck-field>
+      <label>Email</label>
+      <input ckInput type="email" autocomplete="email" [formField]="signalForm.email" />
+      <ck-hint>We only use it to send the receipt.</ck-hint>
+      @if (signalForm.email().errors()[0]; as error) {
+        <ck-error>{{
+          error.kind === 'required' ? 'Enter your email.' : 'Enter a valid email.'
+        }}</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Password</label>
+      <input
+        ckInput
+        [type]="reveal.signal() ? 'text' : 'password'"
+        autocomplete="new-password"
+        [formField]="signalForm.password"
+      />
+      <button
+        ckButton
+        ckSuffix
+        type="button"
+        variant="ghost"
+        iconOnly
+        size="sm"
+        aria-label="Show password"
+        [attr.aria-pressed]="reveal.signal()"
+        (click)="toggle('signal')"
+      >
+        <ng-container [ngTemplateOutlet]="eye" />
+      </button>
+      @if (signalForm.password().invalid()) {
+        <ck-error>Use at least 8 characters.</ck-error>
+      }
+    </ck-field>
+    <ck-field>
+      <label>Message</label>
+      <textarea
+        ckInput
+        autosize
+        [minRows]="2"
+        [maxRows]="5"
+        [formField]="signalForm.message"
+      ></textarea>
+    </ck-field>
+    <div class="actions">
+      <button ckButton variant="primary" type="submit">Send</button>
+      <span class="status" role="status">{{ status.signal() }}</span>
+    </div>
+  </form>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="errors">When errors show</h3>
+<p>
+  A <code>ck-error</code> is hidden, even if you render it, until the control is invalid
+  <strong>and</strong> touched, or its form was submitted. While it shows, the field draws a danger
+  border, sets <code>aria-invalid</code> on the control and adds the error to
+  <code>aria-describedby</code>. The hint stays visible next to it. All errors sit in one polite
+  live region, so a newly shown error is announced once. Set <code>invalid</code> on the field to
+  force the state by hand, for example for an error that comes from your server.
+</p>
+<div class="demo demo-form">
+  <ck-field [invalid]="forceInvalid()">
+    <label>Username</label>
+    <input ckInput autocomplete="username" />
+    <ck-hint>Letters and digits only.</ck-hint>
+    <ck-error>This name is taken.</ck-error>
+  </ck-field>
+  <button ckButton type="button" [attr.aria-pressed]="forceInvalid()" (click)="toggleForcedError()">
+    Force the error
+  </button>
+</div>
+<pre class="code"><code>{{ samples.errors }}</code></pre>
+
+<h3 id="float">Label float</h3>
+<p>
+  With <code>labelFloat="auto"</code> the label floats while the control is focused, has a value
+  (typed, or written by Reactive Forms, <code>ngModel</code>, Signal Forms or <code>[value]</code>),
+  has a placeholder, is autofilled, is a native <code>date</code>, <code>time</code>,
+  <code>datetime-local</code>, <code>month</code> or <code>week</code> control, or when the field
+  has a prefix. The notch behind the floated label is a gradient that is clear above the border and
+  filled with the field colour below it, so it never shows a patch on a page colour that differs
+  from the field.
+</p>
+<div class="demo demo-form">
+  <ck-field labelFloat="always">
+    <label>Always on the border</label>
+    <input ckInput />
+  </ck-field>
+  <ck-field>
+    <label>Floats because of the placeholder</label>
+    <input ckInput placeholder="jane@example.com" />
+  </ck-field>
+  <ck-field>
+    <label>Date</label>
+    <input ckInput type="date" />
+  </ck-field>
+  <ck-field class="tinted">
+    <label>On a tinted field colour</label>
+    <input ckInput />
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.floatAlways }}</code></pre>
+
+<h3 id="affixes">Prefix and suffix</h3>
+<p>
+  <code>ckPrefix</code> and <code>ckSuffix</code> hold text, an icon, or interactive content. A
+  button stays in the tab order, after the control. Text is not added to the accessible name; point
+  <code>aria-describedby</code> at it when it matters, as the amount does here. A field with a
+  prefix always keeps its label floated.
+</p>
+<div class="demo demo-form">
+  <ck-field>
+    <label>Amount</label>
+    <span ckPrefix>€</span>
+    <input ckInput inputmode="decimal" aria-describedby="amount-currency" />
+    <span ckSuffix id="amount-currency">EUR</span>
+  </ck-field>
+  <ck-field>
+    <label>Search</label>
+    <input ckInput type="search" #search />
+    <button
+      ckButton
+      ckSuffix
+      type="button"
+      variant="ghost"
+      iconOnly
+      size="sm"
+      aria-label="Clear search"
+      (click)="search.value = ''; search.focus()"
+    >
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M4 4l8 8M12 4l-8 8" />
+      </svg>
+    </button>
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.affixes }}</code></pre>
+
+<h3 id="textarea">Textarea</h3>
+<p>
+  <code>autosize</code> grows a textarea with its text between <code>minRows</code> and
+  <code>maxRows</code>, then scrolls. The resting label sits on the first text line.
+</p>
+<div class="demo demo-form">
+  <ck-field>
+    <label>Message</label>
+    <textarea ckInput autosize [minRows]="2" [maxRows]="6"></textarea>
+    <ck-hint>Grows with the text, then scrolls after six lines.</ck-hint>
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.textarea }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. Under a coarse pointer
+  <code>sm</code> and <code>md</code> are 44px high and the text is at least 16px, so a phone does
+  not zoom in on focus; <code>xl</code> is 60px and stays 60px.
+</p>
+<div class="demo demo-form">
+  <ck-field size="sm">
+    <label>Small</label>
+    <input ckInput />
+  </ck-field>
+  <ck-field size="md">
+    <label>Medium</label>
+    <input ckInput />
+  </ck-field>
+  <ck-field size="lg">
+    <label>Large</label>
+    <input ckInput />
+  </ck-field>
+  <ck-field size="xl">
+    <label>Extra large</label>
+    <input ckInput />
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="states">Disabled and read only</h3>
+<p>
+  Disabled follows the control: the <code>disabled</code> attribute, a disabled form control, or a
+  disabled <code>&lt;fieldset&gt;</code>. A read only control looks normal and stays focusable.
+</p>
+<div class="demo demo-form">
+  <ck-field>
+    <label>Disabled</label>
+    <input ckInput disabled value="Cannot change" />
+  </ck-field>
+  <ck-field>
+    <label>Read only</label>
+    <input ckInput readonly value="Copy me" />
+  </ck-field>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="standalone">Standalone input</h3>
+<p>
+  <code>ckInput</code> without a field draws its own box with the same tokens and takes a
+  <code>size</code>. There is no floating label, hint or error, so give it an accessible name;
+  development builds warn when it has none.
+</p>
+<div class="demo demo-form">
+  <input ckInput type="search" aria-label="Filter the table" placeholder="Filter" />
+</div>
+<pre class="code"><code>{{ samples.standalone }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the field and input">
+  <table class="table">
+    <caption>
+      Inputs of ck-field and ckInput
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of a field">
+  <table class="table">
+    <caption>
+      Parts of a field
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The field host gets the classes <code>ck-field</code>, <code>ck-field--&#123;size&#125;</code>,
+  and <code>ck-field--floated</code>, <code>ck-field--invalid</code>,
+  <code>ck-field--disabled</code> or <code>ck-field--textarea</code> while those apply. A required
+  control (the <code>required</code> attribute, <code>Validators.required</code> or Signal Forms
+  <code>required()</code>) gets an <code>aria-hidden</code> asterisk in its label.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a field">
+  <table class="table">
+    <caption>
+      Keys in a field
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row"><kbd>Tab</kbd></th>
+        <td>
+          Moves to the control, then to interactive prefix and suffix content such as a button, in
+          that order. <kbd>Shift</kbd>+<kbd>Tab</kbd> goes back.
+        </td>
+      </tr>
+      <tr>
+        <th scope="row"><kbd>Enter</kbd></th>
+        <td>
+          In an input, submits the form as the browser does. In a textarea, inserts a new line.
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">Any other key</th>
+        <td>Is the native input's own behaviour. The field adds no keys.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The control is a native <code>&lt;input&gt;</code> or <code>&lt;textarea&gt;</code>. The field
+    sets the label's <code>for</code> and gives the control an <code>id</code> (an
+    <code>id</code> you set stays), so the label is its accessible name wherever it floats.
+  </li>
+  <li>
+    <code>aria-describedby</code> lists the <code>ck-hint</code> ids, plus the
+    <code>ck-error</code> ids while errors show. Tokens you put there yourself are kept, and follow
+    your own bindings.
+  </li>
+  <li>
+    <code>aria-invalid="true"</code> is set while errors show; a value you set is restored after. A
+    required control gets <code>aria-required="true"</code> unless it is natively required.
+  </li>
+  <li>
+    Errors sit in one <code>aria-live="polite"</code> container that exists from the start, so a
+    newly shown error is announced once.
+  </li>
+  <li>
+    The label is cut with an ellipsis when it is too long, but the full text stays in the page, so
+    the accessible name is never shortened.
+  </li>
+  <li>
+    The focus ring is an outline on the whole box while the control has keyboard or text focus, in
+    forced-colors mode too. The label and notch use system colours in forced-colors mode, and the
+    float is instant under <code>prefers-reduced-motion</code>.
+  </li>
+  <li>
+    Under a coarse pointer the control is at least 44px high and its text at least 16px. Autofilled
+    values float the label through the <code>:autofill</code> pseudo-class.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> Your own unlayered rules such as
+    <code>input &#123; font: … &#125;</code> or
+    <code>:focus-visible &#123; outline: … &#125;</code> beat the layered field, by design. This
+    site's own <code>:focus-visible</code> rule is why the demos reset the outline on
+    <code>.ck-field .ck-input</code>. Put resets in a layer declared before ckui.
+  </li>
+  <li>
+    <strong>Template linting.</strong> angular-eslint's
+    <code>label-has-associated-control</code> flags
+    <code>&lt;ck-field&gt;&lt;label&gt;…&lt;/label&gt;&lt;input ckInput&gt;</code>, because the link
+    is made at runtime. Either write <code>for</code> and <code>id</code> yourself (the field keeps
+    both), or turn the rule off for templates that use <code>ck-field</code>.
+  </li>
+  <li>
+    Development builds warn about a field without a <code>&lt;label&gt;</code>, a field without
+    exactly one <code>ckInput</code>, a <code>ck-error</code> outside a field, and a standalone
+    input without an accessible name.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-field">
+  <table class="table">
+    <caption>
+      Component tokens of ck-field
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The field also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

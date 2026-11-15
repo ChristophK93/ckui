@@ -1,3 +1,71 @@
+/** The block of the "Custom theme" section; the docs specs apply it exactly as shown. */
+export const CUSTOM_THEME_CSS = `/* your stylesheet, after @ckui/core/styles.css, in no cascade layer */
+:root,
+[data-ck-theme='dark'] {
+  --ck-color-scheme: dark;
+
+  /* surfaces and lines */
+  --ck-color-bg: #0b0b0c;
+  --ck-color-surface: #161618;
+  --ck-color-surface-raised: #161618;
+  --ck-color-control: #242427;
+  --ck-color-control-border: transparent;
+  --ck-color-border: #2f2f33;
+  --ck-color-border-subtle: #2f2f33;
+
+  /* hover and pressed overlays: declare them here, they resolve where they are declared */
+  --ck-color-surface-hover: color-mix(in oklch, var(--ck-color-fg) 6%, transparent);
+  --ck-color-surface-active: color-mix(in oklch, var(--ck-color-fg) 10%, transparent);
+
+  /* text */
+  --ck-color-fg: #ffffff;
+  --ck-color-fg-muted: #b9b9be;
+  --ck-color-fg-disabled: #6e6e75;
+
+  /* a white primary with near-black text on it */
+  --ck-color-primary: #ffffff;
+  --ck-color-primary-hover: #e4e4e7;
+  --ck-color-primary-active: #cfcfd4;
+  --ck-color-on-primary: #0b0b0c;
+  --ck-color-primary-subtle: #242427;
+  --ck-color-primary-fg: #ffffff;
+
+  --ck-color-danger: #ff5a4e;
+  --ck-color-danger-hover: #ff766c;
+  --ck-color-danger-active: #ff948c;
+  --ck-color-on-danger: #0b0b0c;
+  --ck-color-danger-subtle: #2c1512;
+  --ck-color-danger-fg: #ff6a5f;
+
+  --ck-color-success: #3ddc84;
+  --ck-color-on-success: #0b0b0c;
+  --ck-color-success-subtle: #12281c;
+  --ck-color-success-fg: #3ddc84;
+
+  --ck-color-warning: #f5b800;
+  --ck-color-on-warning: #0b0b0c;
+  --ck-color-warning-subtle: #2b2410;
+  --ck-color-warning-fg: #f5c542;
+
+  /* a thick, high-visibility focus ring; the shorthand is declared here too */
+  --ck-color-focus-ring: #ffcc00;
+  --ck-focus-ring-width: 3px;
+  --ck-focus-ring-offset: 3px;
+  --ck-focus-ring: var(--ck-focus-ring-width) solid var(--ck-color-focus-ring);
+
+  /* scrim and shadows */
+  --ck-color-backdrop: rgb(0 0 0 / 0.7);
+  --ck-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+  --ck-shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --ck-shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.65), 0 4px 8px -4px rgb(0 0 0 / 0.55);
+
+  /* shape and type */
+  --ck-radius-sm: 4px;
+  --ck-radius-md: 10px;
+  --ck-control-radius: 10px;
+  --ck-font-sans: 'Fira Sans', system-ui, sans-serif;
+}`;
+
 /** Code shown on the theming page. Plain text, rendered through interpolation so no escaping is needed. */
 export const SAMPLES = {
   importAngularJson: `"styles": [
@@ -43,6 +111,7 @@ border-radius: var(--ck-button-radius, var(--ck-radius-md));
 .my-card {
   background: var(--ck-color-surface-raised);
 }`,
+  customTheme: CUSTOM_THEME_CSS,
   provideCkui: `import { provideCkui } from '@ckui/core';
 
 bootstrapApplication(App, {

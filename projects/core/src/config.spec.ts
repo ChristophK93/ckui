@@ -25,11 +25,18 @@ describe('CK_CONFIG', () => {
     expect(configWith({ sheetBreakpoint: 480.5 })).toEqual({ size: 'md', sheetBreakpoint: 480.5 });
   });
 
+  it('accepts every size including xl', () => {
+    for (const size of ['sm', 'md', 'lg', 'xl'] as const) {
+      TestBed.resetTestingModule();
+      expect(configWith({ size }).size).toBe(size);
+    }
+  });
+
   it('throws a TypeError for an unknown size', () => {
-    for (const bad of ['xl', '', 'MD', null, 5]) {
+    for (const bad of ['2xl', '', 'MD', null, 5]) {
       expect(() => provideCkui({ size: bad as never })).toThrow(TypeError);
     }
-    expect(() => provideCkui({ size: 'xl' as never })).toThrow(/sm, md, lg/);
+    expect(() => provideCkui({ size: '2xl' as never })).toThrow(/sm, md, lg, xl/);
   });
 
   it('throws a TypeError for a breakpoint that is 0, negative, NaN or infinite', () => {

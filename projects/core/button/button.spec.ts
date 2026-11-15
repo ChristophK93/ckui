@@ -1,14 +1,14 @@
 import { ApplicationRef, Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter, RouterLink } from '@angular/router';
-import { CkSize, provideCkui } from '@ckui/core';
+import { CK_SIZES, CkSize, provideCkui } from '@ckui/core';
 import { CkAnnouncer, CkIcon } from '@ckui/core/internal';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoAxeViolations } from '../testing/axe';
 import { CkButton, CkButtonVariant } from './button';
 
 const VARIANTS: CkButtonVariant[] = ['primary', 'secondary', 'ghost', 'danger'];
-const SIZES: CkSize[] = ['sm', 'md', 'lg'];
+const SIZES: readonly CkSize[] = CK_SIZES;
 
 @Component({
   imports: [CkButton],
@@ -123,7 +123,9 @@ class TypeHost {
 @Component({
   imports: [CkButton, CkIcon],
   template: `
-    <div style="--ck-control-height-md: 40px; --ck-control-height-sm: 32px">
+    <div
+      style="--ck-control-height-md: 40px; --ck-control-height-sm: 32px; --ck-control-height-xl: 60px"
+    >
       <button ckButton iconOnly [attr.aria-label]="name()">
         <ck-icon name="close" />
       </button>
@@ -608,6 +610,9 @@ describe('CkButton', () => {
       button.classList.replace('ck-button--md', 'ck-button--sm');
       box = button.getBoundingClientRect();
       expect([box.width, box.height]).toEqual([32, 32]);
+      button.classList.replace('ck-button--sm', 'ck-button--xl');
+      box = button.getBoundingClientRect();
+      expect([box.width, box.height]).toEqual([60, 60]);
     });
 
     it('does not warn when it has an aria-label', async () => {

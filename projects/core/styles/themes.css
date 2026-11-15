@@ -7,6 +7,8 @@
     --ck-color-surface-raised: var(--ck-white);
     --ck-color-surface-hover: color-mix(in oklch, var(--ck-color-fg) 6%, transparent);
     --ck-color-surface-active: color-mix(in oklch, var(--ck-color-fg) 10%, transparent);
+    --ck-color-control: var(--ck-gray-100);
+    --ck-color-control-border: var(--ck-gray-500);
     --ck-color-fg: var(--ck-gray-900);
     --ck-color-fg-muted: var(--ck-gray-600);
     --ck-color-fg-disabled: var(--ck-gray-400);
@@ -52,6 +54,8 @@
       --ck-color-surface-raised: var(--ck-gray-800);
       --ck-color-surface-hover: color-mix(in oklch, var(--ck-color-fg) 6%, transparent);
       --ck-color-surface-active: color-mix(in oklch, var(--ck-color-fg) 10%, transparent);
+      --ck-color-control: var(--ck-gray-800);
+      --ck-color-control-border: var(--ck-gray-400);
       --ck-color-fg: var(--ck-gray-50);
       --ck-color-fg-muted: var(--ck-gray-300);
       --ck-color-fg-disabled: var(--ck-gray-500);
@@ -97,6 +101,8 @@
     --ck-color-surface-raised: var(--ck-gray-800);
     --ck-color-surface-hover: color-mix(in oklch, var(--ck-color-fg) 6%, transparent);
     --ck-color-surface-active: color-mix(in oklch, var(--ck-color-fg) 10%, transparent);
+    --ck-color-control: var(--ck-gray-800);
+    --ck-color-control-border: var(--ck-gray-400);
     --ck-color-fg: var(--ck-gray-50);
     --ck-color-fg-muted: var(--ck-gray-300);
     --ck-color-fg-disabled: var(--ck-gray-500);

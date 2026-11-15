@@ -93,6 +93,7 @@
     --ck-font-weight-medium: 500;
     --ck-font-weight-semibold: 600;
     --ck-font-weight-bold: 700;
+    --ck-font-variant-numeric: tabular-nums;
     --ck-line-height-tight: 1.25;
     --ck-line-height-normal: 1.5;
 
@@ -105,12 +106,15 @@
     --ck-control-height-sm: 2rem;
     --ck-control-height-md: 2.5rem;
     --ck-control-height-lg: 3rem;
+    --ck-control-height-xl: 3.75rem;
     --ck-control-padding-inline-sm: 0.5rem;
     --ck-control-padding-inline-md: 0.75rem;
     --ck-control-padding-inline-lg: 1rem;
+    --ck-control-padding-inline-xl: 1.25rem;
     --ck-control-font-size-sm: var(--ck-font-size-sm);
     --ck-control-font-size-md: var(--ck-font-size-md);
     --ck-control-font-size-lg: var(--ck-font-size-lg);
+    --ck-control-font-size-xl: var(--ck-font-size-xl);
     --ck-control-radius: var(--ck-radius-md);
     --ck-target-min: 1.5rem;
     --ck-focus-ring-width: 2px;

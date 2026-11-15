@@ -69,13 +69,53 @@
 </p>
 <pre class="code"><code>{{ samples.layerWins }}</code></pre>
 
+<h2 id="custom-theme">Custom theme</h2>
+<p>
+  A whole look is one block of tokens. This one makes a near-black theme with a white primary, a
+  yellow focus ring, tighter corners and a custom font. It is a plain rule outside any layer, so it
+  beats the library without <code>!important</code>.
+</p>
+<pre class="code"><code>{{ samples.customTheme }}</code></pre>
+<ul>
+  <li>
+    <strong>Selector:</strong> mirror the library's.
+    <code>:root, [data-ck-theme='dark']</code> themes the whole page and any section that forces the
+    dark theme. To theme one area only, put the block on a class of your own and set
+    <code>data-ck-theme="dark"</code> (or <code>light</code>) on the same element: the library then
+    re-derives its composite tokens there. The block already redeclares them
+    (<code>--ck-focus-ring</code>, <code>--ck-color-surface-hover</code> and <code>-active</code>)
+    because they resolve where they are declared, so keep those lines if you drop the attribute. Add
+    <code>ck-root</code> to repaint text and background.
+  </li>
+  <li>
+    <strong>Lines:</strong> in this theme the secondary button has no border and a field's border is
+    barely lighter than its surface. A theme whose lines are low-contrast must keep the boundary of
+    every control and field at 3:1 against its surroundings itself (WCAG 1.4.11), for example with a
+    lighter <code>--ck-color-control-border</code> and <code>--ck-color-border</code>. The library
+    only checks its own themes.
+  </li>
+  <li>
+    <strong>Complete:</strong> the block sets every theme token, so nothing falls back to the light
+    or dark theme the visitor's OS picks. Keep it complete when you copy it.
+  </li>
+  <li>
+    <strong>Font:</strong> the block names the font, it does not load it. Add its
+    <code>&#64;font-face</code> or a link tag yourself; until it loads, the system font is used.
+  </li>
+  <li>
+    <strong>Contrast:</strong> text on <code>--ck-color-control</code>, on the primary colours and
+    on the status colours, and the focus ring against the page, still need their ratios.
+  </li>
+</ul>
+
 <h2 id="adaptive">Touch and motion</h2>
 <ul>
   <li>
     <strong>Coarse pointer</strong> (<code>(pointer: coarse)</code>): the <code>sm</code> and
-    <code>md</code> control heights become 2.75rem (44px), control font sizes become at least 1rem
-    so iOS does not zoom into inputs, and <code>--ck-target-min</code> grows from 1.5rem to 2.75rem.
-    Use <code>--ck-target-min</code> for your own tap targets.
+    <code>md</code> control heights become 2.75rem (44px; <code>lg</code> and <code>xl</code> stay
+    48px and 60px), control font sizes become at least 1rem so iOS does not zoom into inputs, and
+    <code>--ck-target-min</code> grows from 1.5rem to 2.75rem. Use <code>--ck-target-min</code> for
+    your own tap targets.
   </li>
   <li>
     <strong>Reduced motion</strong> (<code>prefers-reduced-motion: reduce</code>): every
@@ -94,8 +134,9 @@
 <pre class="code"><code>{{ samples.provideCkui }}</code></pre>
 <ul>
   <li>
-    <code>size</code>: <code>'sm'</code>, <code>'md'</code> or <code>'lg'</code>, the size a
-    component uses when its own <code>size</code> input is unset. Default <code>'md'</code>.
+    <code>size</code>: <code>'sm'</code>, <code>'md'</code>, <code>'lg'</code> or <code>'xl'</code>,
+    the size a component uses when its own <code>size</code> input is unset. Default
+    <code>'md'</code>.
   </li>
   <li>
     <code>sheetBreakpoint</code>: a finite number of px above 0. A coarse pointer on a viewport
