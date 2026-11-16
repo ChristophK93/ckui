@@ -120,6 +120,127 @@ the rule off for templates that use `ck-field`.
 Global element styles: your own unlayered rules such as `input { font: … }` beat the layered field,
 by design. Put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
+## Segmented control
+
+```ts
+import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
+```
+
+```html
+<ck-segmented aria-label="Calendar view" [(value)]="view">
+  <ck-segment value="day">Day</ck-segment>
+  <ck-segment value="week">Week</ck-segment>
+  <ck-segment value="month">Month</ck-segment>
+</ck-segmented>
+```
+
+`ck-segmented` is one radio group of mutually exclusive options (`CkSegmented`, `CkSegment`). It is a
+single tab stop; the arrow keys move and select (Left and Right swap in right-to-left text), `Home` and
+`End` go to the first and last enabled segment, `Space` selects. It works with Reactive Forms,
+`ngModel` and Signal Forms (`[formField]`) and with `[(value)]` on its own. Inputs of `ck-segmented`:
+`value` (`T | null`; `null` selects nothing and hides the indicator), `size` (default from `provideCkui`),
+`disabled` and `fullWidth`. Inputs of `ck-segment`: `value` (required) and `disabled`. A segment holds
+text, a direct `svg` child (an icon, shown before the text), or both; font-icon elements land in the label. The group needs an `aria-label` or
+`aria-labelledby`, and an icon-only segment needs an `aria-label` (development builds warn about both).
+
+The group is as tall as the control height of its size and every segment is that tall to hit (44px for
+`sm` and `md` under a coarse pointer, 60px at `xl`). The selected segment is marked by a raised indicator
+with its own 3:1 border, not by colour alone. Labels that do not fit are cut with an ellipsis, the full
+text stays in the accessible name. Component tokens: `--ck-segmented-bg`, `--ck-segmented-border-color`,
+`--ck-segmented-fg`, `--ck-segmented-indicator-bg`, `--ck-segmented-indicator-fg`,
+`--ck-segmented-radius` and `--ck-segmented-padding`.
+
+Global element styles: a global `:focus-visible { outline: … }` beats the layered control and draws a
+second ring on the segment itself. Keep it off the segments (`:focus-visible:not(.ck-segment)`) or put
+resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Toast
+
+```ts
+import { CkToast } from '@ckui/core/toast';
+
+const toast = inject(CkToast);
+const ref = toast.show({
+  tone: 'success',
+  title: 'Saved',
+  message: 'Your changes are stored.',
+  action: { label: 'Undo', run: () => restore() },
+});
+const reason = await ref.dismissed; // 'timeout' | 'user' | 'action' | 'replaced' | 'programmatic'
+```
+
+`CkToast.show()` returns a `CkToastRef` (`dismiss()`, `update(partial)`, `dismissed`); `dismissAll()` closes
+everything. Options: `message` (plain text), `title`, `tone` (`neutral`, `success`, `warning`, `danger`),
+`action` (`{ label, run }`), `duration` (milliseconds) and `id`. A toast closes after 5 seconds, except one with
+an `action` or the tone `danger`, which stays until dismissed unless you give a `duration`. The timer pauses
+while the pointer is over the toast, while focus is inside it and while the page is hidden. Showing a toast with
+the `id` of an open one replaces it in place and restarts the timer; the earlier ref reports `replaced`.
+
+Every toast has a dismiss button and can be swiped away sideways. Each one is announced to screen readers
+(`danger` assertively, the others politely, as title and message); changed text is announced again, nothing is
+announced on the server. The toasts live in one `section` that is a direct child of `body`, exempt from `inert`
+and painted above dialogs, so they stay clickable while a dialog is open.
+
+`provideCkToast({ position, align, max, size })` is optional: `position` is `bottom` (default) or `top`, `align`
+is `center` on a narrow screen and `end` otherwise unless you set it, `max` (default 3) is how many show at once
+(the rest queue), and `size` is the size of the action and dismiss buttons (default from `provideCkui`; `xl` is
+60px). The newest toast is always nearest the screen edge; safe-area insets are respected, and a narrow screen
+gets the full width minus a `1rem` gutter. A toast that holds focus when it closes hands focus to the next toast,
+else back to where it came from. Component tokens: `--ck-toast-bg` and `--ck-toast-fg` (neutral, success and
+warning), `--ck-toast-danger-bg` and `--ck-toast-danger-fg`, `--ck-toast-radius`, `--ck-toast-max-width` and
+`--ck-toast-shadow`.
+
+Global element styles: a global `button:focus-visible { outline: … }` beats the layered toast buttons. Put
+resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Dialog
+
+```ts
+import { CK_DIALOG_DATA, CK_DIALOG_IMPORTS, CkDialog, CkDialogRef } from '@ckui/core/dialog';
+
+@Component({
+  imports: [CK_DIALOG_IMPORTS],
+  template: `
+    <h2 ckDialogTitle>Delete this workout?</h2>
+    <p ckDialogDescription>This cannot be undone.</p>
+    <ck-dialog-actions>
+      <button ckDialogInitialFocus ckDialogClose="keep">Keep it</button>
+      <button ckDialogClose="delete">Delete</button>
+    </ck-dialog-actions>
+  `,
+})
+class ConfirmDelete {}
+
+const ref = inject(CkDialog).open<ConfirmDelete, void, 'keep' | 'delete'>(ConfirmDelete, {
+  role: 'alertdialog',
+});
+const answer = await ref.closed; // undefined when dismissed
+```
+
+`CkDialog.open(componentOrTemplate, config)` returns a `CkDialogRef` (`close(result?)`, `closed`); `closeAll()`
+closes everything. The content injects `CK_DIALOG_DATA` and `CkDialogRef`. Config: `data`, `role` (`dialog` or
+`alertdialog`), `width` (`sm`, `md`, `lg`: 24, 32 or 48rem), `dismissible` (Escape, backdrop and swipe; default
+`true`), `closeButton`, `mode` (`auto`, `modal`, `sheet`), `fullHeight`, `injector` and `ariaLabel`. A component dialog sees the providers of the app root; pass `injector: inject(Injector)` from the opener for route-level or component-level ones (`CK_DIALOG_DATA` and `CkDialogRef` are provided on top). `closed` resolves after
+the dialog has left the screen, with the first result passed to `close()`; Escape, the backdrop, a swipe and
+destroying the app resolve it with `undefined`.
+
+The same dialog can be declared in a template: `<ck-dialog [(open)]="open" (closed)="onClosed($event)">` with one
+`<ng-template>` inside, which is rendered only while the dialog is open. Building blocks: `ckDialogTitle` (names the
+dialog), `ckDialogDescription`, `ck-dialog-body` (the only part that scrolls), `ck-dialog-actions`,
+`ckDialogClose="result"` and `ckDialogInitialFocus`. Initial focus goes to the marked element, else the first
+tabbable one of the content (never the close button), else the panel. Focus is trapped, the page behind is inert and
+focus returns to the opener on close.
+
+On a narrow screen with a coarse pointer (`mode: 'auto'`) the dialog is a bottom sheet as tall as its content, with a
+swipe handle, stacked full-width actions and the safe-area inset; `fullHeight` makes it as tall as the screen allows.
+Component tokens: `--ck-dialog-bg`, `--ck-dialog-radius`, `--ck-dialog-padding`, `--ck-dialog-max-width` and
+`--ck-dialog-shadow`.
+
+Global element styles: a global `h2`, `p` or `button:focus-visible` rule beats the layered dialog styles; scope it
+with `:not(.ck-dialog__title)`, `:not(.ck-dialog__description)` and `:not(.ck-button)`, or put resets in a layer
+declared before ckui: `@layer reset, ckui;`. A component opened through `CkDialog` must keep its host element a
+flex column (the default styles do this); a global `display` on it stops the body from scrolling.
+
 ## Status
 
 Pre-release. Version 0.1 is in progress and the API is not stable yet.

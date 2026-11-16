@@ -3,8 +3,11 @@ import { DOCUMENT } from '@angular/common';
 import { Injectable, Injector, afterNextRender, inject } from '@angular/core';
 
 export interface CkFocusTrap {
-  /** Remembers the focused element, then focuses the first tabbable one inside. Resolves `false` if nothing could be focused. */
-  activate(): Promise<boolean>;
+  /**
+   * Remembers the focused element, then focuses `initialFocus()` if it returns an element that takes
+   * focus, else the first tabbable one inside. Resolves `false` if nothing could be focused.
+   */
+  activate(initialFocus?: () => HTMLElement | null): Promise<boolean>;
   /** Destroys the trap and gives focus back if the remembered element is still connected. Safe to call repeatedly. */
   release(): void;
 }
@@ -22,16 +25,29 @@ export class CkFocusTrapFactory {
     let released = false;
 
     return {
-      activate: () => {
+      activate: (initialFocus) => {
         if (released) {
           return Promise.resolve(false);
         }
         previous ??= document.activeElement instanceof HTMLElement ? document.activeElement : null;
         // The CDK's own deferred variant would still focus after a release in between.
         return new Promise<boolean>((resolve) => {
-          afterNextRender(() => resolve(released ? false : trap.focusInitialElement()), {
-            injector,
-          });
+          afterNextRender(
+            () => {
+              if (released) {
+                return resolve(false);
+              }
+              const target = initialFocus?.() ?? null;
+              if (target) {
+                target.focus();
+                if (document.activeElement === target) {
+                  return resolve(true);
+                }
+              }
+              resolve(trap.focusInitialElement());
+            },
+            { injector },
+          );
         });
       },
       release: () => {

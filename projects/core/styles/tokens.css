@@ -119,6 +119,9 @@
     --ck-target-min: 1.5rem;
     --ck-focus-ring-width: 2px;
     --ck-focus-ring-offset: 2px;
+
+    --ck-z-overlay: 1000;
+    --ck-z-toast: 1100;
   }
 
   @media (pointer: coarse) {

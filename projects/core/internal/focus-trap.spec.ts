@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { CkFocusTrapFactory } from './focus-trap';
 
@@ -33,6 +34,45 @@ describe('CkFocusTrapFactory', () => {
     await expect(trap.activate()).resolves.toBe(true);
     expect(document.activeElement).toBe(first);
     trap.release();
+  });
+
+  it('focuses the element initialFocus returns instead of the first tabbable one', async () => {
+    const trap = factory().create(dialog);
+    await expect(trap.activate(() => last)).resolves.toBe(true);
+    expect(document.activeElement).toBe(last);
+    trap.release();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it('can focus the container itself through initialFocus', async () => {
+    dialog.tabIndex = -1;
+    const trap = factory().create(dialog);
+    await expect(trap.activate(() => dialog)).resolves.toBe(true);
+    expect(document.activeElement).toBe(dialog);
+    trap.release();
+  });
+
+  it('falls back to the first tabbable element when initialFocus returns null or a disabled element', async () => {
+    const trap = factory().create(dialog);
+    await trap.activate(() => null);
+    expect(document.activeElement).toBe(first);
+    trap.release();
+    opener.focus();
+    last.disabled = true;
+    const second = factory().create(dialog);
+    await second.activate(() => last);
+    expect(document.activeElement).toBe(first);
+    second.release();
+  });
+
+  it('does not call initialFocus after a release before the render', async () => {
+    const initialFocus = vi.fn(() => last);
+    const trap = factory().create(dialog);
+    const activation = trap.activate(initialFocus);
+    trap.release();
+    await expect(activation).resolves.toBe(false);
+    expect(initialFocus).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(opener);
   });
 
   it('wraps Tab from the last element to the first', async () => {

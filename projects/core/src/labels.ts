@@ -3,14 +3,18 @@ import { InjectionToken, Signal, signal } from '@angular/core';
 /** Built-in strings. Each package adds its keys; consumers pass a `Partial`. */
 export interface CkLabels {
   close: string;
+  dismiss: string;
   loading: string;
   noResults: string;
+  notifications: string;
 }
 
 export const CK_DEFAULT_LABELS: Readonly<CkLabels> = Object.freeze({
   close: 'Close',
+  dismiss: 'Dismiss',
   loading: 'Loading',
   noResults: 'No results',
+  notifications: 'Notifications',
 });
 
 /** Merges overrides onto the defaults. Blank and non-string values fall back; unknown keys are ignored. */

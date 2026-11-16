@@ -15,6 +15,7 @@ import {
   untracked,
 } from '@angular/core';
 import { CK_CONFIG, CkSize } from '@ckui/core';
+import { hasAccessibleName } from '@ckui/core/internal';
 import { loadFieldStyles } from './styles';
 import { CK_CONTROL_STATE, CK_FIELD_CONTEXT, CkInputControl } from './control-state';
 
@@ -120,7 +121,7 @@ export class CkInput {
         this.observeWidth(destroyRef, () => destroyed);
         if (typeof ngDevMode !== 'undefined' && ngDevMode && this.field === null) {
           this.control.refresh();
-          if (!this.hasAccessibleName()) {
+          if (!hasAccessibleName(this.element, { title: true, text: false, labels: true })) {
             console.warn(
               '[ckui] ckInput outside a ck-field has no accessible name. Add a <label for>, aria-label or aria-labelledby.',
               this.element,
@@ -176,20 +177,6 @@ export class CkInput {
     element.style.blockSize = `${needed}px`;
     this.measured = true;
     element.style.overflowY = previousOverflow;
-  }
-
-  private hasAccessibleName(): boolean {
-    const element = this.element;
-    const attribute = (name: string): boolean => (element.getAttribute(name) ?? '').trim() !== '';
-    if (attribute('aria-label') || attribute('title')) {
-      return true;
-    }
-    const labelledBy = (element.getAttribute('aria-labelledby') ?? '').split(/\s+/);
-    const named = (node: Element | null): boolean => (node?.textContent ?? '').trim() !== '';
-    return (
-      labelledBy.some((id) => id !== '' && named(element.ownerDocument.getElementById(id))) ||
-      Array.from(element.labels ?? []).some(named)
-    );
   }
 }
 

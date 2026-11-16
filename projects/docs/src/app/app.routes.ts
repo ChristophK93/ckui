@@ -21,6 +21,24 @@ export const routes: Routes = [
     title: 'Field · ckui',
   },
   {
+    path: 'components/segmented',
+    loadComponent: () =>
+      import('./pages/components/segmented/segmented-page').then((module) => module.SegmentedPage),
+    title: 'Segmented · ckui',
+  },
+  {
+    path: 'components/toast',
+    loadComponent: () =>
+      import('./pages/components/toast/toast-page').then((module) => module.ToastPage),
+    title: 'Toast · ckui',
+  },
+  {
+    path: 'components/dialog',
+    loadComponent: () =>
+      import('./pages/components/dialog/dialog-page').then((module) => module.DialogPage),
+    title: 'Dialog · ckui',
+  },
+  {
     path: 'tokens',
     loadComponent: () => import('./pages/tokens/tokens').then((module) => module.Tokens),
     title: 'Tokens · ckui',

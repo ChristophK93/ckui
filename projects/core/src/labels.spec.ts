@@ -12,8 +12,10 @@ describe('CK_LABELS', () => {
   it('defaults to the English labels without provideCkui', () => {
     expect(TestBed.inject(CK_LABELS)()).toEqual({
       close: 'Close',
+      dismiss: 'Dismiss',
       loading: 'Loading',
       noResults: 'No results',
+      notifications: 'Notifications',
     });
     expect(TestBed.inject(CK_LABELS)()).toEqual(CK_DEFAULT_LABELS);
   });
@@ -29,7 +31,13 @@ describe('CK_LABELS', () => {
 
   it('falls back to the default for blank and non-string values', () => {
     const labels = labelsWith({
-      labels: { close: '', loading: '   ', noResults: 5 as unknown as string },
+      labels: {
+        close: '',
+        loading: '   ',
+        noResults: 5 as unknown as string,
+        dismiss: ' ',
+        notifications: '',
+      },
     });
     expect(labels()).toEqual(CK_DEFAULT_LABELS);
     TestBed.resetTestingModule();

@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CkButton } from '@ckui/core/button';
+import { CK_DIALOG_IMPORTS, CkDialog } from '@ckui/core/dialog';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
+import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
+import { CkToast } from '@ckui/core/toast';
 import { cdp, userEvent } from 'vitest/browser';
 import { contrastRatio, resolveToken } from '../../core/testing/contrast';
 import { CUSTOM_THEME_CSS } from './app/pages/theming/theming-samples';
@@ -11,7 +14,7 @@ const FOCUS_YELLOW = 'rgb(255, 204, 0)';
 const FIELD_FILL = 'rgb(22, 22, 24)';
 
 @Component({
-  imports: [CkButton, CK_FIELD_IMPORTS],
+  imports: [CkButton, CK_FIELD_IMPORTS, CK_SEGMENTED_IMPORTS],
   template: `
     <button id="before" type="button">Before</button>
     <div class="ck-root area" [attr.data-ck-theme]="theme">
@@ -29,12 +32,29 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
         <input ckInput id="themed-floated" value="Value" />
       </ck-field>
       <input id="standalone" ckInput aria-label="Standalone" />
+      <ck-segmented id="segmented" aria-label="View" value="week">
+        <ck-segment value="day">Day</ck-segment>
+        <ck-segment value="week">Week</ck-segment>
+        <ck-segment value="month">Month</ck-segment>
+      </ck-segmented>
     </div>
   `,
 })
 class ThemedHost {
   theme: string | null = null;
 }
+
+@Component({
+  imports: [CK_DIALOG_IMPORTS],
+  template: `
+    <h2 ckDialogTitle>Delete the workout?</h2>
+    <p ckDialogDescription>It cannot be undone.</p>
+    <ck-dialog-actions>
+      <button type="button" ckDialogClose ckDialogInitialFocus>Keep</button>
+    </ck-dialog-actions>
+  `,
+})
+class ThemedDialogContent {}
 
 /** Every token the shipped dark theme block declares, found in the loaded library stylesheet. */
 function darkThemeTokens(): string[] {
@@ -158,6 +178,9 @@ describe('custom theme', () => {
         check([`${role}-fg`], ['bg', 'surface', `${role}-subtle`], 4.5);
       }
       check(['focus-ring', 'primary', 'danger'], ['bg', 'surface'], 3);
+      check(['primary-fg'], ['surface-raised'], 4.5);
+      check(['success', 'warning-fg'], ['surface-raised'], 3);
+      check(['focus-ring'], ['surface-raised'], 3);
       expect(problems).toEqual([]);
     });
   });
@@ -276,6 +299,235 @@ describe('custom theme', () => {
         const input = query('#standalone');
         await keyboardFocus(input);
         expect(getComputedStyle(input).outlineColor).toBe(FOCUS_YELLOW);
+      });
+    });
+
+    describe('segmented control', () => {
+      const ringOf = (segment: HTMLElement) => getComputedStyle(segment, '::after');
+
+      it('fills the track with the control colour, rounds it to 10px and keeps its transparent border', () => {
+        const track = getComputedStyle(query('#segmented'));
+        expect(track.backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(track.borderTopLeftRadius).toBe('10px');
+        expect(track.boxShadow).toContain('rgba(0, 0, 0, 0)');
+      });
+
+      it('fills the indicator with the white primary and rounds it to 6px', () => {
+        const indicator = getComputedStyle(query('#segmented .ck-segmented__indicator'));
+        expect(indicator.backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(indicator.borderTopLeftRadius).toBe('6px');
+      });
+
+      it('keeps the selected segment 3:1 from the track and its text at 4.5:1', () => {
+        const track = getComputedStyle(query('#segmented')).backgroundColor;
+        const indicator = getComputedStyle(query('#segmented .ck-segmented__indicator'));
+        const [day, week] = Array.from(root.querySelectorAll<HTMLElement>('#segmented ck-segment'));
+        expect(contrastRatio(indicator.backgroundColor, track)).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(getComputedStyle(week).color, indicator.backgroundColor),
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(getComputedStyle(day).color, track)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('uses the custom font and tabular numerals', () => {
+        const segment = getComputedStyle(query('#segmented ck-segment'));
+        expect(segment.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(segment.fontVariantNumeric).toBe('tabular-nums');
+        expect(getComputedStyle(query('#segmented')).fontVariantNumeric).toBe('tabular-nums');
+      });
+
+      it('is 60px high next to the 60px button at size xl', () => {
+        query('#segmented').classList.replace('ck-segmented--md', 'ck-segmented--xl');
+        expect(query('#segmented').getBoundingClientRect().height).toBe(60);
+      });
+
+      it('draws the 3px yellow ring inside the segment on keyboard focus only', async () => {
+        const segment = query<HTMLElement>('#segmented ck-segment[aria-checked="true"]');
+        await userEvent.click(segment);
+        expect(ringOf(segment).outlineStyle).toBe('none');
+        await keyboardFocus(segment);
+        expect(ringOf(segment).outlineColor).toBe(FOCUS_YELLOW);
+        expect(ringOf(segment).outlineWidth).toBe('3px');
+        expect(ringOf(segment).outlineOffset).toBe('-3px');
+      });
+    });
+
+    describe('toast', () => {
+      const toastOf = (tone: string): HTMLElement =>
+        document.querySelector<HTMLElement>(`ck-toast-item.ck-toast--${tone}`)!;
+      const show = (options: Parameters<CkToast['show']>[0]): void => {
+        TestBed.inject(CkToast).show({ duration: null, ...options });
+        TestBed.inject(ApplicationRef).tick();
+      };
+
+      /** Tabs from a sentinel placed just before the toast host, as a keyboard user reaches it. */
+      async function focusFromSentinel(target: HTMLElement): Promise<void> {
+        const sentinel = document.createElement('button');
+        sentinel.textContent = 'Sentinel';
+        document.body.insertBefore(sentinel, document.querySelector('section.ck-toast-host'));
+        sentinel.focus();
+        for (let step = 0; step < 4 && document.activeElement !== target; step++) {
+          await userEvent.tab();
+        }
+        expect(document.activeElement).toBe(target);
+        await settleAnimations();
+      }
+
+      it('fills the neutral toast with the panel colour and its text white, on the panel border', () => {
+        show({ message: 'Saved' });
+        const style = getComputedStyle(toastOf('neutral'));
+        expect(style.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(style.color).toBe('rgb(255, 255, 255)');
+        expect(style.borderTopColor).toBe('rgb(47, 47, 51)');
+        expect(style.boxShadow).toContain('rgba(0, 0, 0, 0.65)');
+        expect(style.borderTopLeftRadius).toBe('12px');
+      });
+
+      it('fills the danger toast with #FF5A4E and near-black text, and keeps its buttons readable', async () => {
+        show({
+          tone: 'danger',
+          message: 'Broke',
+          action: { label: 'Retry', run: () => undefined },
+        });
+        const toast = toastOf('danger');
+        const style = getComputedStyle(toast);
+        expect(style.backgroundColor).toBe('rgb(255, 90, 78)');
+        expect(style.color).toBe('rgb(11, 11, 12)');
+        const action = toast.querySelector<HTMLElement>('.ck-toast__action')!;
+        const dismiss = toast.querySelector<HTMLElement>('.ck-toast__dismiss')!;
+        for (const control of [action, dismiss]) {
+          expect(getComputedStyle(control).color).toBe('rgb(11, 11, 12)');
+          expect(
+            contrastRatio(getComputedStyle(control).color, style.backgroundColor),
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+        expect(getComputedStyle(action).borderTopColor).toBe('rgb(11, 11, 12)');
+        await userEvent.hover(action);
+        await settleAnimations();
+        const hovered = getComputedStyle(action);
+        expect(hovered.backgroundColor).toBe('rgb(255, 118, 108)');
+        expect(contrastRatio(hovered.color, hovered.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('restyles the calm toasts with --ck-toast-bg and -fg but leaves the danger toast on its own tokens', () => {
+        show({ message: 'Calm' });
+        show({ tone: 'danger', message: 'Broke' });
+        const root = document.documentElement.style;
+        root.setProperty('--ck-toast-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-toast-fg', 'rgb(240, 240, 240)');
+        try {
+          expect(getComputedStyle(toastOf('neutral')).backgroundColor).toBe('rgb(10, 20, 30)');
+          expect(getComputedStyle(toastOf('danger')).backgroundColor).toBe('rgb(255, 90, 78)');
+          expect(getComputedStyle(toastOf('danger')).color).toBe('rgb(11, 11, 12)');
+          root.setProperty('--ck-toast-danger-bg', 'rgb(200, 40, 40)');
+          root.setProperty('--ck-toast-danger-fg', 'rgb(255, 255, 255)');
+          expect(getComputedStyle(toastOf('danger')).backgroundColor).toBe('rgb(200, 40, 40)');
+          expect(getComputedStyle(toastOf('danger')).color).toBe('rgb(255, 255, 255)');
+        } finally {
+          for (const token of [
+            '--ck-toast-bg',
+            '--ck-toast-fg',
+            '--ck-toast-danger-bg',
+            '--ck-toast-danger-fg',
+          ]) {
+            root.removeProperty(token);
+          }
+        }
+      });
+
+      it('draws the tone icons in the sample colours, 3:1 against the card', () => {
+        show({ tone: 'success', message: 'Done' });
+        show({ tone: 'warning', message: 'Careful' });
+        for (const [tone, colour] of [
+          ['success', 'rgb(61, 220, 132)'],
+          ['warning', 'rgb(245, 197, 66)'],
+        ] as const) {
+          const icon = getComputedStyle(toastOf(tone).querySelector('.ck-toast__icon')!);
+          expect(icon.color).toBe(colour);
+          expect(
+            contrastRatio(icon.color, getComputedStyle(toastOf(tone)).backgroundColor),
+          ).toBeGreaterThanOrEqual(3);
+        }
+      });
+
+      it('uses the custom font and tabular numerals', () => {
+        show({ message: 'Saved' });
+        const style = getComputedStyle(toastOf('neutral'));
+        expect(style.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(style.fontVariantNumeric).toBe('tabular-nums');
+      });
+
+      it('shows the 3px yellow ring on the action of a calm toast after keyboard focus', async () => {
+        show({ message: 'Archived', action: { label: 'Undo', run: () => undefined } });
+        const action = toastOf('neutral').querySelector<HTMLElement>('.ck-toast__action')!;
+        await focusFromSentinel(action);
+        expect(getComputedStyle(action).outlineColor).toBe(FOCUS_YELLOW);
+        expect(getComputedStyle(action).outlineWidth).toBe('3px');
+      });
+    });
+
+    describe('dialog', () => {
+      async function openDialog(): Promise<HTMLElement> {
+        TestBed.inject(CkDialog).open(ThemedDialogContent, { mode: 'modal' });
+        const appRef = TestBed.inject(ApplicationRef);
+        await appRef.whenStable();
+        appRef.tick();
+        await appRef.whenStable();
+        await settleAnimations();
+        return document.querySelector<HTMLElement>('.ck-dialog-panel')!;
+      }
+
+      it('fills the panel with the raised colour, white text, the sample shadow and the library radius', async () => {
+        const style = getComputedStyle(await openDialog());
+        expect(style.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(style.color).toBe('rgb(255, 255, 255)');
+        expect(style.boxShadow).toContain('rgba(0, 0, 0, 0.65)');
+        expect(style.borderTopLeftRadius).toBe('16px');
+        expect(style.colorScheme).toBe('dark');
+      });
+
+      it('uses the custom font, keeps the description 4.5:1 on the panel and dims the page with the backdrop token', async () => {
+        const panel = await openDialog();
+        const surface = getComputedStyle(panel).backgroundColor;
+        expect(getComputedStyle(panel).fontFamily).toMatch(/^"Fira Sans"/);
+        const description = getComputedStyle(panel.querySelector('.ck-dialog__description')!);
+        expect(contrastRatio(description.color, surface)).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(getComputedStyle(panel.querySelector('h2')!).color, surface),
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(
+          getComputedStyle(document.querySelector('.ck-overlay-backdrop')!).backgroundColor,
+        ).toBe('rgba(0, 0, 0, 0.7)');
+      });
+
+      it('shows the 3px yellow ring on the close button after keyboard focus, 3:1 on the panel', async () => {
+        const panel = await openDialog();
+        const close = panel.querySelector<HTMLElement>('.ck-dialog__close')!;
+        for (let step = 0; step < 4 && document.activeElement !== close; step++) {
+          await userEvent.tab();
+        }
+        expect(document.activeElement).toBe(close);
+        await settleAnimations();
+        const ring = getComputedStyle(close);
+        expect(ring.outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring.outlineWidth).toBe('3px');
+        expect(
+          contrastRatio(ring.outlineColor, getComputedStyle(panel).backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('restyles the panel with --ck-dialog-bg and --ck-dialog-radius', async () => {
+        const root = document.documentElement.style;
+        root.setProperty('--ck-dialog-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-dialog-radius', '4px');
+        try {
+          const style = getComputedStyle(await openDialog());
+          expect(style.backgroundColor).toBe('rgb(10, 20, 30)');
+          expect(style.borderTopLeftRadius).toBe('4px');
+        } finally {
+          root.removeProperty('--ck-dialog-bg');
+          root.removeProperty('--ck-dialog-radius');
+        }
       });
     });
   });

@@ -1,0 +1,456 @@
+<h1>Segmented</h1>
+<p>
+  <code>ck-segmented</code> is a short row of mutually exclusive options, such as Day, Week and
+  Month. It is one radio group: one tab stop, and the arrow keys move and select. It works with
+  Reactive Forms, <code>ngModel</code> and Signal Forms. Import
+  <code>CK_SEGMENTED_IMPORTS</code> from <code>&#64;ckui/core/segmented</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  Each <code>ck-segment</code> has a <code>value</code>. The group's <code>value</code> is the one
+  of the selected segment, and works two-way with <code>[(value)]</code>. Give the group an
+  <code>aria-label</code>: a radio group needs a name.
+</p>
+<div class="demo">
+  <ck-segmented aria-label="Calendar view" [(value)]="view">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+    <ck-segment value="month">Month</ck-segment>
+  </ck-segmented>
+  <p class="status">
+    Showing: <output>{{ view() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="empty">No selection</h3>
+<p>
+  A <code>value</code> of <code>null</code>, or one no segment has, selects nothing: no segment is
+  checked and the indicator is hidden. <kbd>Tab</kbd> still enters on the first enabled segment, and
+  focusing a segment does not select it.
+</p>
+<div class="demo">
+  <ck-segmented aria-label="Priority" [(value)]="priority">
+    <ck-segment value="low">Low</ck-segment>
+    <ck-segment value="normal">Normal</ck-segment>
+    <ck-segment value="high">High</ck-segment>
+  </ck-segmented>
+  <button ckButton type="button" size="sm" (click)="clearPriority()">Clear</button>
+  <p class="status">
+    Priority: <output>{{ priority() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.empty }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same control three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) moves the indicator and never counts as a change by the user; only a click or
+  a key does.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-segmented aria-label="Calendar view, Reactive Forms" [formControl]="reactiveView">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+    <ck-segment value="month">Month</ck-segment>
+  </ck-segmented>
+  <p class="status">
+    Value: <output>{{ reactiveView.value ?? 'none' }}</output
+    >, dirty: <output>{{ reactiveView.dirty ? 'yes' : 'no' }}</output
+    >, touched: <output>{{ reactiveView.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveView.setValue('day')">
+      Set Day in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveView.reset()">Reset</button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveView.disabled ? reactiveView.enable() : reactiveView.disable()"
+    >
+      {{ reactiveView.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-segmented aria-label="Calendar view, ngModel" [(ngModel)]="templateView">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+    <ck-segment value="month">Month</ck-segment>
+  </ck-segmented>
+  <p class="status">
+    Value: <output>{{ templateView ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-segmented aria-label="Calendar view, Signal Forms" [formField]="signalForm.view">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+    <ck-segment value="month">Month</ck-segment>
+  </ck-segmented>
+  <p class="status">
+    Value: <output>{{ signalForm.view().value() ?? 'none' }}</output
+    >, touched: <output>{{ signalForm.view().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. The height is the control height of
+  the size, so the group lines up with a button or an input of the same size, and each segment is
+  that tall to hit. Under a coarse pointer <code>sm</code> and <code>md</code> are 44px high;
+  <code>xl</code> is 60px.
+</p>
+<div class="demo demo-column">
+  <ck-segmented aria-label="Small" size="sm" value="week">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+  </ck-segmented>
+  <ck-segmented aria-label="Medium" size="md" value="week">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+  </ck-segmented>
+  <ck-segmented aria-label="Large" size="lg" value="week">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+  </ck-segmented>
+  <ck-segmented aria-label="Extra large" size="xl" value="week">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+  </ck-segmented>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="icons">Icons</h3>
+<p>
+  An <code>svg</code> that is a direct child of a segment is its icon. It is drawn before the text
+  and sized to the font; give it <code>aria-hidden="true"</code>. Any other element, such as a
+  <code>span</code> with an icon font, lands in the label next to the text and is cut like text. A
+  segment with only an icon needs an <code>aria-label</code>: development builds warn without one.
+</p>
+<div class="demo">
+  <ck-segmented aria-label="Layout" value="list">
+    <ck-segment value="list">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M3 4h10M3 8h10M3 12h10" />
+      </svg>
+      List
+    </ck-segment>
+    <ck-segment value="grid">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z" />
+      </svg>
+      Grid
+    </ck-segment>
+  </ck-segmented>
+  <ck-segmented aria-label="Layout, icons only" value="list">
+    <ck-segment value="list" aria-label="List">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M3 4h10M3 8h10M3 12h10" />
+      </svg>
+    </ck-segment>
+    <ck-segment value="grid" aria-label="Grid">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z" />
+      </svg>
+    </ck-segment>
+  </ck-segmented>
+</div>
+<pre class="code"><code>{{ samples.icons }}</code></pre>
+
+<h3 id="full-width">Full width</h3>
+<p>
+  <code>fullWidth</code> stretches the group to its container and splits the width evenly. A label
+  that does not fit is cut with an ellipsis; the full text stays in the page, so the accessible name
+  is not shortened.
+</p>
+<div class="demo demo-column">
+  <ck-segmented aria-label="Calendar view, full width" fullWidth value="week">
+    <ck-segment value="day">Day</ck-segment>
+    <ck-segment value="week">Week</ck-segment>
+    <ck-segment value="month">Month</ck-segment>
+  </ck-segmented>
+  <div class="narrow">
+    <ck-segmented aria-label="Reporting period, narrow container" fullWidth value="quarter">
+      <ck-segment value="month">This calendar month</ck-segment>
+      <ck-segment value="quarter">This business quarter</ck-segment>
+      <ck-segment value="year">The whole year</ck-segment>
+    </ck-segmented>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.fullWidth }}</code></pre>
+
+<h3 id="disabled">Disabled</h3>
+<p>
+  A disabled segment stays visible, cannot be selected and is skipped by the arrow keys. A disabled
+  group leaves the tab order, sets <code>aria-disabled</code> on the group and every segment, and
+  ignores clicks and keys.
+</p>
+<div class="demo">
+  <ck-segmented aria-label="Plan" value="free">
+    <ck-segment value="free">Free</ck-segment>
+    <ck-segment value="team" disabled>Team</ck-segment>
+    <ck-segment value="company">Company</ck-segment>
+  </ck-segmented>
+  <ck-segmented aria-label="Plan, unavailable" disabled value="free">
+    <ck-segment value="free">Free</ck-segment>
+    <ck-segment value="team">Team</ck-segment>
+  </ck-segmented>
+</div>
+<pre class="code"><code>{{ samples.disabled }}</code></pre>
+
+<h3 id="language">Language switch</h3>
+<p>
+  Put <code>lang</code> on each segment whose text is in another language than the page, so a screen
+  reader pronounces <q lang="de">Deutsch</q> in German. The text below follows the choice.
+</p>
+<div class="demo">
+  <ck-segmented aria-label="Language" [(value)]="language">
+    <ck-segment value="de" lang="de">Deutsch</ck-segment>
+    <ck-segment value="en" lang="en">English</ck-segment>
+  </ck-segmented>
+  <p class="status" [attr.lang]="language()">
+    {{ language() === 'de' ? 'Guten Tag' : 'Good day' }}
+  </p>
+</div>
+<pre class="code"><code>{{ samples.language }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the segmented control">
+  <table class="table">
+    <caption>
+      Inputs of ck-segmented and ck-segment
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the segmented control">
+  <table class="table">
+    <caption>
+      Parts of a segmented control
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The group gets the classes <code>ck-segmented</code>, <code>ck-segmented--&#123;size&#125;</code>,
+  and <code>ck-segmented--has-value</code>, <code>ck-segmented--disabled</code> or
+  <code>ck-segmented--full-width</code> while those apply. A segment gets
+  <code>ck-segment--checked</code> and <code>ck-segment--disabled</code>. The value is also
+  available as <code>(valueChange)</code>.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a segmented control">
+  <table class="table">
+    <caption>
+      Keys in a segmented control
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The group follows the WAI-ARIA radio group pattern: <code>role="radiogroup"</code> on the group,
+    <code>role="radio"</code> with <code>aria-checked</code> on each segment, and a roving tab
+    index, so the whole group is one tab stop. Arrow keys move focus and select, as on native radio
+    buttons.
+  </li>
+  <li>
+    The group needs a name (<code>aria-label</code> or <code>aria-labelledby</code>). A segment is
+    named by its text; an icon-only segment needs an <code>aria-label</code>. Development builds
+    warn about both.
+  </li>
+  <li>
+    The selected segment is not marked by colour alone: the indicator is a raised pill with its own
+    1px border (3:1 against the track) and a shadow. In forced-colors mode it is
+    <code>Highlight</code> with <code>HighlightText</code> and the track keeps a visible border.
+  </li>
+  <li>
+    Every segment is as tall as the track (at least 44px on a coarse pointer, 60px at
+    <code>xl</code>), including the strip around the indicator.
+  </li>
+  <li>
+    In right-to-left text the segments run right to left, the indicator mirrors, and
+    <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> swap. The direction comes from the
+    <code>dir</code> attribute on the group or an ancestor, not from the CSS
+    <code>direction</code> property.
+  </li>
+  <li>
+    The indicator slides with a transform over <code>--ck-duration-normal</code>, and not at all
+    under <code>prefers-reduced-motion</code>. It appears in place the first time a value is set.
+  </li>
+  <li>
+    A disabled group or segment sets <code>aria-disabled</code> and leaves the tab order; the colour
+    change is not the only cue.
+  </li>
+  <li>
+    A theme whose <code>--ck-color-control-border</code> is transparent must give the indicator a
+    contrasting fill or border of its own (3:1 against the track), for example with
+    <code>--ck-segmented-indicator-bg</code>, or the selected segment is marked by a faint fill
+    only.
+  </li>
+  <li>
+    The focus ring is drawn inside the segment on keyboard focus only, in forced-colors mode too.
+    The hover fill shows on unselected segments with a hovering pointer only.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> A global rule such as
+    <code>:focus-visible &#123; outline: … &#125;</code> beats the layered control and draws a
+    second ring on the segment itself, which this site's own rule does too (the demos switch it
+    off). Keep it off the segments or put resets in a layer declared before ckui.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-segmented">
+  <table class="table">
+    <caption>
+      Component tokens of ck-segmented
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The control also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

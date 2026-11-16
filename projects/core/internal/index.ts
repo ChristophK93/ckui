@@ -5,3 +5,14 @@ export type { CkFocusTrap } from './focus-trap';
 export { CkFocusTrapFactory } from './focus-trap';
 export type { CkIconName } from './icon';
 export { CkIcon } from './icon';
+export { CkInert } from './inert';
+export { CkValueControl, provideCkValueAccessor } from './value-control';
+export type {
+  CkOverlayConfig,
+  CkOverlayDismissReason,
+  CkOverlayHandle,
+  CkOverlayMode,
+} from './overlay-host';
+export { CkOverlayHost } from './overlay-host';
+export type { CkNameSources } from './accessible-name';
+export { hasAccessibleName } from './accessible-name';

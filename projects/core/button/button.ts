@@ -16,7 +16,7 @@ import {
   untracked,
 } from '@angular/core';
 import { CK_CONFIG, CK_LABELS, CkSize } from '@ckui/core';
-import { CkAnnouncer } from '@ckui/core/internal';
+import { CkAnnouncer, hasAccessibleName } from '@ckui/core/internal';
 
 declare const ngDevMode: unknown;
 
@@ -112,7 +112,11 @@ export class CkButton {
       let destroyed = false;
       destroyRef.onDestroy(() => (destroyed = true));
       afterNextRender(() => {
-        if (!destroyed && this.iconOnly() && !this.hasAccessibleName()) {
+        if (
+          !destroyed &&
+          this.iconOnly() &&
+          !hasAccessibleName(this.element, { title: true, text: true })
+        ) {
           console.warn(
             '[ckui] ckButton with iconOnly has no accessible name. Add an aria-label, aria-labelledby or title.',
             this.element,
@@ -139,32 +143,4 @@ export class CkButton {
       }
     }
   }
-
-  private hasAccessibleName(): boolean {
-    const element = this.element;
-    const attribute = (name: string): boolean => (element.getAttribute(name) ?? '').trim() !== '';
-    if (attribute('aria-label') || attribute('title') || visibleText(element) !== '') {
-      return true;
-    }
-    return (element.getAttribute('aria-labelledby') ?? '')
-      .split(/\s+/)
-      .some(
-        (id) =>
-          id !== '' && (element.ownerDocument.getElementById(id)?.textContent ?? '').trim() !== '',
-      );
-  }
-}
-
-/** Text that is neither in an `aria-hidden` nor in a `hidden` subtree. */
-function visibleText(node: Node): string {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return (node.textContent ?? '').trim();
-  }
-  if (
-    node instanceof Element &&
-    (node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('hidden'))
-  ) {
-    return '';
-  }
-  return Array.from(node.childNodes, visibleText).join('');
 }

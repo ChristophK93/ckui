@@ -56,14 +56,26 @@ describe('App', () => {
     const labels = Array.from(element.querySelectorAll('nav[aria-label="Main"] a'), (link) =>
       link.textContent!.trim(),
     );
-    expect(labels).toEqual(['Home', 'Theming', 'Tokens', 'Button', 'Field']);
+    expect(labels).toEqual([
+      'Home',
+      'Theming',
+      'Tokens',
+      'Button',
+      'Dialog',
+      'Field',
+      'Segmented',
+      'Toast',
+    ]);
     const group = element.querySelector(
       'nav[aria-label="Main"] ul[aria-labelledby="nav-components"]',
     )!;
     expect(element.querySelector('#nav-components')?.textContent?.trim()).toBe('Components');
     expect(Array.from(group.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
       '/components/button',
+      '/components/dialog',
       '/components/field',
+      '/components/segmented',
+      '/components/toast',
     ]);
     expect(element.querySelector('header fieldset legend')?.textContent?.trim()).toBe('Theme');
   });
@@ -74,6 +86,9 @@ describe('App', () => {
     ['/tokens', 'Tokens'],
     ['/components/button', 'Button'],
     ['/components/field', 'Field'],
+    ['/components/segmented', 'Segmented'],
+    ['/components/toast', 'Toast'],
+    ['/components/dialog', 'Dialog'],
   ])('marks only the active link as the current page on %s', async (url, label) => {
     const element = await render(url);
     expect(currentLinks(element)).toEqual([label]);
@@ -96,6 +111,15 @@ describe('App', () => {
     expect(document.title).toBe('Button · ckui');
     await TestBed.inject(Router).navigateByUrl('/components/field');
     expect(document.title).toBe('Field · ckui');
+    for (const name of ['Segmented', 'Toast', 'Dialog']) {
+      await TestBed.inject(Router).navigateByUrl(`/components/${name.toLowerCase()}`);
+      expect(document.title).toBe(`${name} · ckui`);
+    }
+  });
+
+  it.each(['Segmented', 'Toast', 'Dialog'])('shows the %s stub page', async (name) => {
+    const element = await render(`/components/${name.toLowerCase()}`);
+    expect(element.querySelector('main h1')?.textContent).toBe(name);
   });
 
   it('shows the Field page', async () => {
@@ -133,6 +157,12 @@ describe('App', () => {
     ['/components/button', 'dark'],
     ['/components/field', 'light'],
     ['/components/field', 'dark'],
+    ['/components/segmented', 'light'],
+    ['/components/segmented', 'dark'],
+    ['/components/toast', 'light'],
+    ['/components/toast', 'dark'],
+    ['/components/dialog', 'light'],
+    ['/components/dialog', 'dark'],
   ] as const)('has no axe violations on %s in the %s theme', async (url, theme) => {
     setTestTheme(theme);
     const element = await render(url);

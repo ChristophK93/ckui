@@ -20,7 +20,10 @@ export class App {
 
   protected readonly componentLinks = [
     { path: '/components/button', label: 'Button' },
+    { path: '/components/dialog', label: 'Dialog' },
     { path: '/components/field', label: 'Field' },
+    { path: '/components/segmented', label: 'Segmented' },
+    { path: '/components/toast', label: 'Toast' },
   ] as const;
 
   /** A plain `#main` link would resolve against the base href and leave the current route. */

@@ -53,6 +53,10 @@ export const CUSTOM_THEME_CSS = `/* your stylesheet, after @ckui/core/styles.css
   --ck-focus-ring-offset: 3px;
   --ck-focus-ring: var(--ck-focus-ring-width) solid var(--ck-color-focus-ring);
 
+  /* component tokens: the control border is transparent here, so the segmented indicator needs a fill of its own */
+  --ck-segmented-indicator-bg: var(--ck-color-primary);
+  --ck-segmented-indicator-fg: var(--ck-color-on-primary);
+
   /* scrim and shadows */
   --ck-color-backdrop: rgb(0 0 0 / 0.7);
   --ck-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);

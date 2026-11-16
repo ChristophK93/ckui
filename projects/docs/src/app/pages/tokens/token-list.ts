@@ -112,6 +112,15 @@ export const TOKEN_GROUPS: readonly TokenGroup[] = [
     ],
   },
   {
+    id: 'layers',
+    layer: 'primitive',
+    title: 'Layers',
+    description:
+      'Stacking order of overlays (dialogs, sheets) and of the toast host, which sits above them.',
+    preview: 'none',
+    tokens: ['--ck-z-overlay', '--ck-z-toast'],
+  },
+  {
     id: 'color-surface',
     layer: 'semantic',
     title: 'Colour: surfaces, text and borders',

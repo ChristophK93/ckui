@@ -1,0 +1,318 @@
+<h1>Dialog</h1>
+<p>
+  A dialog asks the user for something before the page goes on: a confirmation, a short form, a
+  piece of help. It is modal: the page behind it is dimmed and inert, focus stays inside, and Escape
+  closes it. On a phone it becomes a bottom sheet as tall as its content that can be swiped away.
+  Open one with <code>CkDialog</code> from <code>&#64;ckui/core/dialog</code> and a component or
+  template, or declare a <code>&lt;ck-dialog&gt;</code> in a template.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="service">Service: a component with data and a result</h3>
+<p>
+  <code>open()</code> takes a component or a template and returns a <code>CkDialogRef</code>. The
+  content injects its data with <code>CK_DIALOG_DATA</code> and the ref with
+  <code>CkDialogRef</code>. <code>ref.closed</code> resolves after the dialog has left the screen,
+  with the value passed to <code>close()</code> or <code>[ckDialogClose]</code>, and with
+  <code>undefined</code> when the dialog was dismissed.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="rename()">Rename workout</button>
+  <p class="status">
+    Workout: <output>{{ workoutName() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.service }}</code></pre>
+
+<h3 id="template">Template: ck-dialog</h3>
+<p>
+  <code>&lt;ck-dialog&gt;</code> declares the same dialog in a template. Its content is one
+  <code>&lt;ng-template&gt;</code>, rendered only while <code>open</code> is true, so nothing in it
+  exists while the dialog is closed. <code>[(open)]</code> follows the dialog back to
+  <code>false</code> whenever it closes, and <code>(closed)</code> carries the result.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="settingsOpen.set(true)">Settings</button>
+  <p class="status">
+    Last result: <output>{{ settingsResult() }}</output>
+  </p>
+</div>
+<ck-dialog [(open)]="settingsOpen" width="sm" (closed)="onSettingsClosed($event)">
+  <ng-template>
+    <h2 ckDialogTitle>Settings</h2>
+    <ck-dialog-body>Content exists only while the dialog is open.</ck-dialog-body>
+    <ck-dialog-actions>
+      <button ckButton type="button" ckDialogClose>Cancel</button>
+      <button ckButton type="button" variant="primary" ckDialogClose="save">Save</button>
+    </ck-dialog-actions>
+  </ng-template>
+</ck-dialog>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h3 id="alert">Confirm with an alertdialog</h3>
+<p>
+  <code>role: 'alertdialog'</code> is for a message the user has to answer. Mark the least
+  destructive action with <code>ckDialogInitialFocus</code>, so that Enter or Space right after the
+  dialog opens never deletes anything. A dialog has no title bar of its own: put
+  <code>ckDialogTitle</code> on a heading in the content, and the dialog is named by it.
+</p>
+<div class="demo">
+  <button ckButton type="button" variant="danger" (click)="confirmDelete()">Delete workout</button>
+  <p class="status">
+    Answer: <output>{{ deleteResult() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.alert }}</code></pre>
+
+<h3 id="scrolling">A dialog that scrolls</h3>
+<p>
+  When the content is taller than the screen, only <code>ck-dialog-body</code> scrolls. The title
+  row and the actions stay in view. The body becomes a tab stop while it scrolls, so a keyboard user
+  can reach all of it, and it is never the element that takes focus when the dialog opens.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="readTerms()">Read the terms</button>
+  <p class="status">
+    Result: <output>{{ termsResult() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.scrolling }}</code></pre>
+
+<h3 id="full-height">Full height</h3>
+<p>
+  A sheet is as tall as its content, up to the height of the screen. <code>fullHeight</code> makes
+  it as tall as the screen allows, for a picker or a long form. The actions stay at the bottom. It
+  changes nothing for a modal.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="openFullHeight()">Open full height</button>
+</div>
+<pre class="code"><code>{{ samples.fullHeight }}</code></pre>
+
+<h3 id="mode">Forced mode</h3>
+<p>
+  <code>mode: 'auto'</code>, the default, opens a sheet when the screen is narrow and the pointer is
+  coarse, and a centred modal otherwise. It is decided once, when the dialog opens. Force
+  <code>modal</code> or <code>sheet</code> when the content needs one shape.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="openAs('modal')">Open as modal</button>
+  <button ckButton type="button" (click)="openAs('sheet')">Open as sheet</button>
+  <p class="status">
+    Last: <output>{{ lastDismissal() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.modes }}</code></pre>
+
+<h3 id="injector">Providers of the opener</h3>
+<p>
+  A component opened through <code>CkDialog</code> sees the providers of the app root. For providers
+  that live lower, such as route-level ones or those of the opening component, pass
+  <code>inject(Injector)</code> from the opener as <code>injector</code>.
+  <code>CK_DIALOG_DATA</code> and <code>CkDialogRef</code> are provided on top of it. A template
+  keeps the injector of the place where it was declared.
+</p>
+<pre class="code"><code>{{ samples.injector }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Options and methods of the dialog">
+  <table class="table">
+    <caption>
+      Options, methods and inputs of dialogs
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of options; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>{{ row.defaultValue }}</td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the dialog">
+  <table class="table">
+    <caption>
+      Parts of the dialog
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  Closing again does nothing: only the first <code>close()</code> counts. When the app is destroyed
+  every open dialog is removed, the page behind it is live again and every
+  <code>closed</code> resolves with <code>undefined</code>. On the server nothing is rendered. The
+  <code>&lt;ck-dialog&gt;</code> inputs are read when the dialog opens; changing one while it is
+  open has no effect. Do not confuse the <code>&lt;ck-dialog&gt;</code> element, which only declares
+  the dialog and renders nothing itself, with the <code>.ck-dialog</code> class of the surface in
+  the overlay. A dialog that has neither a <code>ckDialogTitle</code> nor an
+  <code>ariaLabel</code> logs a warning in development.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>Dialog (Modal) and Alert Dialog patterns of the WAI-ARIA Authoring Practices.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a dialog">
+  <table class="table">
+    <caption>
+      Keys in a dialog
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The panel has <code>role="dialog"</code> or <code>alertdialog</code> and
+    <code>aria-modal="true"</code>. <code>ckDialogTitle</code> names it and
+    <code>ckDialogDescription</code> describes it; without a title, set <code>ariaLabel</code>. The
+    names follow the content: a title that appears later or goes away updates the panel.
+  </li>
+  <li>
+    Initial focus goes to the element with <code>ckDialogInitialFocus</code>. Without one it goes to
+    the first tabbable element of the content, never the close button, which comes last in the tab
+    order. A dialog with nothing to press focuses the panel itself, so focus does not stay on the
+    page behind it.
+  </li>
+  <li>
+    Focus is trapped while the dialog is open and the page behind it is inert, so neither Tab nor a
+    screen reader's virtual cursor leaves. When a dialog closes, focus returns to the element that
+    opened it. When a second dialog closes, it goes to the dialog underneath. If the opener is gone
+    and no dialog is underneath, focus ends up on the page body: move it yourself in your
+    <code>closed</code> handler, or after <code>ref.closed</code> resolves, to a sensible place such
+    as the list the opener belonged to.
+  </li>
+  <li>
+    Escape closes only the topmost dialog. A dialog with <code>dismissible: false</code> ignores
+    Escape, the backdrop and the swipe; make sure it always has a button that closes it.
+  </li>
+  <li>
+    The close button is named by the close label, which can be translated through
+    <code>provideCkui(&#123; labels &#125;)</code>, and is at least 44px on a touch screen. On a
+    sheet the swipe handle is decorative; every action it offers also exists as a button.
+  </li>
+  <li>
+    Toasts stay above dialogs and clickable. A dialog opened from a toast's action takes focus, and
+    the toast that held focus closes without dropping it.
+  </li>
+  <li>
+    On a phone the actions stack at full width in reading order, the sheet keeps the safe-area inset
+    of the screen below its content and the page behind cannot scroll. With
+    <code>prefers-reduced-motion</code> the dialog neither scales nor slides. In forced-colors mode
+    the panel has a visible border.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> A reset such as <code>h2 &#123; margin: … &#125;</code>,
+    <code>p &#123; margin: … &#125;</code> or
+    <code>button:focus-visible &#123; outline: … &#125;</code> beats the layered dialog styles, and
+    a rule that sets <code>display</code> on the host element of a dialog component stops its body
+    from scrolling. Declare resets in a layer before ckui, or scope them with
+    <code>:not(.ck-dialog__title)</code>, <code>:not(.ck-dialog__description)</code> and
+    <code>:not(.ck-button)</code>.
+  </li>
+  <li>
+    The dialog lives in the overlay container, a child of <code>body</code>. Under a nested
+    <code>data-ck-theme</code> it follows the theme of the page, not of the section that opened it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them anywhere
+  above the overlay container, usually on <code>:root</code>.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of the dialog">
+  <table class="table">
+    <caption>
+      Component tokens of the dialog
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The dialog also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

@@ -11,7 +11,17 @@ class Host {
   readonly name = signal<CkIconName>('check');
 }
 
-const NAMES: CkIconName[] = ['check', 'chevron-down', 'chevron-end', 'close', 'minus'];
+const NAMES: CkIconName[] = [
+  'alert-octagon',
+  'alert-triangle',
+  'check',
+  'chevron-down',
+  'chevron-end',
+  'close',
+  'info',
+  'minus',
+  'plus',
+];
 
 describe('CkIcon', () => {
   function render() {

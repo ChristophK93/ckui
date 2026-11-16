@@ -1,0 +1,225 @@
+@layer ckui {
+  .ck-segmented {
+    --_ck-segmented-gap: var(--ck-segmented-padding, var(--ck-space-1));
+    --_ck-segmented-radius: var(--ck-segmented-radius, var(--ck-control-radius));
+    --_ck-segmented-direction: 1;
+    position: relative;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    block-size: var(--_ck-segmented-height);
+    border-radius: var(--_ck-segmented-radius);
+    background: var(--ck-segmented-bg, var(--ck-color-control));
+    box-shadow: inset 0 0 0 1px var(--ck-segmented-border-color, var(--ck-color-control-border));
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-tight);
+    vertical-align: middle;
+    isolation: isolate;
+  }
+
+  .ck-segmented:dir(rtl) {
+    --_ck-segmented-direction: -1;
+  }
+
+  /* Direction comes from the dir attribute alone, so the segments, the indicator and the keys agree. */
+  .ck-segmented:dir(ltr) {
+    direction: ltr;
+  }
+
+  .ck-segmented--full-width {
+    display: grid;
+    inline-size: 100%;
+  }
+
+  .ck-segmented--sm {
+    --_ck-segmented-height: var(--ck-control-height-sm);
+    --_ck-segmented-font-size: var(--ck-control-font-size-sm);
+    --_ck-segmented-padding-inline: var(--ck-control-padding-inline-sm);
+  }
+
+  .ck-segmented--md {
+    --_ck-segmented-height: var(--ck-control-height-md);
+    --_ck-segmented-font-size: var(--ck-control-font-size-md);
+    --_ck-segmented-padding-inline: var(--ck-control-padding-inline-md);
+  }
+
+  .ck-segmented--lg {
+    --_ck-segmented-height: var(--ck-control-height-lg);
+    --_ck-segmented-font-size: var(--ck-control-font-size-lg);
+    --_ck-segmented-padding-inline: var(--ck-control-padding-inline-lg);
+  }
+
+  .ck-segmented--xl {
+    --_ck-segmented-height: var(--ck-control-height-xl);
+    --_ck-segmented-font-size: var(--ck-control-font-size-xl);
+    --_ck-segmented-padding-inline: var(--ck-control-padding-inline-xl);
+  }
+
+  /* One column wide, inset by the padding. The step between two segments is its width plus the inset twice. */
+  .ck-segmented__indicator {
+    position: absolute;
+    display: none;
+    box-sizing: border-box;
+    inset-block: var(--_ck-segmented-gap);
+    inset-inline-start: var(--_ck-segmented-gap);
+    inline-size: calc(100% / var(--_ck-segmented-count, 1) - 2 * var(--_ck-segmented-gap));
+    border: 1px solid var(--ck-segmented-border-color, var(--ck-color-control-border));
+    border-radius: max(0px, calc(var(--_ck-segmented-radius) - var(--_ck-segmented-gap)));
+    background: var(--ck-segmented-indicator-bg, var(--ck-color-surface-raised));
+    box-shadow: var(--ck-shadow-sm);
+    transform: translateX(
+      calc(
+        var(--_ck-segmented-direction) * var(--_ck-segmented-index, 0) *
+          (100% + 2 * var(--_ck-segmented-gap))
+      )
+    );
+    transition: transform var(--ck-duration-normal) var(--ck-ease-standard);
+    pointer-events: none;
+  }
+
+  .ck-segmented--has-value .ck-segmented__indicator {
+    display: block;
+  }
+
+  .ck-segment {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding-inline: var(--_ck-segmented-padding-inline);
+    color: var(--ck-segmented-fg, var(--ck-color-fg-muted));
+    font-size: var(--_ck-segmented-font-size);
+    font-weight: var(--ck-font-weight-medium);
+    text-align: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The hover fill follows the indicator's inset, while the hit area stays the full track height. */
+  .ck-segment::before {
+    content: '';
+    position: absolute;
+    inset: var(--_ck-segmented-gap);
+    border-radius: max(0px, calc(var(--_ck-segmented-radius) - var(--_ck-segmented-gap)));
+    pointer-events: none;
+  }
+
+  .ck-segment__content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ck-space-2);
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  .ck-segment__content > svg {
+    flex: none;
+    inline-size: 1em;
+    block-size: 1em;
+  }
+
+  .ck-segment__content > ck-icon {
+    flex: none;
+  }
+
+  .ck-segment__label {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ck-segment__label:empty {
+    display: none;
+  }
+
+  .ck-segment--checked {
+    color: var(--ck-segmented-indicator-fg, var(--ck-color-fg));
+  }
+
+  @media (hover: hover) {
+    .ck-segment:not(.ck-segment--checked, .ck-segment--disabled):hover::before {
+      background: var(--ck-color-surface-hover);
+    }
+  }
+
+  /* The ring sits on a rounded layer inside the segment, so the hit area itself can stay square. */
+  .ck-segment::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--_ck-segmented-radius);
+    pointer-events: none;
+  }
+
+  .ck-segment:focus-visible {
+    outline: none;
+  }
+
+  .ck-segment:focus-visible::after {
+    outline: var(--ck-focus-ring);
+    outline-offset: calc(var(--ck-focus-ring-width) * -1);
+  }
+
+  .ck-segmented--disabled,
+  .ck-segment--disabled {
+    cursor: not-allowed;
+  }
+
+  .ck-segment--disabled,
+  .ck-segment--disabled.ck-segment--checked {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-segmented__indicator {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-segmented {
+      box-shadow: none;
+      outline: 1px solid ButtonText;
+      outline-offset: -1px;
+    }
+
+    .ck-segmented__indicator {
+      border-color: Highlight;
+      background: Highlight;
+      box-shadow: none;
+    }
+
+    /* Without this, the browser draws a Canvas backplate behind the text, and white text on it vanishes. */
+    .ck-segment--checked {
+      forced-color-adjust: none;
+      color: HighlightText;
+    }
+
+    .ck-segment:focus-visible::after {
+      outline-color: Highlight;
+    }
+
+    .ck-segment--disabled,
+    .ck-segment--disabled.ck-segment--checked {
+      color: GrayText;
+    }
+
+    /* A disabled selected segment, or a disabled group, shows an outlined indicator, not a filled one. */
+    .ck-segmented--disabled .ck-segmented__indicator,
+    .ck-segmented:has(.ck-segment--checked.ck-segment--disabled) .ck-segmented__indicator {
+      border-color: GrayText;
+      background: Canvas;
+    }
+  }
+}

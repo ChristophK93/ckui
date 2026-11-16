@@ -1,0 +1,304 @@
+<h1>Toast</h1>
+<p>
+  A toast is a short message that appears at the edge of the screen and goes away by itself. Inject
+  <code>CkToast</code> from <code>&#64;ckui/core/toast</code> and call <code>show()</code>: it adds
+  one container to the page on first use, announces each message to screen readers, stacks a few at
+  a time and queues the rest. Use it for confirmations and passing status, not for anything the user
+  has to answer.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="tones">Tones</h3>
+<p>
+  There are four tones. Each has its own icon, so the tone never rests on colour alone. Danger is a
+  filled card, stays until it is dismissed and is announced assertively; the other tones are polite
+  and close after five seconds.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="showInfo()">Neutral</button>
+  <button ckButton type="button" (click)="showSaved()">Success</button>
+  <button ckButton type="button" (click)="showWarning()">Warning</button>
+  <button ckButton type="button" (click)="showDanger()">Danger</button>
+  <p class="status">
+    Last closed because: <output>{{ lastReason() ?? 'nothing yet' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="action">Action</h3>
+<p>
+  An <code>action</code> adds a button. Using it calls <code>run()</code> and closes the toast with
+  the reason <code>action</code>. A toast with an action does not close by itself, because a timer
+  would take the choice away from slow readers; give it a <code>duration</code> to change that.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="archive()">Archive message</button>
+  <p class="status">
+    <output>{{ status() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.action }}</code></pre>
+
+<h3 id="replace">Replace by id</h3>
+<p>
+  Give a toast an <code>id</code> and a second <code>show()</code> with the same id changes the open
+  toast in place instead of stacking another. The timer starts again, and the earlier ref reports
+  <code>replaced</code>.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="disconnect()">Disconnect</button>
+  <button ckButton type="button" (click)="reconnect()">Reconnect</button>
+  <p class="status">
+    Bike: <output>{{ connected() ? 'connected' : 'disconnected' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.replace }}</code></pre>
+
+<h3 id="update">Update a toast</h3>
+<p>
+  <code>ref.update()</code> changes what an open toast shows, for example from progress to done.
+  Changed text is announced again.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="upload()">Upload</button>
+</div>
+<pre class="code"><code>{{ samples.update }}</code></pre>
+
+<h3 id="queue">Queue</h3>
+<p>
+  Three toasts show at once. Later ones wait, are announced when they appear and start their timer
+  then. <code>dismissAll()</code> closes the visible and the waiting ones.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="burst()">Show five</button>
+  <button ckButton type="button" (click)="dismissAll()">Dismiss all</button>
+</div>
+<pre class="code"><code>{{ samples.queue }}</code></pre>
+
+<h3 id="long">Long content</h3>
+<p>
+  Text wraps, also an unbroken word. Past 30% of the screen height the text scrolls inside the card,
+  so the buttons stay on the screen. Keep messages short.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="showLong()">Show a long toast</button>
+</div>
+
+<h3 id="position">Position and size</h3>
+<p>
+  <code>provideCkToast()</code> sets the edge, the alignment, how many show at once and the size of
+  the buttons for the whole app. Nothing else needs configuring. The stack always puts the newest
+  toast nearest the edge, respects the safe-area insets of a phone and, on a narrow screen, spans
+  the width minus a 1rem gutter. Under <code>xl</code> the action and the dismiss button are 60px
+  high.
+</p>
+<pre class="code"><code>{{ samples.config }}</code></pre>
+
+<h3 id="reasons">Why a toast closed</h3>
+<p>
+  <code>ref.dismissed</code> resolves once with the reason. The first reason wins: a toast that was
+  replaced never reports a later timeout.
+</p>
+<pre class="code"><code>{{ samples.reasons }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Options and methods of the toast">
+  <table class="table">
+    <caption>
+      Options, methods and settings of toasts
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of options; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>{{ row.defaultValue }}</td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the toast">
+  <table class="table">
+    <caption>
+      Parts of the toast
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  On the server <code>show()</code> does nothing: no container, no announcement, and
+  <code>dismissed</code> resolves as <code>programmatic</code> at once. When the app is destroyed
+  every toast closes the same way and the container is removed.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  A toast is not a dialog and follows no keyboard pattern of its own: its buttons are ordinary
+  buttons. It never takes focus.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a toast">
+  <table class="table">
+    <caption>
+      Keys in a toast
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    Each toast is announced once to screen readers through a live region: assertively for danger,
+    politely for the rest, as the title followed by the message. Changed text is announced again; a
+    replacement with identical text at the same urgency is not. Toasts shown in the same moment are
+    spoken together, in order, and assertively if one of them is. A queued toast is announced when
+    it appears. Nothing is announced on the server or for the container itself.
+  </li>
+  <li>
+    The container is a <code>section</code> named by the notifications label, which can be
+    translated through <code>provideCkui(&#123; labels &#125;)</code>. The dismiss button is named
+    by the dismiss label.
+  </li>
+  <li>
+    Timing follows WCAG 2.2.1. A toast with an action, and every danger toast, stays until it is
+    dismissed unless you set a duration. The timer pauses while the pointer is over the toast, while
+    focus is inside it and while the page is hidden, and then continues with the time left, at least
+    one second. A toast that was shown while the page was hidden starts its timer when the page is
+    visible.
+  </li>
+  <li>
+    Swiping a toast sideways dismisses it past a third of its width, or on a quick flick. A drag
+    that ends short springs back, and a mostly vertical drag is left to scroll the page. The swipe
+    is only a shortcut: every toast has a dismiss button, which is at least 44px on a touch screen.
+  </li>
+  <li>
+    The container is exempt from <code>inert</code> and painted above dialogs, so a toast stays
+    readable and its buttons clickable while a dialog is open. The tab key still stays inside a
+    modal dialog.
+  </li>
+  <li>
+    Tones differ by icon as well as colour. Text meets 4.5:1 in every tone and theme, the tone icon
+    3:1 against its card. On a danger card the action and dismiss buttons take the text colour and
+    hover in the danger shades.
+  </li>
+  <li>
+    In forced-colors mode every toast has a visible border. With reduced motion the toast neither
+    slides in nor out, and a drag still follows the finger.
+  </li>
+  <li>
+    The toasts are the last thing in the document, so the keyboard reaches them after the page. A
+    toast that holds focus when it closes hands focus on first: to the same button of the next toast
+    (else the previous one), else back to the element that had focus before it entered the toasts,
+    else, with a modal dialog open, into the dialog. Focus is never dropped to the page.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> A global rule such as
+    <code>button:focus-visible &#123; outline: … &#125;</code> beats the layered buttons of the
+    toast, and a reset such as <code>section &#123; … &#125;</code> reaches the container. Declare
+    resets in a layer before ckui, or scope them with <code>:not(.ck-button)</code>.
+  </li>
+  <li>
+    Under a nested <code>data-ck-theme</code> the container, being a child of <code>body</code>,
+    follows the theme of the page, not of the section that called <code>show()</code>.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere. <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of the toast">
+  <table class="table">
+    <caption>
+      Component tokens of the toast
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The toast also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

@@ -1,5 +1,13 @@
 # @ckui/core
 
+## 0.1.0-next.1
+
+### Minor Changes
+
+- Add `CkDialog` and `ck-dialog` (`@ckui/core/dialog`): modal dialogs and alert dialogs that open from a component or a template, hand back a result, trap and restore focus, and become swipeable bottom sheets on phones.
+- Add `ck-segmented` and `ck-segment` (`@ckui/core/segmented`): an accessible radio group of exclusive options with a sliding indicator, icons, sizes up to `xl`, and wiring for Reactive Forms, `ngModel` and Signal Forms.
+- Add `CkToast` (`@ckui/core/toast`): announced, stackable toasts with four tones, an action, replace-by-id, timers that pause while the user reads, a queue and swipe to dismiss, configured with `provideCkToast`.
+
 ## 0.1.0-next.0
 
 ### Minor Changes

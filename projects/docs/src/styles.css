@@ -17,7 +17,7 @@ h1 {
   line-height: var(--ck-line-height-tight);
 }
 
-h2 {
+h2:not(.ck-dialog__title) {
   margin-block: var(--ck-space-6) var(--ck-space-2);
   font-size: var(--ck-font-size-xl);
 }
@@ -27,7 +27,7 @@ h3 {
   font-size: var(--ck-font-size-lg);
 }
 
-p {
+p:not(.ck-dialog__description) {
   margin-block: 0 var(--ck-space-3);
   max-inline-size: 65ch;
 }

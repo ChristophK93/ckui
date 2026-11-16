@@ -5,6 +5,8 @@ function liveRegion(): HTMLElement | null {
   return document.body.querySelector('.cdk-live-announcer-element');
 }
 
+const pause = (ms: number): Promise<void> => new Promise((done) => setTimeout(done, ms));
+
 describe('CkAnnouncer', () => {
   afterEach(() => {
     TestBed.inject(CkAnnouncer).clear();
@@ -53,5 +55,108 @@ describe('CkAnnouncer', () => {
     await announcer.announce('Again');
     await announcer.announce('Again');
     expect(liveRegion()?.textContent).toBe('Again');
+  });
+
+  it('hides the live region visually with the CDK styles it loads itself, without any other CSS', async () => {
+    await TestBed.inject(CkAnnouncer).announce('x '.repeat(400));
+    const region = liveRegion()!;
+    const style = getComputedStyle(region);
+    expect(style.position).toBe('absolute');
+    expect(style.width).toBe('1px');
+    expect(style.height).toBe('1px');
+    expect(style.overflow).toBe('hidden');
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
+    expect(region.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+  });
+
+  it('speaks several announcements of one tick together, in order', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    const done = [
+      announcer.announce('Saved'),
+      announcer.announce('Uploaded.'),
+      announcer.announce('Done'),
+    ];
+    await Promise.all(done);
+    expect(liveRegion()?.textContent).toBe('Saved. Uploaded. Done');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('is assertive when any announcement of the tick is, wherever it comes in the order', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    await Promise.all([
+      announcer.announce('Upload failed', 'assertive'),
+      announcer.announce('Saved'),
+    ]);
+    expect(liveRegion()?.textContent).toBe('Upload failed. Saved');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('assertive');
+    await Promise.all([
+      announcer.announce('Saved'),
+      announcer.announce('Upload failed', 'assertive'),
+    ]);
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('assertive');
+  });
+
+  it('ignores blank messages among the batch and keeps later ticks separate', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    await Promise.all([
+      announcer.announce('One'),
+      announcer.announce('  '),
+      announcer.announce('Two'),
+    ]);
+    expect(liveRegion()?.textContent).toBe('One. Two');
+    await pause(200);
+    await announcer.announce('Three');
+    expect(liveRegion()?.textContent).toBe('Three');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('drops announcements that were not written yet when cleared, and settles their promises', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    const pending = announcer.announce('Never heard');
+    announcer.clear();
+    await pending;
+    await Promise.resolve();
+    expect(liveRegion()?.textContent ?? '').toBe('');
+  });
+
+  it('speaks a message from a later tick together with the previous one while that may not be read out', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    void announcer.announce('Bike disconnected');
+    await pause(20);
+    await announcer.announce('Control error', 'assertive');
+    expect(liveRegion()?.textContent).toBe('Bike disconnected. Control error');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('assertive');
+  });
+
+  it('is assertive when only the earlier message was, and chains a third within the window', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    void announcer.announce('Failed', 'assertive');
+    await pause(20);
+    void announcer.announce('Saved');
+    await pause(20);
+    await announcer.announce('Done');
+    expect(liveRegion()?.textContent).toBe('Failed. Saved. Done');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('assertive');
+  });
+
+  it('writes only the new message after a pause, without a growing concatenation', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    await announcer.announce('First');
+    await pause(500);
+    await announcer.announce('Second');
+    expect(liveRegion()?.textContent).toBe('Second');
+    expect(liveRegion()?.getAttribute('aria-live')).toBe('polite');
+    await pause(500);
+    await announcer.announce('Third');
+    expect(liveRegion()?.textContent).toBe('Third');
+  });
+
+  it('forgets the previous message when cleared', async () => {
+    const announcer = TestBed.inject(CkAnnouncer);
+    void announcer.announce('Old');
+    await pause(20);
+    announcer.clear();
+    await announcer.announce('New');
+    expect(liveRegion()?.textContent).toBe('New');
   });
 });

@@ -70,7 +70,7 @@ function buildTargets(): Target[] {
   add(['fg', 'fg-muted'], ['control'], 4.5);
   for (const overlay of ['surface-hover', 'surface-active']) {
     for (const base of [...surfaces, 'control']) {
-      for (const foreground of base === 'control' ? ['fg'] : ['fg', 'primary-fg']) {
+      for (const foreground of base === 'control' ? ['fg', 'fg-muted'] : ['fg', 'primary-fg']) {
         targets.push({
           foreground: `--ck-color-${foreground}`,
           background: `--ck-color-${overlay}`,
@@ -89,6 +89,15 @@ function buildTargets(): Target[] {
     add([`${role}-fg`], ['bg', 'surface', `${role}-subtle`], 4.5);
   }
   add(['border', 'control-border', 'focus-ring', 'primary', 'danger'], ['bg', 'surface'], 3);
+  // The segmented indicator's border against the track and against the indicator fill.
+  add(['control-border'], ['control', 'surface-raised'], 3);
+  // The focus ring inside a segmented control or a button sits on the control fill.
+  add(['focus-ring'], ['control'], 3);
+  // A toast's action button text, and its tone icons (success, warning) on the raised card.
+  add(['primary-fg'], ['surface-raised'], 4.5);
+  add(['success', 'warning-fg'], ['surface-raised'], 3);
+  // The focus ring on a toast's raised card.
+  add(['focus-ring'], ['surface-raised'], 3);
   return targets;
 }
 
@@ -224,8 +233,8 @@ describe('theme stylesheet', () => {
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 2 + 14 + 6 + 1 + 1 + 12 text pairs, 10 non-text pairs
-    expect(buildTargets().length).toBe(52);
+    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 text pairs, 13 + 3 non-text pairs
+    expect(buildTargets().length).toBe(61);
   });
 
   describe('contrast', () => {
