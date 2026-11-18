@@ -1,0 +1,75 @@
+@layer ckui {
+  .ck-progress {
+    --_ck-progress-direction: 1;
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--ck-progress-thickness, var(--ck-space-1));
+    overflow: hidden;
+    border-radius: var(--ck-progress-radius, var(--ck-radius-full));
+    background: var(--ck-progress-track, var(--ck-color-control));
+    color-scheme: var(--ck-color-scheme);
+  }
+
+  .ck-progress:dir(rtl) {
+    --_ck-progress-direction: -1;
+  }
+
+  .ck-progress__fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--ck-progress-fill, var(--ck-color-primary));
+    transform: scaleX(var(--_ck-progress-fraction, 0));
+    transform-origin: left center;
+    transition: transform var(--ck-duration-normal) var(--ck-ease-standard);
+  }
+
+  .ck-progress:dir(rtl) > .ck-progress__fill {
+    transform-origin: right center;
+  }
+
+  /* A segment 40% wide travels from before the track to past its far end. */
+  .ck-progress--indeterminate > .ck-progress__fill {
+    inset-inline-end: auto;
+    inline-size: 40%;
+    transform: translateX(calc(var(--_ck-progress-direction) * -100%));
+    transition: none;
+    animation: ck-progress-slide calc(var(--ck-duration-slow) * 5) var(--ck-ease-standard) infinite;
+  }
+
+  @keyframes ck-progress-slide {
+    from {
+      transform: translateX(calc(var(--_ck-progress-direction) * -100%));
+    }
+
+    to {
+      transform: translateX(calc(var(--_ck-progress-direction) * 250%));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-progress__fill {
+      transition: none;
+    }
+
+    /* A still half-width fill: busy, but nothing moves. */
+    .ck-progress--indeterminate > .ck-progress__fill {
+      inline-size: 50%;
+      transform: none;
+      animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-progress {
+      outline: 1px solid CanvasText;
+    }
+
+    .ck-progress__fill {
+      forced-color-adjust: none;
+      background: Highlight;
+    }
+  }
+}

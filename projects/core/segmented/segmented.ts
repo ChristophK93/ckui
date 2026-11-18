@@ -3,19 +3,31 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   booleanAttribute,
   computed,
   contentChildren,
   forwardRef,
   inject,
   input,
+  signal,
+  untracked,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CK_CONFIG, CkSize } from '@ckui/core';
-import { CkValueControl, hasAccessibleName, provideCkValueAccessor } from '@ckui/core/internal';
+import {
+  CkMedia,
+  CkValueControl,
+  hasAccessibleName,
+  provideCkValueAccessor,
+} from '@ckui/core/internal';
 import { CK_SEGMENTED_CONTEXT, CkSegmentRef, CkSegmentedContext } from './context';
 import { CkSegment } from './segment';
+import { overflows } from './segmented-fit';
+import { Slide, slideIndicator } from './segmented-motion';
 
 declare const ngDevMode: unknown;
 
@@ -39,6 +51,9 @@ function stepOf(key: string, rtl: boolean): -1 | 0 | 1 {
  * A group of mutually exclusive options that behaves as one radio group: one tab stop, the arrow
  * keys move and select. Direction comes from the `dir` attribute (`:dir(rtl)`), not from the CSS
  * `direction` property. The value is the `value` of the selected `ck-segment`, or `null`.
+ *
+ * Segments are as wide as an equal share or their label, whichever is larger. Only when the labels
+ * cannot fit at all do they share the width equally and truncate with an ellipsis.
  */
 @Component({
   selector: 'ck-segmented',
@@ -55,9 +70,9 @@ function stepOf(key: string, rtl: boolean): -1 | 0 | 1 {
     '[class.ck-segmented--has-value]': 'checkedIndex() >= 0',
     '[class.ck-segmented--disabled]': 'isDisabled()',
     '[class.ck-segmented--full-width]': 'fullWidth()',
+    '[class.ck-segmented--compact]': 'compact()',
     '[attr.aria-disabled]': 'isDisabled() ? "true" : null',
-    '[style.--_ck-segmented-count]': 'segments().length',
-    '[style.--_ck-segmented-index]': 'checkedIndex()',
+    '[style.--_ck-segmented-column]': 'column()',
     '(keydown)': 'onKeydown($event)',
     '(focusout)': 'onFocusOut($event)',
   },
@@ -86,6 +101,24 @@ export class CkSegmented<T = unknown>
     this.segments().findIndex((segment) => segment.checked()),
   );
 
+  /** The grid column of the checked segment, which the indicator is placed in. */
+  protected readonly column = computed(() => {
+    const index = this.checkedIndex();
+    return index >= 0 ? index + 1 : null;
+  });
+
+  /** Equal columns with truncated labels: the labels do not fit at their natural width. */
+  protected readonly compact = signal(false);
+
+  private readonly media = inject(CkMedia);
+  private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
+  private destroyed = false;
+  private shownSegment: HTMLElement | null = null;
+  private slide: Slide | null = null;
+  private observer: ResizeObserver | null = null;
+  private mutations: MutationObserver | null = null;
+  private fonts: FontFaceSet | null = null;
+
   /** @internal Used by `ck-segment`. */
   readonly groupDisabled = computed(() => this.isDisabled());
 
@@ -100,6 +133,22 @@ export class CkSegmented<T = unknown>
 
   constructor() {
     super();
+    inject(DestroyRef).onDestroy(() => {
+      this.destroyed = true;
+      this.slide?.animation.cancel();
+      this.observer?.disconnect();
+      this.observer = null;
+      this.mutations?.disconnect();
+      this.mutations = null;
+      this.fonts?.removeEventListener('loadingdone', this.onFontsLoaded);
+      this.fonts = null;
+    });
+    afterRenderEffect(() => this.slideTo(this.segments()[this.checkedIndex()]?.element ?? null));
+    afterRenderEffect(() => {
+      // The size changes the font, so it counts as content here.
+      this.modifierClasses();
+      this.fit(this.segments());
+    });
     if (typeof ngDevMode !== 'undefined' && ngDevMode) {
       let destroyed = false;
       inject(DestroyRef).onDestroy(() => (destroyed = true));
@@ -111,6 +160,81 @@ export class CkSegmented<T = unknown>
           );
         }
       });
+    }
+  }
+
+  /** Slides the indicator after the layout moved it, unless it appears or motion is reduced. */
+  private slideTo(selected: HTMLElement | null): void {
+    if (!this.browser || this.destroyed) {
+      return;
+    }
+    const previous = this.shownSegment;
+    this.shownSegment = selected;
+    const reduced = untracked(this.media.reducedMotion);
+    const indicator = this.element.querySelector<HTMLElement>('.ck-segmented__indicator');
+    if (indicator === null || selected === null || previous === null || previous === selected) {
+      return;
+    }
+    if (reduced || !previous.isConnected) {
+      this.slide?.animation.cancel();
+      this.slide = null;
+      return;
+    }
+    this.slide = slideIndicator(indicator, this.element, previous, selected, this.slide);
+  }
+
+  /** Watches the group, its segments and their content, and switches the compact layout. */
+  private fit(segments: readonly CkSegment[]): void {
+    if (!this.browser || this.destroyed) {
+      return;
+    }
+    const Observer = this.element.ownerDocument.defaultView?.ResizeObserver;
+    if (Observer !== undefined && this.observer === null) {
+      this.observer = new Observer(() => this.measure());
+    }
+    this.observer?.disconnect();
+    this.observer?.observe(this.element);
+    for (const segment of segments) {
+      this.observer?.observe(segment.element);
+    }
+    this.watchContent(segments);
+    this.measure();
+  }
+
+  /**
+   * A label that changes (text, language, font) moves no box once the group is compact, so the
+   * resize observer is blind to it: watch the text itself and the fonts that finish loading.
+   */
+  private watchContent(segments: readonly CkSegment[]): void {
+    const document = this.element.ownerDocument;
+    const Mutation = document.defaultView?.MutationObserver;
+    this.mutations?.disconnect();
+    if (Mutation !== undefined) {
+      this.mutations = new Mutation(() => this.measure());
+      for (const segment of segments) {
+        this.mutations.observe(segment.element, {
+          childList: true,
+          characterData: true,
+          subtree: true,
+        });
+      }
+    }
+    if (this.fonts === null && document.fonts !== undefined) {
+      this.fonts = document.fonts;
+      this.fonts.addEventListener('loadingdone', this.onFontsLoaded);
+    }
+  }
+
+  private readonly onFontsLoaded = (): void => this.measure();
+
+  private measure(): void {
+    if (this.destroyed) {
+      return;
+    }
+    const elements = untracked(this.segments).map((segment) => segment.element);
+    const overflow = overflows(this.element, elements);
+    if (overflow !== null) {
+      this.compact.set(overflow);
     }
   }
 

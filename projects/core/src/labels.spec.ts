@@ -12,7 +12,9 @@ describe('CK_LABELS', () => {
   it('defaults to the English labels without provideCkui', () => {
     expect(TestBed.inject(CK_LABELS)()).toEqual({
       close: 'Close',
+      decrement: 'Decrease',
       dismiss: 'Dismiss',
+      increment: 'Increase',
       loading: 'Loading',
       noResults: 'No results',
       notifications: 'Notifications',

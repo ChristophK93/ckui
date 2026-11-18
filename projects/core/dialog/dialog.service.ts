@@ -9,7 +9,7 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { CkOverlayHandle, CkOverlayHost } from '@ckui/core/internal';
+import { CkOverlayHandle, CkOverlayHost } from '@ckui/core/internal/overlay';
 import { CK_DIALOG_DATA, CkDialogConfig } from './config';
 import { CK_DIALOG_CONTEXT, CkDialogContext } from './dialog-context';
 import { CK_DIALOG_SETUP, CkDialogContainer } from './dialog-container';

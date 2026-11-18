@@ -1,0 +1,409 @@
+<h1>Stepper</h1>
+<p>
+  <code>ck-stepper</code> changes a number with one thumb: a minus button, the value and a plus
+  button. Tap a button, hold it to repeat, type a number, or use the arrow keys. It works with
+  Reactive Forms, <code>ngModel</code> and Signal Forms. Import <code>CkStepper</code> from
+  <code>&#64;ckui/core/stepper</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  The value is a <code>number</code> or <code>null</code> and works two-way with
+  <code>[(value)]</code>. The input is a text field with the spinbutton role, so it needs a name:
+  give <code>ck-stepper</code> an <code>aria-label</code> or <code>aria-labelledby</code> (they move
+  onto the input, and so does <code>aria-describedby</code> for a hint or an error), or wrap it in a
+  <code>&lt;label&gt;</code>. A button press steps once; hold it and it repeats after 400 ms, every
+  80 ms, and five steps at a time after two seconds.
+</p>
+<div class="demo">
+  <ck-stepper aria-label="Resistance level" [min]="1" [max]="24" [(value)]="level" />
+  <p class="status">
+    Level: <output>{{ level() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same control three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) reformats the field and never counts as a change by the user; only typing, a
+  button or a key does, and each step is one change. With Signal Forms the limits are set in the
+  schema (<code>min(path.ftp, 50)</code>), and the field passes them to the stepper; binding
+  <code>[min]</code> next to <code>[formField]</code> is an error.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-stepper
+    aria-label="FTP, Reactive Forms"
+    unit="W"
+    [min]="50"
+    [max]="600"
+    [formControl]="reactiveFtp"
+  />
+  <p class="status">
+    Value: <output>{{ reactiveFtp.value ?? 'none' }}</output
+    >, dirty: <output>{{ reactiveFtp.dirty ? 'yes' : 'no' }}</output
+    >, touched: <output>{{ reactiveFtp.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveFtp.setValue(300)">
+      Set 300 in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveFtp.reset()">Reset</button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveFtp.disabled ? reactiveFtp.enable() : reactiveFtp.disable()"
+    >
+      {{ reactiveFtp.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-stepper aria-label="FTP, ngModel" unit="W" [min]="50" [max]="600" [(ngModel)]="templateFtp" />
+  <p class="status">
+    Value: <output>{{ templateFtp ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-stepper aria-label="FTP, Signal Forms" unit="W" [formField]="signalForm.ftp" />
+  <p class="status">
+    Value: <output>{{ signalForm.ftp().value() ?? 'none' }}</output
+    >, touched: <output>{{ signalForm.ftp().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. The height is the control height of
+  the size, so the stepper lines up with a button or an input of the same size, and both buttons are
+  squares of that height. Under a coarse pointer <code>sm</code> and <code>md</code> are 44px;
+  <code>xl</code> is 60px, for one-thumb use on a bike.
+</p>
+<div class="demo">
+  <ck-stepper aria-label="Small" size="sm" [value]="10" />
+  <ck-stepper aria-label="Medium" size="md" [value]="10" />
+  <ck-stepper aria-label="Large" size="lg" [value]="10" />
+  <ck-stepper aria-label="Extra large" size="xl" [value]="10" />
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="unit">Unit</h3>
+<p>
+  <code>unit</code> is drawn after the value and is part of <code>aria-valuetext</code>, so a screen
+  reader says "250 W". It is hidden from assistive technology itself, so it is not read twice.
+</p>
+<div class="demo">
+  <ck-stepper
+    aria-label="Target power"
+    unit="W"
+    [min]="0"
+    [max]="2000"
+    [step]="5"
+    [(value)]="watts"
+  />
+  <p class="status">
+    Target: <output>{{ watts() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.unit }}</code></pre>
+
+<h3 id="decimals">Decimals</h3>
+<p>
+  A step with decimals, such as <code>0.5</code>, shows that many digits and counts without drift:
+  0.1 + 0.2 is 0.3, never 0.30000000000000004. Steps are counted from <code>min</code>, so a minimum
+  of <code>-2</code> with a step of <code>0.5</code> keeps the grid. Numbers are formatted with the
+  locale of the app (<code>LOCALE_ID</code>), and typing accepts both <kbd>.</kbd> and
+  <kbd>,</kbd> as the decimal mark.
+</p>
+<div class="demo">
+  <ck-stepper aria-label="Grade" unit="%" [min]="-2" [max]="12" [step]="0.5" [(value)]="grade" />
+  <p class="status">
+    Grade: <output>{{ grade() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.decimals }}</code></pre>
+
+<h3 id="limits">Limits and typing</h3>
+<p>
+  <code>min</code> and <code>max</code> clamp every way the value can change, and a button is
+  disabled at its limit. Typed text is read on <kbd>Enter</kbd> or when focus leaves: the number is
+  clamped and snapped to the step; text that is not a number goes back to the last value; an
+  <strong>empty field is <code>null</code></strong
+  >, a valid value. From <code>null</code> the first arrow or button press starts at
+  <code>min</code>, else at 0. While you type, the arrow keys step from the number you typed.
+</p>
+<div class="demo demo-column">
+  <ck-stepper
+    aria-label="Cadence"
+    unit="rpm"
+    [min]="40"
+    [max]="140"
+    [step]="5"
+    [(value)]="cadence"
+  />
+  <p class="status">
+    Cadence: <output>{{ cadence() ?? 'none' }}</output>
+  </p>
+  <ck-stepper aria-label="Cadence, empty" [min]="40" [(value)]="empty" />
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="clear()">Clear</button>
+    <p class="status">
+      Value: <output>{{ empty() ?? 'none' }}</output>
+    </p>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.limits }}</code></pre>
+
+<h3 id="states">Disabled and read-only</h3>
+<p>
+  A disabled stepper leaves the tab order. A read-only one stays focusable and its value can be read
+  and selected, but it cannot be typed or stepped.
+</p>
+<div class="demo">
+  <ck-stepper aria-label="Disabled" disabled [value]="5" />
+  <ck-stepper aria-label="Read only" readonly [value]="5" />
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="labels">Button labels</h3>
+<p>
+  The buttons are called "Decrease" and "Increase" by default. On a page with several steppers, or a
+  step that is not one, name them for what they change with <code>decrementLabel</code> and
+  <code>incrementLabel</code>.
+</p>
+<div class="demo">
+  <ck-stepper
+    aria-label="FTP"
+    decrementLabel="FTP minus 5"
+    incrementLabel="FTP plus 5"
+    unit="W"
+    [step]="5"
+    [(value)]="labelled"
+  />
+</div>
+<pre class="code"><code>{{ samples.labels }}</code></pre>
+
+<h3 id="ftp-row">The settings row</h3>
+<p>
+  A settings row with the label on the left and the stepper on the right. The label names the input
+  through <code>aria-labelledby</code>.
+</p>
+<div class="demo demo-column">
+  <div class="row">
+    <span id="ftp-label" class="row-label">Functional threshold power</span>
+    <ck-stepper
+      aria-labelledby="ftp-label"
+      decrementLabel="FTP minus 5"
+      incrementLabel="FTP plus 5"
+      unit="W"
+      size="md"
+      [min]="50"
+      [max]="600"
+      [step]="5"
+      [(value)]="ftp"
+    />
+  </div>
+</div>
+<pre class="code"><code>{{ samples.ftp }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the stepper">
+  <table class="table">
+    <caption>
+      Inputs of ck-stepper
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the stepper">
+  <table class="table">
+    <caption>
+      Parts of a stepper
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The host gets the classes <code>ck-stepper</code>, <code>ck-stepper--&#123;size&#125;</code> and,
+  while they apply, <code>ck-stepper--disabled</code> and <code>ck-stepper--readonly</code>. The
+  value is also available as <code>(valueChange)</code>, which fires once per user change: one per
+  step of a held button, never for a programmatic write.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a stepper">
+  <table class="table">
+    <caption>
+      Keys in a stepper
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The value follows the WAI-ARIA spinbutton pattern: a text input with
+    <code>role="spinbutton"</code>, <code>aria-valuenow</code>, <code>aria-valuemin</code> and
+    <code>aria-valuemax</code> (each only when it exists) and <code>aria-valuetext</code> with the
+    unit. With no value there is no <code>aria-valuenow</code>. It needs a name; development builds
+    warn without one.
+  </li>
+  <li>
+    The minus and plus buttons are outside the tab order, as in the pattern, so the stepper is one
+    tab stop. Pressing one with a mouse or a pen keeps focus where it is and moves it to the value
+    when it was elsewhere, so the arrow keys work right after. On a touch screen focus is left
+    alone, so the on-screen keyboard does not open on every tap. A screen reader can still activate
+    the buttons.
+  </li>
+  <li>
+    The buttons are squares of the control height: at least 44px on a coarse pointer, 60px at
+    <code>xl</code>. A long press repeats and speeds up; moving the pointer off the button, a
+    cancelled touch, the control being disabled or reaching a limit stops it. The context menu of a
+    long press on Android is suppressed on the buttons.
+  </li>
+  <li>
+    The numbers use tabular figures, so the control keeps its width while the value changes.
+    <code>inputmode="decimal"</code> brings up a number keypad. That keypad has no minus sign on
+    some phones, so a stepper with a negative <code>min</code> uses <code>inputmode="text"</code>
+    instead.
+  </li>
+  <li>
+    One focus ring is drawn around the whole control while the value has focus; as in any text field
+    that is every kind of focus, a tap on a button included. In forced-colors mode the control has a
+    <code>ButtonText</code> outline and the ring is <code>Highlight</code>.
+  </li>
+  <li>
+    In right-to-left text the minus button stays at the inline start, which is the right edge. The
+    direction comes from the <code>dir</code> attribute.
+  </li>
+  <li>
+    A change is not announced beyond what the spinbutton already reports. When another part of the
+    page depends on the value, say what changed yourself.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The parts are a plain <code>button</code> and
+    <code>input</code>. An unlayered rule such as <code>button &#123; border: … &#125;</code>
+    beats the layered control, and a global
+    <code>:focus-visible &#123; outline: … &#125;</code> draws a second ring on the input. Keep
+    those rules off the stepper (<code>:not(.ck-stepper__button)</code>) or put resets in a layer
+    declared before ckui. The first rule below really breaks the buttons; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-stepper">
+  <table class="table">
+    <caption>
+      Component tokens of ck-stepper
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The stepper also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

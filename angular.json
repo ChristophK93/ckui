@@ -123,6 +123,37 @@
           }
         }
       }
+    },
+    "bundle-probe": {
+      "projectType": "application",
+      "root": "projects/bundle-probe",
+      "sourceRoot": "projects/bundle-probe/src",
+      "prefix": "probe",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/bundle-probe/src/main.ts",
+            "index": "projects/bundle-probe/src/index.html",
+            "tsConfig": "projects/bundle-probe/tsconfig.app.json",
+            "outputPath": "dist/bundle-probe",
+            "outputHashing": "none",
+            "optimization": true,
+            "sourceMap": false,
+            "extractLicenses": false
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/bundle-probe/**/*.ts",
+              "projects/bundle-probe/**/*.html"
+            ],
+            "eslintConfig": "projects/bundle-probe/eslint.config.js"
+          }
+        }
+      }
     }
   }
 }

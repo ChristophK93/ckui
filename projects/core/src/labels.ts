@@ -3,7 +3,9 @@ import { InjectionToken, Signal, signal } from '@angular/core';
 /** Built-in strings. Each package adds its keys; consumers pass a `Partial`. */
 export interface CkLabels {
   close: string;
+  decrement: string;
   dismiss: string;
+  increment: string;
   loading: string;
   noResults: string;
   notifications: string;
@@ -11,7 +13,9 @@ export interface CkLabels {
 
 export const CK_DEFAULT_LABELS: Readonly<CkLabels> = Object.freeze({
   close: 'Close',
+  decrement: 'Decrease',
   dismiss: 'Dismiss',
+  increment: 'Increase',
   loading: 'Loading',
   noResults: 'No results',
   notifications: 'Notifications',

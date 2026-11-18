@@ -39,6 +39,24 @@ export const routes: Routes = [
     title: 'Dialog · ckui',
   },
   {
+    path: 'components/badge',
+    loadComponent: () =>
+      import('./pages/components/badge/badge-page').then((module) => module.BadgePage),
+    title: 'Badge · ckui',
+  },
+  {
+    path: 'components/progress',
+    loadComponent: () =>
+      import('./pages/components/progress/progress-page').then((module) => module.ProgressPage),
+    title: 'Progress · ckui',
+  },
+  {
+    path: 'components/stepper',
+    loadComponent: () =>
+      import('./pages/components/stepper/stepper-page').then((module) => module.StepperPage),
+    title: 'Stepper · ckui',
+  },
+  {
     path: 'tokens',
     loadComponent: () => import('./pages/tokens/tokens').then((module) => module.Tokens),
     title: 'Tokens · ckui',

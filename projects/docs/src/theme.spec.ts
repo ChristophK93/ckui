@@ -98,6 +98,10 @@ function buildTargets(): Target[] {
   add(['success', 'warning-fg'], ['surface-raised'], 3);
   // The focus ring on a toast's raised card.
   add(['focus-ring'], ['surface-raised'], 3);
+  // Badge text on the control fill (neutral is covered above; danger is on-danger on danger).
+  add(['success-fg', 'warning-fg'], ['control'], 4.5);
+  // A progress bar's fill against its track.
+  add(['primary'], ['control'], 3);
   return targets;
 }
 
@@ -233,8 +237,8 @@ describe('theme stylesheet', () => {
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 text pairs, 13 + 3 non-text pairs
-    expect(buildTargets().length).toBe(61);
+    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 + 2 text pairs, 13 + 3 + 1 non-text pairs
+    expect(buildTargets().length).toBe(64);
   });
 
   describe('contrast', () => {

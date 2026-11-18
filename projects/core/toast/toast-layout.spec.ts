@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CK_SIZES, CkSize, provideCkui } from '@ckui/core';
-import { CkOverlayHost } from '@ckui/core/internal';
+import { CkOverlayHost } from '@ckui/core/internal/overlay';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cdp, page, userEvent } from 'vitest/browser';
 import { expectNoAxeViolations } from '../testing/axe';

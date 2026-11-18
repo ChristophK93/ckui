@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CkOverlayHost } from '@ckui/core/internal';
+import { CkOverlayHost } from '@ckui/core/internal/overlay';
 import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import {

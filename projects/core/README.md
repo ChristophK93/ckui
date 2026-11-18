@@ -145,14 +145,132 @@ text, a direct `svg` child (an icon, shown before the text), or both; font-icon 
 
 The group is as tall as the control height of its size and every segment is that tall to hit (44px for
 `sm` and `md` under a coarse pointer, 60px at `xl`). The selected segment is marked by a raised indicator
-with its own 3:1 border, not by colour alone. Labels that do not fit are cut with an ellipsis, the full
-text stays in the accessible name. Component tokens: `--ck-segmented-bg`, `--ck-segmented-border-color`,
-`--ck-segmented-fg`, `--ck-segmented-indicator-bg`, `--ck-segmented-indicator-fg`,
-`--ck-segmented-radius` and `--ck-segmented-padding`.
+with its own 3:1 border, not by colour alone, and it slides to a new selection over
+`--ck-duration-normal` (not under reduced motion, and not when it first appears). A segment is as wide
+as an equal share of the group or its label (with icon and padding), whichever is larger, so a long
+label never cuts a short neighbour's share: its column grows and the others shrink. Only when the
+labels at their natural width cannot fit together does the group switch to equal columns and cut the
+labels with an ellipsis (the full text stays in the accessible name); it never overflows its
+container, and goes back to content widths as soon as there is room, also when only a label, the size or a loading font changes. Component tokens:
+`--ck-segmented-bg`, `--ck-segmented-border-color`, `--ck-segmented-fg`,
+`--ck-segmented-indicator-bg`, `--ck-segmented-indicator-fg`, `--ck-segmented-radius`,
+`--ck-segmented-padding` (the gap around the indicator) and `--ck-segmented-padding-inline`
+(horizontal padding of a segment, for a tighter control; the size's control padding by default).
 
 Global element styles: a global `:focus-visible { outline: … }` beats the layered control and draws a
 second ring on the segment itself. Keep it off the segments (`:focus-visible:not(.ck-segment)`) or put
 resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Badge
+
+```ts
+import { CK_BADGE_IMPORTS } from '@ckui/core/badge';
+```
+
+```html
+<ck-badge tone="success" dot>Connected</ck-badge>
+<ck-badge tone="danger">
+  <svg
+    ckBadgeIcon
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M8 3v6M8 12.5v.5" />
+  </svg>
+  Upload failed
+</ck-badge>
+```
+
+`ck-badge` is a small, non-interactive status pill (`CkBadge`, `CkBadgeIcon`). Inputs: `tone` (`neutral`
+default, `success`, `warning`, `danger`), `dot` (a leading dot in the text colour) and `size` (`md`, a 1.5rem
+pill, default; `sm`, 1.25rem, for dense lists). `ckBadgeIcon` on a projected `svg` makes it the leading icon,
+drawn one em wide and hidden from assistive technology. The badge never wraps: text that does not fit its
+container is cut with an ellipsis.
+
+A badge has no role and is not a live region. The text has to state the status, since a dot, an icon or a
+colour alone says nothing to a screen reader, and development builds warn about a badge without text. When a
+change must be heard, announce it yourself, for instance in a `role="status"` element or a toast. Component
+tokens: `--ck-badge-bg`, `--ck-badge-fg`, `--ck-badge-dot` (the dot's own colour, default the text colour; a coloured dot is decoration, so the text must still state the status) and `--ck-badge-radius` (they apply to every tone; scope them by `.ck-badge--<tone>` to restyle one tone).
+
+Global element styles: a global rule such as `span { overflow: visible }` (no truncation) or
+`svg { inline-size: 100% }` (a huge icon) beats the layered badge. Scope it away from the badge or put
+resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Progress
+
+```ts
+import { CkProgress } from '@ckui/core/progress';
+```
+
+```html
+<ck-progress aria-label="Upload" [value]="percent()" />
+<ck-progress
+  aria-label="Workout"
+  [value]="step()"
+  [max]="7"
+  [valueText]="'Step ' + step() + ' of 7'"
+/>
+<ck-progress aria-label="Connecting" [value]="null" />
+```
+
+`ck-progress` is a horizontal progress bar (`CkProgress`, `role="progressbar"`). Inputs: `value` (a number
+from 0 to `max`; below 0 counts as 0 and above `max` as `max`; `null`, `undefined`, `NaN` or any non-number
+shows the indeterminate bar without `aria-valuenow`), `max` (default 100; anything that is not a finite number
+above 0 counts as 100) and `valueText` (`aria-valuetext`, e.g. "Step 2 of 7"). The bar needs an `aria-label`
+or `aria-labelledby` (development builds warn without one) and is not a live region: announce milestones
+yourself.
+
+The fill grows with a transform from the start edge (mirrored in right-to-left text) over
+`--ck-duration-normal`, and not at all under `prefers-reduced-motion`, where the indeterminate bar is a still,
+half-width fill. In forced colors the track gets an outline and the fill is `Highlight`. Component tokens:
+`--ck-progress-track`, `--ck-progress-fill`, `--ck-progress-thickness` and `--ck-progress-radius`; keep the
+fill at 3:1 against the track.
+
+## Stepper
+
+```ts
+import { CkStepper } from '@ckui/core/stepper';
+```
+
+```html
+<ck-stepper aria-label="FTP" unit="W" [min]="50" [max]="600" [step]="5" [(value)]="ftp" />
+<ck-stepper
+  aria-label="FTP"
+  decrementLabel="FTP minus 5"
+  incrementLabel="FTP plus 5"
+  [formControl]="ftp"
+/>
+```
+
+`ck-stepper` is a number field with a minus and a plus button (`CkStepper`, a form control for Reactive Forms,
+`ngModel` and Signal Forms). The value is a `number` or `null`. Inputs: `min`, `max`, `step` (default 1, counted
+from `min`; it also sets the fraction digits), `largeStep` (Page Up/Down, default 10 steps), `unit` (text after the
+value, read as part of the value text: "250 W"), `size`, `readonly`, `disabled`, `decrementLabel` and
+`incrementLabel` (per-instance names for the buttons; the defaults come from the labels token).
+
+The value is a real text input with `role="spinbutton"` and the only tab stop; the buttons are outside the tab
+order. Name it with `aria-label` or `aria-labelledby` on `ck-stepper` (they are inputs and move onto the input
+element, like `aria-describedby` for a hint or an error; bind them as `[aria-label]`) or wrap it in a `<label>`;
+development builds warn without a name. The input uses `inputmode="decimal"`, and `text` when `min` is below 0. Arrow
+Up/Down step, Page Up/Down move by `largeStep`, Home/End jump to `min`/`max` when set. Typed text is read on Enter or
+blur: it is parsed with the locale (`LOCALE_ID`; both `.` and `,` count as a decimal mark), clamped, snapped to the
+step, and text that is no number goes back to the last value. An empty field is `null`; from `null` the first arrow
+or button press starts at `min`, else at 0. A held button repeats after 400 ms, every 80 ms, and by five steps after
+two seconds; it stops on release, on leaving the button and at a limit. A `min` above `max` pins the value to `min`,
+and a `step` that is 0, negative or not a number counts as 1; development builds warn about both. `(valueChange)`
+fires once per user change and never for a programmatic write.
+
+The buttons are squares of the control height (44px or more on a coarse pointer, 60px at `xl`). Component tokens:
+`--ck-stepper-bg`, `--ck-stepper-border-color`, `--ck-stepper-radius` and `--ck-stepper-value-width` (default: as
+wide as the formatted `min` and `max`).
+
+Global element styles: an unlayered `button { border: … }` or `input { … }` beats the layered parts, and a global
+`:focus-visible { outline: … }` draws a second ring on the input. Keep them off the stepper
+(`button:not(.ck-stepper__button)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
 ## Toast
 

@@ -1,0 +1,221 @@
+<h1>Progress</h1>
+<p>
+  <code>ck-progress</code> is a thin horizontal bar that shows how far some work is: a workout, an
+  upload, a connection attempt. It is a progress bar for assistive technology, and the app writes
+  its own text next to it: there is no label and no percentage inside. Import
+  <code>CkProgress</code> from <code>&#64;ckui/core/progress</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="determinate">Determinate</h3>
+<p>
+  <code>value</code> is a number from 0 to <code>max</code> (100 by default). The bar always needs a
+  name: give it an <code>aria-label</code> or point <code>aria-labelledby</code> at visible text.
+  Values outside the range are clamped, which these buttons let you try.
+</p>
+<div class="demo demo-column">
+  <ck-progress aria-label="Upload" [value]="percent()" />
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="less()">Less</button>
+    <button ckButton type="button" size="sm" (click)="more()">More</button>
+    <p class="status">
+      value: <output>{{ percent() }}</output>
+    </p>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.determinate }}</code></pre>
+
+<h3 id="indeterminate">Indeterminate</h3>
+<p>
+  <code>null</code> means the work has no known end. A segment slides along the track; the bar has
+  no <code>aria-valuenow</code>. Under reduced motion nothing moves: the bar is half full and still.
+</p>
+<div class="demo demo-column">
+  <ck-progress aria-label="Connecting to the trainer" [value]="null" />
+</div>
+<pre class="code"><code>{{ samples.indeterminate }}</code></pre>
+
+<h3 id="value-text">Value text</h3>
+<p>
+  A percentage says little about "step 2 of 7". <code>valueText</code> becomes
+  <code>aria-valuetext</code> and replaces what assistive technology reads. Set <code>max</code> to
+  the number of steps.
+</p>
+<div class="demo demo-column">
+  <ck-progress
+    aria-label="Workout progress"
+    [value]="step()"
+    [max]="stepCount"
+    [valueText]="'Step ' + step() + ' of ' + stepCount"
+  />
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="previous()">Previous step</button>
+    <button ckButton type="button" size="sm" (click)="next()">Next step</button>
+    <p class="status">
+      <output>Step {{ step() }} of {{ stepCount }}</output>
+    </p>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.valueText }}</code></pre>
+
+<h3 id="tokens-demo">Styled per instance</h3>
+<p>
+  The tokens are read from the bar itself, so one bar can differ from the rest. This one is the
+  track and fill of a step band: a dark bar, 5px high, on a yellow surface.
+</p>
+<div class="demo demo-column">
+  <div class="band">
+    <p class="band-title">Hold 250 W</p>
+    <ck-progress
+      class="band-progress"
+      aria-label="Step progress"
+      [value]="3"
+      [max]="7"
+      valueText="Step 3 of 7"
+    />
+  </div>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+
+<h3 id="naming">Naming</h3>
+<p>
+  A progress bar without a name is announced as just "progress bar". Use an
+  <code>aria-label</code>, or <code>aria-labelledby</code> when the page already has the words.
+  Development builds warn when there is neither.
+</p>
+<div class="demo demo-column">
+  <ck-progress aria-label="Battery" [value]="80" />
+  <h4 id="sync-heading">Syncing workouts</h4>
+  <ck-progress aria-labelledby="sync-heading" [value]="25" />
+</div>
+<pre class="code"><code>{{ samples.naming }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the progress bar">
+  <table class="table">
+    <caption>
+      Inputs of ck-progress
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The host is <code>role="progressbar"</code> with <code>aria-valuemin="0"</code>,
+  <code>aria-valuemax</code> and, while determinate, <code>aria-valuenow</code>. It gets the class
+  <code>ck-progress</code>, and <code>ck-progress--indeterminate</code> while the value is
+  <code>null</code>. The fill is the <code>ck-progress__fill</code> element, scaled with a transform
+  so that it grows from the start edge in left-to-right and right-to-left text.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  A progress bar is not interactive: it is not in the tab order and takes no keys. For a value the
+  user sets, use a slider instead.
+</p>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The bar follows the WAI-ARIA progressbar pattern. It needs a name, and development builds warn
+    without one. An indeterminate bar has no <code>aria-valuenow</code>, which is how assistive
+    technology tells "busy" from "50%".
+  </li>
+  <li>
+    <strong>Not a live region.</strong> Assistive technology does not announce value changes by
+    itself. Say the milestones that matter ("Upload complete") in a
+    <code>role="status"</code> element or a toast, not on every tick.
+  </li>
+  <li>
+    The fill is at least 3:1 against the track in both shipped themes, since the bar is a graphic
+    that carries the value. Check the same ratio when you set <code>--ck-progress-fill</code> or
+    <code>--ck-progress-track</code>.
+  </li>
+  <li>
+    The fill grows over <code>--ck-duration-normal</code> when the value changes, and not at all
+    under <code>prefers-reduced-motion</code>. The indeterminate slide is replaced by a still,
+    half-width fill.
+  </li>
+  <li>
+    In forced-colors mode the track gets a <code>CanvasText</code> outline and the fill is drawn in
+    <code>Highlight</code>.
+  </li>
+  <li>
+    In right-to-left text the fill grows from the right and the indeterminate segment slides from
+    right to left. The direction comes from the <code>dir</code> attribute.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The fill is a <code>span</code>. An unlayered rule such
+    as <code>span &#123; position: static &#125;</code> (the fill leaves the track) beats the
+    layered bar. Scope such rules away from it or declare resets in a layer before ckui.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-progress">
+  <table class="table">
+    <caption>
+      Component tokens of ck-progress
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The bar also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

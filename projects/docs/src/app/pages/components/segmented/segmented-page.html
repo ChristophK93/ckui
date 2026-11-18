@@ -202,9 +202,8 @@
 
 <h3 id="full-width">Full width</h3>
 <p>
-  <code>fullWidth</code> stretches the group to its container and splits the width evenly. A label
-  that does not fit is cut with an ellipsis; the full text stays in the page, so the accessible name
-  is not shortened.
+  <code>fullWidth</code> stretches the group to its container. The width is split evenly while every
+  label fits its share.
 </p>
 <div class="demo demo-column">
   <ck-segmented aria-label="Calendar view, full width" fullWidth value="week">
@@ -212,6 +211,28 @@
     <ck-segment value="week">Week</ck-segment>
     <ck-segment value="month">Month</ck-segment>
   </ck-segmented>
+</div>
+<pre class="code"><code>{{ samples.fullWidth }}</code></pre>
+
+<h3 id="long-labels">Long labels</h3>
+<p>
+  A segment is as wide as an equal share of the group <em>or</em> its label with icon and padding,
+  whichever is larger. A long label makes its own column wider and the others narrower, so nothing
+  is cut as long as the labels fit together. The group below sits in a 328px container, the content
+  width of a phone at 360px with a 16px page gutter. Only when the labels cannot fit together at
+  all, as in the second group, does the group switch to equal columns and cut them with an ellipsis.
+  The full text stays in the page, so the accessible name is not shortened. The group goes back to
+  content widths as soon as there is room again, and it never grows wider than its container.
+  <code>--ck-segmented-padding-inline</code> gives a tighter control more room.
+</p>
+<div class="demo demo-column">
+  <div class="phone">
+    <ck-segmented aria-label="Programs, phone width" fullWidth value="own">
+      <ck-segment value="preset">Vordefiniert</ck-segment>
+      <ck-segment value="own">Meine</ck-segment>
+      <ck-segment value="shared">Geteilt</ck-segment>
+    </ck-segmented>
+  </div>
   <div class="narrow">
     <ck-segmented aria-label="Reporting period, narrow container" fullWidth value="quarter">
       <ck-segment value="month">This calendar month</ck-segment>
@@ -220,7 +241,7 @@
     </ck-segmented>
   </div>
 </div>
-<pre class="code"><code>{{ samples.fullWidth }}</code></pre>
+<pre class="code"><code>{{ samples.longLabels }}</code></pre>
 
 <h3 id="disabled">Disabled</h3>
 <p>
@@ -319,9 +340,9 @@
 <p>
   The group gets the classes <code>ck-segmented</code>, <code>ck-segmented--&#123;size&#125;</code>,
   and <code>ck-segmented--has-value</code>, <code>ck-segmented--disabled</code> or
-  <code>ck-segmented--full-width</code> while those apply. A segment gets
-  <code>ck-segment--checked</code> and <code>ck-segment--disabled</code>. The value is also
-  available as <code>(valueChange)</code>.
+  <code>ck-segmented--full-width</code> or <code>ck-segmented--compact</code> (equal columns, labels
+  cut) while those apply. A segment gets <code>ck-segment--checked</code> and
+  <code>ck-segment--disabled</code>. The value is also available as <code>(valueChange)</code>.
 </p>
 
 <h2 id="keyboard">Keyboard</h2>
@@ -383,8 +404,10 @@
     <code>direction</code> property.
   </li>
   <li>
-    The indicator slides with a transform over <code>--ck-duration-normal</code>, and not at all
-    under <code>prefers-reduced-motion</code>. It appears in place the first time a value is set.
+    The indicator sits in the grid area of the selected segment, so any column width works and
+    server-rendered markup is right without script. It slides to a new selection over
+    <code>--ck-duration-normal</code>, and not at all under <code>prefers-reduced-motion</code>. It
+    appears in place the first time a value is set.
   </li>
   <li>
     A disabled group or segment sets <code>aria-disabled</code> and leaves the tab order; the colour

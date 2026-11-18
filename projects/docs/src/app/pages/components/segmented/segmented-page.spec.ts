@@ -1,6 +1,7 @@
 import { ApplicationRef, reflectComponentType } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { CkMedia } from '@ckui/core/internal';
 import { CkSegment, CkSegmented } from '@ckui/core/segmented';
 import { cdp, page, userEvent } from 'vitest/browser';
 import { expectNoAxeViolations } from '../../../../../../core/testing/axe';
@@ -310,7 +311,7 @@ describe('SegmentedPage', () => {
       }
     });
 
-    it('stretches the full width groups, and cuts the long labels of the narrow one', async () => {
+    it('stretches the full width group to its container', async () => {
       const element = await render();
       const full = group(element, 'Calendar view, full width');
       const container = full.parentElement!;
@@ -319,12 +320,27 @@ describe('SegmentedPage', () => {
         container.clientWidth - parseFloat(padding.paddingLeft) - parseFloat(padding.paddingRight),
         0,
       );
+    });
+
+    it('shows the long labels of the phone group in full and cuts the narrow one', async () => {
+      const element = await render();
+      const phone = group(element, 'Programs, phone width');
+      const phoneLabels = Array.from(phone.querySelectorAll<HTMLElement>('.ck-segment__label'));
+      expect(phoneLabels.map((label) => label.textContent)).toEqual([
+        'Vordefiniert',
+        'Meine',
+        'Geteilt',
+      ]);
+      expect(phoneLabels.filter((label) => label.scrollWidth > label.clientWidth)).toEqual([]);
+      expect(phone.getBoundingClientRect().width).toBeLessThanOrEqual(328);
       const narrow = group(element, 'Reporting period, narrow container');
       expect(narrow.getBoundingClientRect().width).toBeLessThanOrEqual(
         narrow.parentElement!.getBoundingClientRect().width,
       );
+      await expect.poll(() => narrow.classList.contains('ck-segmented--compact')).toBe(true);
       const labels = Array.from(narrow.querySelectorAll<HTMLElement>('.ck-segment__label'));
       expect(labels.some((label) => label.scrollWidth > label.clientWidth)).toBe(true);
+      expect(narrow.scrollWidth).toBeLessThanOrEqual(narrow.clientWidth);
       expect(labels.map((label) => label.textContent)).toEqual([
         'This calendar month',
         'This business quarter',
@@ -359,12 +375,18 @@ describe('SegmentedPage', () => {
 
     it('slides over the duration token, and not under reduced motion', async () => {
       const element = await render();
-      const indicator = group(element, 'Calendar view').querySelector<HTMLElement>(
-        '.ck-segmented__indicator',
-      )!;
-      expect(getComputedStyle(indicator).transitionDuration).toBe('0.2s');
+      const host = group(element, 'Calendar view');
+      const indicator = host.querySelector<HTMLElement>('.ck-segmented__indicator')!;
+      await userEvent.click(segments(host)[0]);
+      await settle();
+      const [animation] = indicator.getAnimations();
+      expect(animation.effect!.getTiming().duration).toBe(200);
+      await settleAnimations();
       await emulate([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
-      expect(getComputedStyle(indicator).transitionDuration).toBe('0s');
+      await expect.poll(() => TestBed.inject(CkMedia).reducedMotion()).toBe(true);
+      await userEvent.click(segments(host)[2]);
+      await settle();
+      expect(indicator.getAnimations()).toHaveLength(0);
     });
 
     it('is mirrored in right-to-left text', async () => {

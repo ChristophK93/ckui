@@ -6,10 +6,11 @@
     "start": "ng serve docs",
     "build:lib": "ng build @ckui/core",
     "build:docs": "ng build docs",
+    "check:bundle": "node scripts/check-bundle.mjs",
     "lint": "ng lint",
     "test": "ng test @ckui/core --watch=false && ng test docs --watch=false",
     "format:check": "prettier --check . --ignore-path .gitignore --ignore-path .prettierignore --ignore-path .git/info/exclude",
-    "check": "npm run format:check && npm run lint && npm run test && npm run build:lib && npm run build:docs",
+    "check": "npm run format:check && npm run lint && npm run test && npm run build:lib && npm run check:bundle && npm run build:docs",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "npm run build:lib && npm publish ./dist/ckui/core --tag \"${NPM_DIST_TAG:-latest}\" --provenance && changeset git-tag"

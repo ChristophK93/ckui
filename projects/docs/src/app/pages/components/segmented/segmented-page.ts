@@ -87,7 +87,7 @@ export class SegmentedPage {
       type: 'boolean',
       defaultValue: 'false',
       description:
-        'Stretches the group to the width of its container. Without it the group is as wide as its widest segment times the number of segments.',
+        'Stretches the group to the width of its container. Without it the group is as wide as its widest segment times the number of segments, and never wider than its container.',
     },
     {
       name: 'touched',
@@ -200,6 +200,12 @@ export class SegmentedPage {
       fallback: 'var(--ck-control-radius)',
       description:
         'Corner radius of the track. The indicator’s is the same minus the padding, never below zero.',
+    },
+    {
+      name: '--ck-segmented-padding-inline',
+      fallback: 'var(--ck-control-padding-inline-md), by size',
+      description:
+        'Horizontal padding of each segment, which counts into its width. A smaller value gives long labels more room before the group has to cut them.',
     },
     {
       name: '--ck-segmented-padding',

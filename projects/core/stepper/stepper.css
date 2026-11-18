@@ -1,0 +1,182 @@
+@layer ckui {
+  .ck-stepper {
+    --_ck-stepper-radius: var(--ck-stepper-radius, var(--ck-control-radius));
+    display: inline-flex;
+    align-items: stretch;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    block-size: var(--_ck-stepper-height);
+    border-radius: var(--_ck-stepper-radius);
+    background: var(--ck-stepper-bg, var(--ck-color-control));
+    box-shadow: inset 0 0 0 1px var(--ck-stepper-border-color, var(--ck-color-control-border));
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-stepper-font-size);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-tight);
+    vertical-align: middle;
+  }
+
+  .ck-stepper--sm {
+    --_ck-stepper-height: var(--ck-control-height-sm);
+    --_ck-stepper-font-size: var(--ck-control-font-size-sm);
+  }
+
+  .ck-stepper--md {
+    --_ck-stepper-height: var(--ck-control-height-md);
+    --_ck-stepper-font-size: var(--ck-control-font-size-md);
+  }
+
+  .ck-stepper--lg {
+    --_ck-stepper-height: var(--ck-control-height-lg);
+    --_ck-stepper-font-size: var(--ck-control-font-size-lg);
+  }
+
+  .ck-stepper--xl {
+    --_ck-stepper-height: var(--ck-control-height-xl);
+    --_ck-stepper-font-size: var(--ck-control-font-size-xl);
+  }
+
+  /* Square at the control height, so the hit area is at least 44px where the height is. */
+  .ck-stepper__button {
+    display: grid;
+    flex: none;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_ck-stepper-height);
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: calc(var(--_ck-stepper-font-size) * 1.25);
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-stepper__button--decrement {
+    order: -1;
+    border-start-start-radius: var(--_ck-stepper-radius);
+    border-end-start-radius: var(--_ck-stepper-radius);
+  }
+
+  .ck-stepper__button--increment {
+    border-start-end-radius: var(--_ck-stepper-radius);
+    border-end-end-radius: var(--_ck-stepper-radius);
+  }
+
+  .ck-stepper__field {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 0;
+    cursor: text;
+  }
+
+  .ck-stepper__input {
+    box-sizing: content-box;
+    flex: 0 1 auto;
+    inline-size: var(--ck-stepper-value-width, calc(var(--_ck-stepper-chars, 4) * 1ch + 1ch));
+    min-inline-size: 0;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--_ck-stepper-font-size);
+    font-weight: var(--ck-font-weight-bold);
+    font-variant-numeric: inherit;
+    text-align: center;
+    appearance: none;
+    -moz-appearance: textfield;
+  }
+
+  .ck-stepper__unit {
+    flex: none;
+    margin-inline-start: var(--ck-space-1);
+    color: var(--ck-color-fg-muted);
+    font-size: var(--_ck-stepper-font-size);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .ck-stepper__button:not(:disabled):hover {
+      background: var(--ck-color-surface-hover);
+    }
+  }
+
+  .ck-stepper__button:not(:disabled):active {
+    background: var(--ck-color-surface-active);
+  }
+
+  /* One ring around the whole control while the input has keyboard focus. */
+  .ck-stepper:has(.ck-stepper__input:focus-visible) {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  .ck-stepper__button:disabled {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-stepper--disabled .ck-stepper__input,
+  .ck-stepper--disabled .ck-stepper__unit,
+  .ck-stepper:has(.ck-stepper__input:disabled) .ck-stepper__unit,
+  .ck-stepper__input:disabled {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-stepper--disabled .ck-stepper__field,
+  .ck-stepper:has(.ck-stepper__input:disabled) .ck-stepper__field {
+    cursor: not-allowed;
+  }
+
+  .ck-stepper--readonly .ck-stepper__input {
+    cursor: default;
+  }
+
+  @media (forced-colors: active) {
+    .ck-stepper {
+      box-shadow: none;
+      outline: 1px solid ButtonText;
+      outline-offset: -1px;
+    }
+
+    .ck-stepper:has(.ck-stepper__input:focus-visible) {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    .ck-stepper__unit {
+      color: CanvasText;
+    }
+
+    .ck-stepper__button:disabled,
+    .ck-stepper--disabled .ck-stepper__input,
+    .ck-stepper--disabled .ck-stepper__unit,
+    .ck-stepper:has(.ck-stepper__input:disabled) .ck-stepper__unit,
+    .ck-stepper__input:disabled {
+      color: GrayText;
+    }
+
+    .ck-stepper--disabled,
+    .ck-stepper:has(.ck-stepper__input:disabled) {
+      outline-color: GrayText;
+    }
+  }
+}

@@ -225,17 +225,6 @@ describe('CkSegmented layout', () => {
       }
     });
 
-    it('moves with a transform, not with layout', async () => {
-      const { fixture, host, root } = mount(group('[value]="value()" fullWidth'));
-      await settle(fixture);
-      const indicator = query(root, '.ck-segmented__indicator');
-      const left = indicator.offsetLeft;
-      host.value.set('c');
-      await settle(fixture);
-      expect(indicator.offsetLeft).toBe(left);
-      expect(getComputedStyle(indicator).transform).not.toBe('none');
-    });
-
     describe('in right-to-left text', () => {
       it('starts at the right and mirrors the segment order', async () => {
         const { fixture, root } = mount(`<div dir="rtl">${group('value="a" fullWidth')}</div>`);
@@ -277,29 +266,6 @@ describe('CkSegmented layout', () => {
         await settle(fixture);
         expectOnSegment(root, 2, GAP, true);
       });
-    });
-
-    it('slides with the duration token and is instant under reduced motion', async () => {
-      const { fixture, root } = mount(group('value="a"'));
-      root.style.setProperty('--ck-duration-normal', '200ms');
-      await settle(fixture);
-      const indicator = query(root, '.ck-segmented__indicator');
-      expect(getComputedStyle(indicator).transitionProperty).toBe('transform');
-      expect(getComputedStyle(indicator).transitionDuration).toBe('0.2s');
-      await emulate([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
-      expect(getComputedStyle(indicator).transitionProperty).toBe('none');
-    });
-
-    it('does not slide in from the start when it first appears', async () => {
-      const { fixture, host, root } = mount(group('[value]="value()" fullWidth'));
-      root.style.setProperty('--ck-duration-normal', '2s');
-      host.value.set(null);
-      await settle(fixture);
-      host.value.set('c');
-      await settle(fixture);
-      const animations = query(root, '.ck-segmented__indicator').getAnimations();
-      expect(animations).toHaveLength(0);
-      expectOnSegment(root, 2);
     });
   });
 

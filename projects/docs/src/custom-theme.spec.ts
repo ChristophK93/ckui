@@ -1,9 +1,12 @@
 import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { CK_BADGE_IMPORTS } from '@ckui/core/badge';
 import { CkButton } from '@ckui/core/button';
 import { CK_DIALOG_IMPORTS, CkDialog } from '@ckui/core/dialog';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
+import { CkProgress } from '@ckui/core/progress';
 import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
+import { CkStepper } from '@ckui/core/stepper';
 import { CkToast } from '@ckui/core/toast';
 import { cdp, userEvent } from 'vitest/browser';
 import { contrastRatio, resolveToken } from '../../core/testing/contrast';
@@ -14,7 +17,14 @@ const FOCUS_YELLOW = 'rgb(255, 204, 0)';
 const FIELD_FILL = 'rgb(22, 22, 24)';
 
 @Component({
-  imports: [CkButton, CK_FIELD_IMPORTS, CK_SEGMENTED_IMPORTS],
+  imports: [
+    CkButton,
+    CK_FIELD_IMPORTS,
+    CK_SEGMENTED_IMPORTS,
+    CK_BADGE_IMPORTS,
+    CkProgress,
+    CkStepper,
+  ],
   template: `
     <button id="before" type="button">Before</button>
     <div class="ck-root area" [attr.data-ck-theme]="theme">
@@ -37,6 +47,12 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
         <ck-segment value="week">Week</ck-segment>
         <ck-segment value="month">Month</ck-segment>
       </ck-segmented>
+      <ck-badge id="badge-neutral" dot>Kuipers S3</ck-badge>
+      <ck-badge id="badge-success" tone="success" dot>Connected</ck-badge>
+      <ck-badge id="badge-warning" tone="warning">Low battery</ck-badge>
+      <ck-badge id="badge-danger" tone="danger" dot>Upload failed</ck-badge>
+      <ck-progress id="progress" aria-label="Workout" [value]="40" />
+      <ck-stepper id="stepper" aria-label="FTP" unit="W" [min]="50" [max]="600" [value]="250" />
     </div>
   `,
 })
@@ -181,6 +197,8 @@ describe('custom theme', () => {
       check(['primary-fg'], ['surface-raised'], 4.5);
       check(['success', 'warning-fg'], ['surface-raised'], 3);
       check(['focus-ring'], ['surface-raised'], 3);
+      check(['success-fg', 'warning-fg'], ['control'], 4.5);
+      check(['primary'], ['control'], 3);
       expect(problems).toEqual([]);
     });
   });
@@ -349,6 +367,162 @@ describe('custom theme', () => {
         expect(ringOf(segment).outlineColor).toBe(FOCUS_YELLOW);
         expect(ringOf(segment).outlineWidth).toBe('3px');
         expect(ringOf(segment).outlineOffset).toBe('-3px');
+      });
+    });
+
+    describe('badge', () => {
+      const badge = (tone: string) => getComputedStyle(query(`#badge-${tone}`));
+
+      it('fills the calm tones with the control colour and colours their text with the theme', () => {
+        expect(badge('neutral').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(badge('neutral').color).toBe('rgb(255, 255, 255)');
+        expect(badge('success').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(badge('success').color).toBe('rgb(61, 220, 132)');
+        expect(badge('warning').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(badge('warning').color).toBe('rgb(245, 197, 66)');
+      });
+
+      it('fills the danger badge with #FF5A4E and puts near-black text on it', () => {
+        expect(badge('danger').backgroundColor).toBe('rgb(255, 90, 78)');
+        expect(badge('danger').color).toBe('rgb(11, 11, 12)');
+        expect(getComputedStyle(query('#badge-danger .ck-badge__dot')).backgroundColor).toBe(
+          'rgb(11, 11, 12)',
+        );
+      });
+
+      it('keeps the text of every tone at 4.5:1 on its fill', () => {
+        for (const tone of ['neutral', 'success', 'warning', 'danger']) {
+          expect(
+            contrastRatio(badge(tone).color, badge(tone).backgroundColor),
+            tone,
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+      });
+
+      it('keeps a success dot, set with --ck-badge-dot, 3:1 from the control fill', () => {
+        const element = query('#badge-neutral');
+        element.style.setProperty('--ck-badge-dot', 'var(--ck-color-success)');
+        const dot = getComputedStyle(query('#badge-neutral .ck-badge__dot'));
+        expect(dot.backgroundColor).toBe('rgb(61, 220, 132)');
+        expect(
+          contrastRatio(dot.backgroundColor, getComputedStyle(element).backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('is a full pill in the custom font with tabular numerals', () => {
+        expect(badge('neutral').borderTopLeftRadius).toBe('9999px');
+        expect(badge('neutral').fontFamily).toMatch(/^"Fira Sans"/);
+        expect(badge('neutral').fontVariantNumeric).toBe('tabular-nums');
+        expect(query('#badge-neutral').getBoundingClientRect().height).toBe(24);
+      });
+
+      it('restyles with its own tokens, over the theme', () => {
+        const element = query('#badge-success');
+        element.style.setProperty('--ck-badge-bg', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-badge-fg', 'rgb(250, 250, 250)');
+        element.style.setProperty('--ck-badge-radius', '4px');
+        expect(getComputedStyle(element).backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(getComputedStyle(element).color).toBe('rgb(250, 250, 250)');
+        expect(getComputedStyle(element).borderTopLeftRadius).toBe('4px');
+      });
+    });
+
+    describe('progress', () => {
+      const track = () => getComputedStyle(query('#progress'));
+      const fill = () => getComputedStyle(query('#progress .ck-progress__fill'));
+
+      it('fills the track with the control colour and the bar with the white primary', () => {
+        expect(track().backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(fill().backgroundColor).toBe('rgb(255, 255, 255)');
+      });
+
+      it('keeps the fill 3:1 from the track', () => {
+        expect(
+          contrastRatio(fill().backgroundColor, track().backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('is a 4px bar with a full radius, and covers 40% of the track', () => {
+        const bar = query('#progress').getBoundingClientRect();
+        expect(bar.height).toBe(4);
+        expect(track().borderTopLeftRadius).toBe('9999px');
+        const fillRect = query('#progress .ck-progress__fill').getBoundingClientRect();
+        expect(fillRect.width / bar.width).toBeCloseTo(0.4, 2);
+      });
+
+      it('restyles with its own tokens, over the theme', () => {
+        const element = query('#progress');
+        element.style.setProperty('--ck-progress-track', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-progress-fill', 'rgb(4, 5, 6)');
+        element.style.setProperty('--ck-progress-thickness', '8px');
+        expect(track().backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(fill().backgroundColor).toBe('rgb(4, 5, 6)');
+        expect(element.getBoundingClientRect().height).toBe(8);
+      });
+    });
+
+    describe('stepper', () => {
+      const host = () => getComputedStyle(query('#stepper'));
+      const input = () => getComputedStyle(query('#stepper .ck-stepper__input'));
+
+      it('fills the control with the control colour, rounds it to 10px and keeps its transparent border', () => {
+        expect(host().backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(host().borderTopLeftRadius).toBe('10px');
+        expect(host().boxShadow).toContain('rgba(0, 0, 0, 0)');
+      });
+
+      it('writes the value white and bold, with the unit muted, all at 4.5:1 on the fill', () => {
+        expect(input().color).toBe('rgb(255, 255, 255)');
+        expect(input().fontWeight).toBe('700');
+        const unit = getComputedStyle(query('#stepper .ck-stepper__unit'));
+        expect(contrastRatio(input().color, host().backgroundColor)).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(unit.color, host().backgroundColor)).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(
+            getComputedStyle(query('#stepper .ck-stepper__button')).color,
+            host().backgroundColor,
+          ),
+        ).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('uses the custom font and tabular numerals on the control and the value', () => {
+        expect(host().fontFamily).toMatch(/^"Fira Sans"/);
+        expect(input().fontFamily).toMatch(/^"Fira Sans"/);
+        expect(host().fontVariantNumeric).toBe('tabular-nums');
+        expect(input().fontVariantNumeric).toBe('tabular-nums');
+      });
+
+      it('rounds only the outer corners of the buttons to 10px', () => {
+        const minus = getComputedStyle(query('#stepper .ck-stepper__button--decrement'));
+        const plus = getComputedStyle(query('#stepper .ck-stepper__button--increment'));
+        expect([minus.borderTopLeftRadius, minus.borderTopRightRadius]).toEqual(['10px', '0px']);
+        expect([plus.borderTopLeftRadius, plus.borderTopRightRadius]).toEqual(['0px', '10px']);
+      });
+
+      it('is 60px high with 60px square buttons at size xl', () => {
+        query('#stepper').classList.replace('ck-stepper--md', 'ck-stepper--xl');
+        expect(query('#stepper').getBoundingClientRect().height).toBe(60);
+        expect(query('#stepper .ck-stepper__button').getBoundingClientRect().width).toBe(60);
+      });
+
+      it('draws the 3px yellow ring around the control while the value has focus', async () => {
+        const field = query<HTMLInputElement>('#stepper .ck-stepper__input');
+        expect(host().outlineStyle).toBe('none');
+        await keyboardFocus(field);
+        expect(host().outlineColor).toBe(FOCUS_YELLOW);
+        expect(host().outlineWidth).toBe('3px');
+        expect(host().outlineOffset).toBe('3px');
+        expect(
+          contrastRatio(host().outlineColor, resolveToken(query('.area'), '--ck-color-bg')),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('restyles with its own tokens, over the theme', () => {
+        const element = query('#stepper');
+        element.style.setProperty('--ck-stepper-bg', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-stepper-radius', '4px');
+        expect(host().backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(host().borderTopLeftRadius).toBe('4px');
       });
     });
 

@@ -167,6 +167,16 @@ export class ViewSignal {
   <ck-segment value="month">Month</ck-segment>
 </ck-segmented>`,
   ),
+  longLabels: component(
+    'LongLabels',
+    'app-long-labels',
+    `<!-- a phone: 328px of content width -->
+<ck-segmented aria-label="Programs" fullWidth value="own">
+  <ck-segment value="preset">Vordefiniert</ck-segment>
+  <ck-segment value="own">Meine</ck-segment>
+  <ck-segment value="shared">Geteilt</ck-segment>
+</ck-segmented>`,
+  ),
   disabled: component(
     'Disabled',
     'app-disabled',
@@ -213,6 +223,8 @@ export class ViewSignal {
 .toolbar {
   --ck-segmented-radius: var(--ck-radius-full);
   --ck-segmented-padding: var(--ck-space-2);
+  /* tighter segments leave more room for long labels */
+  --ck-segmented-padding-inline: var(--ck-space-2);
   /* a primary-coloured indicator; keep its text at 4.5:1 */
   --ck-segmented-indicator-bg: var(--ck-color-primary);
   --ck-segmented-indicator-fg: var(--ck-color-on-primary);

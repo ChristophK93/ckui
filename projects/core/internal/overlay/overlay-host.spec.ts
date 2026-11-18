@@ -2,8 +2,8 @@ import { Component, PLATFORM_ID, TemplateRef, signal, viewChild } from '@angular
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
-import { expectNoAxeViolations } from '../testing/axe';
-import { CkMedia } from './media';
+import { CkMedia } from '@ckui/core/internal';
+import { expectNoAxeViolations } from '../../testing/axe';
 import { CkOverlayConfig, CkOverlayHost } from './overlay-host';
 
 @Component({

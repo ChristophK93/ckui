@@ -1,0 +1,82 @@
+@layer ckui {
+  .ck-badge {
+    --_ck-badge-bg: var(--ck-color-control);
+    --_ck-badge-fg: var(--ck-color-fg);
+    --_ck-badge-height: 1.5rem;
+    --_ck-badge-font-size: var(--ck-font-size-sm);
+    --_ck-badge-padding-inline: var(--ck-space-2);
+    --_ck-badge-gap: calc(var(--ck-space-1) * 1.5);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--_ck-badge-gap);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    block-size: var(--_ck-badge-height);
+    padding-inline: var(--_ck-badge-padding-inline);
+    border-radius: var(--ck-badge-radius, var(--ck-radius-full));
+    background: var(--ck-badge-bg, var(--_ck-badge-bg));
+    color: var(--ck-badge-fg, var(--_ck-badge-fg));
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-badge-font-size);
+    font-weight: var(--ck-font-weight-semibold);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-tight);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .ck-badge--sm {
+    --_ck-badge-height: 1.25rem;
+    --_ck-badge-font-size: var(--ck-font-size-xs);
+    --_ck-badge-padding-inline: calc(var(--ck-space-1) * 1.5);
+    --_ck-badge-gap: var(--ck-space-1);
+  }
+
+  .ck-badge--success {
+    --_ck-badge-fg: var(--ck-color-success-fg);
+  }
+
+  .ck-badge--warning {
+    --_ck-badge-fg: var(--ck-color-warning-fg);
+  }
+
+  .ck-badge--danger {
+    --_ck-badge-bg: var(--ck-color-danger);
+    --_ck-badge-fg: var(--ck-color-on-danger);
+  }
+
+  /* The text sits in its own element, so the spaces around inline markup in it survive. */
+  .ck-badge__text {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ck-badge__dot {
+    flex: none;
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    border-radius: var(--ck-radius-full);
+    background: var(--ck-badge-dot, currentColor);
+  }
+
+  .ck-badge__icon {
+    flex: none;
+    inline-size: 1em;
+    block-size: 1em;
+  }
+
+  @media (forced-colors: active) {
+    .ck-badge {
+      border: 1px solid CanvasText;
+    }
+
+    .ck-badge__dot {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+}

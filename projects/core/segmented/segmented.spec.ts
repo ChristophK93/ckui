@@ -148,19 +148,18 @@ describe('CkSegmented', () => {
       await settle(fixture);
       const group = query(root, 'ck-segmented');
       expect(tabIndexes(root)).toEqual(['-1', '0', '-1']);
-      expect(group.style.getPropertyValue('--_ck-segmented-index')).toBe('1');
-      expect(group.style.getPropertyValue('--_ck-segmented-count')).toBe('3');
+      expect(group.style.getPropertyValue('--_ck-segmented-column')).toBe('2');
       host.items.set(['b', 'c', 'd', 'e']);
       await settle(fixture);
       expect(checkedLabels(root)).toEqual(['b']);
       expect(tabIndexes(root)).toEqual(['0', '-1', '-1', '-1']);
-      expect(group.style.getPropertyValue('--_ck-segmented-index')).toBe('0');
-      expect(group.style.getPropertyValue('--_ck-segmented-count')).toBe('4');
+      expect(group.style.getPropertyValue('--_ck-segmented-column')).toBe('1');
       host.items.set(['c', 'd']);
       await settle(fixture);
       expect(checkedLabels(root)).toEqual([]);
       expect(tabIndexes(root)).toEqual(['0', '-1']);
       expect(group.classList.contains('ck-segmented--has-value')).toBe(false);
+      expect(group.style.getPropertyValue('--_ck-segmented-column')).toBe('');
     });
 
     it('compares object values by identity', async () => {

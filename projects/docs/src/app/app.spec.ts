@@ -60,10 +60,13 @@ describe('App', () => {
       'Home',
       'Theming',
       'Tokens',
+      'Badge',
       'Button',
       'Dialog',
       'Field',
+      'Progress',
       'Segmented',
+      'Stepper',
       'Toast',
     ]);
     const group = element.querySelector(
@@ -71,10 +74,13 @@ describe('App', () => {
     )!;
     expect(element.querySelector('#nav-components')?.textContent?.trim()).toBe('Components');
     expect(Array.from(group.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
+      '/components/badge',
       '/components/button',
       '/components/dialog',
       '/components/field',
+      '/components/progress',
       '/components/segmented',
+      '/components/stepper',
       '/components/toast',
     ]);
     expect(element.querySelector('header fieldset legend')?.textContent?.trim()).toBe('Theme');
@@ -89,6 +95,9 @@ describe('App', () => {
     ['/components/segmented', 'Segmented'],
     ['/components/toast', 'Toast'],
     ['/components/dialog', 'Dialog'],
+    ['/components/badge', 'Badge'],
+    ['/components/progress', 'Progress'],
+    ['/components/stepper', 'Stepper'],
   ])('marks only the active link as the current page on %s', async (url, label) => {
     const element = await render(url);
     expect(currentLinks(element)).toEqual([label]);
@@ -111,13 +120,13 @@ describe('App', () => {
     expect(document.title).toBe('Button · ckui');
     await TestBed.inject(Router).navigateByUrl('/components/field');
     expect(document.title).toBe('Field · ckui');
-    for (const name of ['Segmented', 'Toast', 'Dialog']) {
+    for (const name of ['Segmented', 'Toast', 'Dialog', 'Badge', 'Progress', 'Stepper']) {
       await TestBed.inject(Router).navigateByUrl(`/components/${name.toLowerCase()}`);
       expect(document.title).toBe(`${name} · ckui`);
     }
   });
 
-  it.each(['Segmented', 'Toast', 'Dialog'])('shows the %s stub page', async (name) => {
+  it.each(['Badge', 'Progress', 'Stepper'])('shows the %s page', async (name) => {
     const element = await render(`/components/${name.toLowerCase()}`);
     expect(element.querySelector('main h1')?.textContent).toBe(name);
   });

@@ -47,3 +47,4 @@ Thumbs.db
 /test-results
 .vitest-attachments
 /.vitest
+projects/bundle-probe/node_modules

@@ -19,10 +19,13 @@ export class App {
   ] as const;
 
   protected readonly componentLinks = [
+    { path: '/components/badge', label: 'Badge' },
     { path: '/components/button', label: 'Button' },
     { path: '/components/dialog', label: 'Dialog' },
     { path: '/components/field', label: 'Field' },
+    { path: '/components/progress', label: 'Progress' },
     { path: '/components/segmented', label: 'Segmented' },
+    { path: '/components/stepper', label: 'Stepper' },
     { path: '/components/toast', label: 'Toast' },
   ] as const;
 

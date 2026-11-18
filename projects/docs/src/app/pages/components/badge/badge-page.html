@@ -1,0 +1,282 @@
+<h1>Badge</h1>
+<p>
+  <code>ck-badge</code> is a small status label: a pill with a short text, and optionally a leading
+  dot or icon. It is for state such as "Connected" or "Upload failed", not for actions. It is not
+  interactive, has no role and is not a live region. Import <code>CK_BADGE_IMPORTS</code> from
+  <code>&#64;ckui/core/badge</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="tones">Tones</h3>
+<p>
+  Neutral, success and warning badges sit on the control fill and colour the text. A danger badge is
+  filled, with its own text colour on it. Every tone keeps its text at 4.5:1 or better, in both
+  shipped themes.
+</p>
+<div class="demo">
+  <ck-badge>Kuipers S3</ck-badge>
+  <ck-badge tone="success">Connected</ck-badge>
+  <ck-badge tone="warning">Low battery</ck-badge>
+  <ck-badge tone="danger">Upload failed</ck-badge>
+</div>
+<pre class="code"><code>{{ samples.tones }}</code></pre>
+
+<h3 id="dot">Dot</h3>
+<p>
+  <code>dot</code> adds a round dot before the text. It takes the text colour and is hidden from
+  assistive technology, so the text has to carry the state.
+</p>
+<div class="demo">
+  <ck-badge dot>Kuipers S3 · ERG</ck-badge>
+  <ck-badge tone="success" dot>Connected</ck-badge>
+  <ck-badge tone="warning" dot>Searching</ck-badge>
+  <ck-badge tone="danger" dot>Disconnected</ck-badge>
+</div>
+<pre class="code"><code>{{ samples.dot }}</code></pre>
+<p>
+  <code>--ck-badge-dot</code> colours the dot on its own, for example a green dot on a neutral
+  badge. A coloured dot is decoration: the text must still state the status, since colour alone says
+  nothing to everyone.
+</p>
+<div class="demo">
+  <ck-badge dot style="--ck-badge-dot: var(--ck-color-success)"
+    >Kuipers S3 · ERG, connected</ck-badge
+  >
+</div>
+<pre class="code"><code>{{ samples.dotColor }}</code></pre>
+
+<h3 id="icon">Icon</h3>
+<p>
+  Put <code>ckBadgeIcon</code> on an inline <code>svg</code> for a leading icon. It is drawn one em
+  wide in the text colour and marked <code>aria-hidden</code>, so it is never read. The badge brings
+  no icons of its own: you choose the symbol.
+</p>
+<div class="demo">
+  <ck-badge tone="success">
+    <svg
+      ckBadgeIcon
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M3 8.5l3.2 3L13 4.5" />
+    </svg>
+    Strava
+  </ck-badge>
+  <ck-badge tone="danger">
+    <svg
+      ckBadgeIcon
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M8 3v6M8 12.5v.5" />
+    </svg>
+    Upload failed
+  </ck-badge>
+</div>
+<pre class="code"><code>{{ samples.icon }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  <code>md</code> is the default, a 1.5rem pill. <code>sm</code> is 1.25rem and 0.75rem text for
+  dense lists. Neither is a touch target, so they stay the same size under a coarse pointer.
+</p>
+<div class="demo">
+  <ck-badge tone="success" dot>Medium, 1.5rem</ck-badge>
+  <ck-badge tone="success" dot size="sm">Small, 1.25rem</ck-badge>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="truncation">Long text</h3>
+<p>
+  A badge never wraps and never grows past its container. Text that does not fit is cut with an
+  ellipsis while the dot and the icon keep their size. Screen readers still read the full text.
+</p>
+<div class="demo demo-column">
+  <div class="narrow">
+    <ck-badge dot>Heart rate strap connected</ck-badge>
+  </div>
+  <div class="narrow">
+    <ck-badge tone="danger">Upload to Strava failed after three tries</ck-badge>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.truncation }}</code></pre>
+
+<h3 id="announce">Announcing a change</h3>
+<p>
+  A badge is not a live region. When its state changes and users must hear it, say it somewhere that
+  is: a <code>role="status"</code> element, or a toast. The badge itself only shows the state.
+</p>
+<div class="demo">
+  <ck-badge [tone]="connected() ? 'success' : 'danger'" dot>
+    {{ connected() ? 'Connected' : 'Disconnected' }}
+  </ck-badge>
+  <button ckButton type="button" size="sm" (click)="toggle()">Toggle connection</button>
+  <p class="status" role="status">
+    Announced: <output>{{ announcement() || 'nothing yet' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.announce }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the badge">
+  <table class="table">
+    <caption>
+      Inputs of ck-badge
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the badge">
+  <table class="table">
+    <caption>
+      Parts of a badge
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The badge gets the classes <code>ck-badge</code>, <code>ck-badge--&#123;tone&#125;</code> and
+  <code>ck-badge--&#123;size&#125;</code>. Its text lives in <code>ck-badge__text</code>, a block of
+  its own, so inline markup inside the text keeps its spaces.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  A badge is not interactive: it is not in the tab order and takes no keys. If a status should be
+  clickable, put it in a <code>button</code> or a link and keep the badge inside it.
+</p>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    <strong>Never colour alone.</strong> The text has to state the status ("Connected",
+    "Disconnected"). A dot or an icon is decoration: it is hidden from assistive technology, and a
+    badge with no text at all makes development builds warn.
+  </li>
+  <li>
+    <strong>Not a live region.</strong> Changing a badge's text does not announce anything. When the
+    change must be heard, say it yourself, in a <code>role="status"</code> element or a toast.
+  </li>
+  <li>
+    The badge has no role, so a screen reader reads its text in the flow of the page. Do not put an
+    <code>aria-label</code> on it: an element without a role cannot be named. The text is what is
+    read.
+  </li>
+  <li>
+    Text contrast is 4.5:1 or better in every tone, both shipped themes, against the control fill
+    and, for danger, against the filled danger colour.
+  </li>
+  <li>
+    In forced-colors mode the badge gets a visible border and the dot is drawn in the system text
+    colour, since backgrounds are removed there.
+  </li>
+  <li>
+    In right-to-left text the dot and the icon move to the right of the text with the rest of the
+    content.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The badge draws its text and dot in
+    <code>span</code> elements. An unlayered rule such as
+    <code>span &#123; overflow: visible &#125;</code> (the text no longer truncates) or
+    <code>svg &#123; inline-size: 100% &#125;</code> (the icon fills the badge) beats the layered
+    badge. Scope such rules away from the badge or declare resets in a layer before ckui.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-badge">
+  <table class="table">
+    <caption>
+      Component tokens of ck-badge
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The badge also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

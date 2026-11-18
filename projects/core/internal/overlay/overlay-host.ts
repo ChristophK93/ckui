@@ -2,9 +2,7 @@ import { Overlay, OverlayContainer, OverlayRef, ScrollStrategy } from '@angular/
 import { ComponentPortal, ComponentType, Portal, TemplatePortal } from '@angular/cdk/portal';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { DestroyRef, Injectable, Injector, PLATFORM_ID, TemplateRef, inject } from '@angular/core';
-import { CkFocusTrap, CkFocusTrapFactory } from './focus-trap';
-import { CkInert } from './inert';
-import { CkMedia } from './media';
+import { CkFocusTrap, CkFocusTrapFactory, CkInert, CkMedia } from '@ckui/core/internal';
 import { CkOverlayPane } from './overlay-pane';
 import { attachSheetSwipe } from './sheet-swipe';
 
