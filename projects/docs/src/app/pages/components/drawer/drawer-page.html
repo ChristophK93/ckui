@@ -1,0 +1,299 @@
+<h1>Drawer</h1>
+<p>
+  A drawer holds a panel the user opens from a page and leaves again: a device list, settings, a
+  filter. It is modal like a dialog: the page behind it is dimmed and inert, focus stays inside, and
+  Escape closes it. On a tablet or desktop it is a full-height panel that slides in from the side.
+  On a phone it becomes the same bottom sheet as a dialog, as tall as its content, that can be
+  swiped away. Open one with <code>CkDrawer</code> from <code>&#64;ckui/core/drawer</code> and a
+  component or template, or declare a <code>&lt;ck-drawer&gt;</code> in a template. The content is
+  written with the dialog's building blocks.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="service">Service: a component with data and a result</h3>
+<p>
+  <code>open()</code> takes a component or a template and returns a <code>CkDrawerRef</code>, which
+  is the ref of <code>CkDialog</code>. The content injects its data with
+  <code>CK_DRAWER_DATA</code> and the ref with <code>CkDrawerRef</code>.
+  <code>ref.closed</code> resolves after the drawer has left the screen, with the value passed to
+  <code>close()</code> or <code>[ckDialogClose]</code>, and with <code>undefined</code> when the
+  drawer was dismissed.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="pickDevice()">Devices</button>
+  <p class="status">
+    Device: <output>{{ device() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.service }}</code></pre>
+
+<h3 id="template">Template: ck-drawer</h3>
+<p>
+  <code>&lt;ck-drawer&gt;</code> declares the same drawer in a template. Its content is one
+  <code>&lt;ng-template&gt;</code>, rendered only while <code>open</code> is true, so nothing in it
+  exists while the drawer is closed. <code>[(open)]</code> follows the drawer back to
+  <code>false</code> whenever it closes, and <code>(closed)</code> carries the result.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="settingsOpen.set(true)">Settings</button>
+  <p class="status">
+    Last result: <output>{{ settingsResult() }}</output>
+  </p>
+</div>
+<ck-drawer [(open)]="settingsOpen" width="sm" (closed)="onSettingsClosed($event)">
+  <ng-template>
+    <h2 ckDialogTitle>Settings</h2>
+    <ck-dialog-body>Content exists only while the drawer is open.</ck-dialog-body>
+    <ck-dialog-actions>
+      <button ckButton type="button" ckDialogClose>Cancel</button>
+      <button ckButton type="button" variant="primary" ckDialogClose="save">Save</button>
+    </ck-dialog-actions>
+  </ng-template>
+</ck-drawer>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h3 id="sides">Start and end</h3>
+<p>
+  <code>side</code> picks the edge. <code>end</code>, the default, is the right edge in a
+  left-to-right page and the left edge in a right-to-left one; <code>start</code> is the other. The
+  panel slides in from its edge, fills the height of the screen and keeps its content out of display
+  cut-outs. Only the body scrolls when the content is taller than the screen. A side panel has no
+  swipe: close it with Escape, the backdrop or the close button.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="openAt('start')">Open from the start</button>
+  <button ckButton type="button" (click)="openAt('end')">Open from the end</button>
+  <p class="status">
+    Last: <output>{{ lastOpened() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.sides }}</code></pre>
+
+<h3 id="mode">Side panel or sheet</h3>
+<p>
+  <code>mode: 'auto'</code>, the default, opens a sheet when the screen is narrow and the pointer is
+  coarse, and a side panel otherwise. It is decided once, when the drawer opens. A narrow window
+  with a mouse keeps the side panel, capped at the width of the screen minus a margin. Force
+  <code>side</code> or <code>sheet</code> when the content needs one shape.
+  <code>fullHeight</code> makes a sheet as tall as the screen allows.
+</p>
+<div class="demo">
+  <button ckButton type="button" (click)="openAs('side')">Open as side panel</button>
+  <button ckButton type="button" (click)="openAs('sheet')">Open as sheet</button>
+  <button ckButton type="button" (click)="openFullHeight()">Open full-height sheet</button>
+</div>
+<pre class="code"><code>{{ samples.modes }}</code></pre>
+
+<h3 id="injector">Providers of the opener</h3>
+<p>
+  A component opened through <code>CkDrawer</code> sees the providers of the app root. For providers
+  that live lower, such as route-level ones or those of the opening component, pass
+  <code>inject(Injector)</code> from the opener as <code>injector</code>.
+  <code>CK_DRAWER_DATA</code> and <code>CkDrawerRef</code> are provided on top of it. A template
+  keeps the injector of the place where it was declared.
+</p>
+<pre class="code"><code>{{ samples.injector }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Options and methods of the drawer">
+  <table class="table">
+    <caption>
+      Options, methods and inputs of drawers
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of options; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>{{ row.defaultValue }}</td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the drawer">
+  <table class="table">
+    <caption>
+      Parts of the drawer
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  Closing again does nothing: only the first <code>close()</code> counts. When the app is destroyed
+  every open drawer is removed, the page behind it is live again and every
+  <code>closed</code> resolves with <code>undefined</code>. On the server nothing is rendered. The
+  <code>&lt;ck-drawer&gt;</code> inputs are read when the drawer opens; changing one while it is
+  open has no effect. Do not confuse the <code>&lt;ck-drawer&gt;</code> element, which only declares
+  the drawer and renders nothing itself, with the <code>.ck-drawer-panel</code> class of the surface
+  in the overlay. A drawer that has neither a <code>ckDialogTitle</code> nor an
+  <code>ariaLabel</code> logs a warning in development.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>Dialog (Modal) pattern of the WAI-ARIA Authoring Practices.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a drawer">
+  <table class="table">
+    <caption>
+      Keys in a drawer
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The panel has <code>role="dialog"</code> or <code>alertdialog</code> and
+    <code>aria-modal="true"</code>. <code>ckDialogTitle</code> names it and
+    <code>ckDialogDescription</code> describes it; without a title, set <code>ariaLabel</code>. The
+    names follow the content: a title that appears later or goes away updates the panel.
+  </li>
+  <li>
+    Initial focus goes to the element with <code>ckDialogInitialFocus</code>. Without one it goes to
+    the first tabbable element of the content, never the close button, which comes last in the tab
+    order. A drawer with nothing to press focuses the panel itself.
+  </li>
+  <li>
+    Focus is trapped while the drawer is open and the page behind it is inert, so neither Tab nor a
+    screen reader's virtual cursor leaves. When it closes, focus returns to the element that opened
+    it. If the opener is gone, move focus yourself after <code>ref.closed</code> resolves, to a
+    sensible place such as the list the opener belonged to.
+  </li>
+  <li>
+    A dialog opened from a drawer, for example a confirmation, sits above it. The drawer is inert
+    while it is open, Escape closes only the dialog, and focus goes back into the drawer.
+  </li>
+  <li>
+    Escape closes only the topmost drawer. A drawer with <code>dismissible: false</code> ignores
+    Escape, the backdrop and the swipe; make sure it always has a button that closes it.
+  </li>
+  <li>
+    The close button is named by the close label, which can be translated through
+    <code>provideCkui(&#123; labels &#125;)</code>, and is at least 44px on a touch screen. On a
+    sheet the swipe handle is decorative; every action it offers also exists as a button.
+  </li>
+  <li>
+    A phone gets the sheet: the actions stack at full width in reading order and the sheet keeps the
+    safe-area inset of the screen below its content. A side panel keeps its content out of the
+    cut-outs at the top, the bottom and its own edge. The page behind cannot scroll. A right-to-left
+    page puts <code>end</code> on the left.
+  </li>
+  <li>
+    With <code>prefers-reduced-motion</code> the drawer neither slides nor fades. In forced-colors
+    mode the panel has a visible border.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> A reset such as <code>h2 &#123; margin: … &#125;</code>,
+    <code>p &#123; margin: … &#125;</code> or
+    <code>button:focus-visible &#123; outline: … &#125;</code> beats the layered drawer styles, and
+    a rule that sets <code>display</code> on the host element of a drawer component stops its body
+    from scrolling. Declare resets in a layer before ckui, or scope them with
+    <code>:not(.ck-dialog__title)</code>, <code>:not(.ck-dialog__description)</code> and
+    <code>:not(.ck-button)</code>.
+  </li>
+  <li>
+    The drawer lives in the overlay container, a child of <code>body</code>. Under a nested
+    <code>data-ck-theme</code> it follows the theme of the page, not of the section that opened it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them anywhere
+  above the overlay container, usually on <code>:root</code>. The drawer reads its own tokens, not
+  the dialog's. <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of the drawer">
+  <table class="table">
+    <caption>
+      Component tokens of the drawer
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The drawer also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

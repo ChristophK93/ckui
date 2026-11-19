@@ -5,7 +5,7 @@ export interface CkDialogRefControls<R> {
   close(result: R | undefined): void;
 }
 
-/** Controls one open dialog. Returned by `CkDialog.open`, injected by its content; never constructed directly. */
+/** Controls one open dialog or drawer. Returned by `CkDialog.open` and `CkDrawer.open`, injected by its content; never constructed directly. */
 export class CkDialogRef<R = unknown> {
   /**
    * Resolves once, after the dialog has left the screen, with the result of the first `close()`.

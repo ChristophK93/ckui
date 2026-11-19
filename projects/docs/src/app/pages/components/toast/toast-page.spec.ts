@@ -57,7 +57,7 @@ describe('ToastPage', () => {
     document.body.replaceChildren();
     resetTestTheme();
     await emulate([]);
-    await page.viewport(414, 896);
+    await page.viewport(800, 600);
   });
 
   it('has the five sections in order, with one h1 and no skipped heading levels', async () => {

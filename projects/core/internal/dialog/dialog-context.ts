@@ -1,5 +1,4 @@
 import { InjectionToken, Signal, computed, signal } from '@angular/core';
-import { CkDialogMode } from './config';
 
 /** The ids of every title (or description) in the dialog; the newest one names it. */
 export class CkDialogIds {
@@ -20,7 +19,7 @@ export class CkDialogContext {
   readonly titleId = this.titles.current;
   readonly descriptionId = this.descriptions.current;
   /** Resolved when the dialog opens. */
-  readonly mode = signal<Exclude<CkDialogMode, 'auto'>>('modal');
+  readonly mode = signal<'modal' | 'sheet' | 'side'>('modal');
 }
 
 export const CK_DIALOG_CONTEXT = new InjectionToken<CkDialogContext>('CK_DIALOG_CONTEXT');

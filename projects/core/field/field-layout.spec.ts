@@ -7,7 +7,7 @@ const center = (box: DOMRect): number => box.top + box.height / 2;
 
 describe('CkField layout', () => {
   afterEach(() => {
-    document.body.dir = '';
+    document.body.removeAttribute('dir');
     document.body.replaceChildren();
     TestBed.resetTestingModule();
   });

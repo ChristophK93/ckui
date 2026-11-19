@@ -1,0 +1,154 @@
+@layer ckui {
+  .ck-chip {
+    --_ck-chip-height: var(--ck-control-height-sm);
+    --_ck-chip-padding-inline: var(--ck-control-padding-inline-sm);
+    --_ck-chip-font-size: var(--ck-control-font-size-sm);
+    --_ck-chip-border: var(--ck-chip-border-color, var(--ck-color-control-border));
+    --_ck-chip-bg: var(--ck-chip-bg, var(--ck-color-control));
+    --_ck-chip-fg: var(--ck-chip-fg, var(--ck-color-fg));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ck-space-1);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    min-block-size: var(--_ck-chip-height);
+    margin: 0;
+    padding-block: 0;
+    padding-inline: var(--_ck-chip-padding-inline);
+    border: 1px solid var(--_ck-chip-border);
+    border-radius: var(--ck-chip-radius, var(--ck-radius-full));
+    background-color: var(--_ck-chip-bg);
+    color: var(--_ck-chip-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-chip-font-size);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    font-weight: var(--ck-font-weight-medium);
+    line-height: var(--ck-line-height-tight);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  .ck-chip--md {
+    --_ck-chip-height: var(--ck-control-height-md);
+    --_ck-chip-padding-inline: var(--ck-control-padding-inline-md);
+    --_ck-chip-font-size: var(--ck-control-font-size-md);
+  }
+
+  .ck-chip--lg {
+    --_ck-chip-height: var(--ck-control-height-lg);
+    --_ck-chip-padding-inline: var(--ck-control-padding-inline-lg);
+    --_ck-chip-font-size: var(--ck-control-font-size-lg);
+  }
+
+  .ck-chip--xl {
+    --_ck-chip-height: var(--ck-control-height-xl);
+    --_ck-chip-padding-inline: var(--ck-control-padding-inline-xl);
+    --_ck-chip-font-size: var(--ck-control-font-size-xl);
+  }
+
+  /* The selected fill and its border share one colour, so the chip keeps its size and shape. */
+  .ck-chip--selected {
+    --_ck-chip-border: var(--ck-chip-selected-bg, var(--ck-color-primary));
+    --_ck-chip-bg: var(--ck-chip-selected-bg, var(--ck-color-primary));
+    --_ck-chip-fg: var(--ck-chip-selected-fg, var(--ck-color-on-primary));
+  }
+
+  .ck-chip__label {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ck-chip__icon,
+  .ck-chip__check {
+    flex: none;
+    inline-size: 1em;
+    block-size: 1em;
+  }
+
+  .ck-chip__icon > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The check replaces the projected icon while the chip is on. */
+  .ck-chip--selected .ck-chip__icon {
+    display: none;
+  }
+
+  @media (hover: hover) {
+    .ck-chip:hover {
+      background-image: linear-gradient(
+        var(--ck-color-surface-hover),
+        var(--ck-color-surface-hover)
+      );
+    }
+  }
+
+  .ck-chip:active {
+    background-image: linear-gradient(
+      var(--ck-color-surface-active),
+      var(--ck-color-surface-active)
+    );
+  }
+
+  .ck-chip:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  :is(.ck-chip--disabled, .ck-chip:disabled),
+  :is(.ck-chip--disabled, .ck-chip:disabled):hover,
+  :is(.ck-chip--disabled, .ck-chip:disabled):active {
+    border-color: transparent;
+    background-color: var(--ck-color-surface-hover);
+    background-image: none;
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-chip {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-chip {
+      border-color: ButtonText;
+    }
+
+    .ck-chip--selected {
+      forced-color-adjust: none;
+      border-color: Highlight;
+      background-color: Highlight;
+      color: HighlightText;
+    }
+
+    /* Not forced any more, so the overlay and the focus ring are set here too. */
+    .ck-chip--selected,
+    .ck-chip--selected:hover,
+    .ck-chip--selected:active {
+      background-image: none;
+    }
+
+    .ck-chip--selected:focus-visible {
+      outline-color: CanvasText;
+    }
+
+    :is(.ck-chip--disabled, .ck-chip:disabled),
+    :is(.ck-chip--disabled, .ck-chip:disabled):hover,
+    :is(.ck-chip--disabled, .ck-chip:disabled):active {
+      border-color: GrayText;
+      background-color: Canvas;
+      color: GrayText;
+    }
+  }
+}

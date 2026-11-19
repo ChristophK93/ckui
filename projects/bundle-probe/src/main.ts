@@ -11,6 +11,10 @@ bootstrapApplication(App, {
         path: 'dialog',
         loadComponent: () => import('./dialog-page').then((module) => module.DialogPage),
       },
+      {
+        path: 'drawer',
+        loadComponent: () => import('./drawer-page').then((module) => module.DrawerPage),
+      },
     ]),
   ],
 }).catch((error) => console.error(error));

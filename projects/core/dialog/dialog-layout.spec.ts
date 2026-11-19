@@ -100,7 +100,7 @@ describe('CkDialog layout', () => {
     await wait(0);
     resetEnvironment();
     await emulate([]);
-    await page.viewport(414, 896);
+    await page.viewport(800, 600);
   });
 
   async function open(

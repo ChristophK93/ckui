@@ -1,0 +1,374 @@
+<h1>Switch</h1>
+<p>
+  <code>ck-switch</code> turns one setting on or off, and takes effect at once: auto-upload, audio
+  cues, developer tools. It is a native checkbox with the switch role under a label, so the whole
+  row is the tap target. It works with Reactive Forms, <code>ngModel</code> and Signal Forms. Import
+  <code>CK_SWITCH_IMPORTS</code> (the switch and its hint) from <code>&#64;ckui/core/switch</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  The value is a <code>boolean</code> and works two-way with <code>[(value)]</code>. The text inside
+  <code>ck-switch</code> is the label: it names the switch, and a click anywhere on the row toggles
+  it. Use a switch for a setting that applies immediately; for a choice that is saved with a form, a
+  checkbox says that better.
+</p>
+<div class="demo demo-column">
+  <ck-switch class="wide" [(value)]="autoUpload">Auto-upload</ck-switch>
+  <p class="status">
+    Auto-upload is <output>{{ autoUpload() ? 'on' : 'off' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="hint">Hint</h3>
+<p>
+  <code>ck-switch-hint</code> adds a line of help under the label. It describes the switch (a screen
+  reader reads it after the name) and is part of the row, so a click on it toggles too.
+</p>
+<div class="demo demo-column">
+  <ck-switch class="wide" [(value)]="hinted">
+    Auto-upload
+    <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+  </ck-switch>
+</div>
+<pre class="code"><code>{{ samples.hint }}</code></pre>
+
+<h3 id="label-position">Label position</h3>
+<p>
+  By default the text comes first and the switch sits at the end of the row, as in a settings list.
+  <code>labelPosition="end"</code> puts the switch first. In right-to-left text both flip, and the
+  thumb moves to the other side.
+</p>
+<div class="demo demo-column">
+  <ck-switch class="wide" [(value)]="positioned">Audio cues</ck-switch>
+  <ck-switch class="wide" labelPosition="end" [(value)]="positioned">Audio cues</ck-switch>
+</div>
+<pre class="code"><code>{{ samples.position }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same control three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) moves the thumb and never counts as a change by the user; only a click or
+  Space does. <code>null</code> from a form counts as off. The control is touched when focus leaves
+  it.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-switch class="wide" [formControl]="reactiveAudio">Audio cues, Reactive Forms</ck-switch>
+  <p class="status">
+    Value: <output>{{ reactiveAudio.value ?? 'none' }}</output
+    >, dirty: <output>{{ reactiveAudio.dirty ? 'yes' : 'no' }}</output
+    >, touched: <output>{{ reactiveAudio.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveAudio.setValue(false)">
+      Set off in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveAudio.setValue(null)">
+      Set null
+    </button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveAudio.disabled ? reactiveAudio.enable() : reactiveAudio.disable()"
+    >
+      {{ reactiveAudio.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-switch class="wide" [(ngModel)]="templateAudio">Audio cues, ngModel</ck-switch>
+  <p class="status">
+    Value: <output>{{ templateAudio }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-switch class="wide" [formField]="signalForm.audio">Audio cues, Signal Forms</ck-switch>
+  <p class="status">
+    Value: <output>{{ signalForm.audio().value() }}</output
+    >, touched: <output>{{ signalForm.audio().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. The track grows from 2.25 × 1.25rem
+  to 4 × 2.25rem, and the row is never lower than the control height of its size, so it is 44px or
+  more on a coarse pointer and 60px at <code>xl</code>, for one-thumb use on a bike.
+</p>
+<div class="demo demo-column">
+  <ck-switch class="wide" size="sm">Small</ck-switch>
+  <ck-switch class="wide" size="md">Medium</ck-switch>
+  <ck-switch class="wide" size="lg">Large</ck-switch>
+  <ck-switch class="wide" size="xl">Extra large</ck-switch>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="states">Disabled</h3>
+<p>
+  A disabled switch is blocked, greyed and skipped by <kbd>Tab</kbd>, and it keeps showing its state
+  by the thumb position. A <code>&lt;fieldset disabled&gt;</code> around switches does the same
+  without any input.
+</p>
+<div class="demo demo-column">
+  <ck-switch class="wide" disabled>Disabled, off</ck-switch>
+  <ck-switch class="wide" disabled [value]="true">Disabled, on</ck-switch>
+  <fieldset class="group" disabled>
+    <legend>Locked group</legend>
+    <ck-switch [value]="true">Developer tools</ck-switch>
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="no-text">Without visible text</h3>
+<p>
+  A switch with no text needs a name of its own: <code>aria-label</code> or
+  <code>aria-labelledby</code> on <code>ck-switch</code> (they move onto the input). Development
+  builds warn when there is none.
+</p>
+<div class="demo">
+  <ck-switch aria-label="Audio cues, no text" [(value)]="bare" />
+  <p class="status">
+    Value: <output>{{ bare() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.noText }}</code></pre>
+
+<h3 id="settings">A settings list</h3>
+<p>Rows with a label and sometimes a hint, as in an app's settings.</p>
+<div class="demo demo-column">
+  <div class="settings">
+    <ck-switch [(value)]="developerTools">Developer tools</ck-switch>
+    <ck-switch [(value)]="audio">
+      Audio cues
+      <ck-switch-hint>Beeps before every interval.</ck-switch-hint>
+    </ck-switch>
+    <ck-switch [(value)]="upload">
+      Auto-upload
+      <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+    </ck-switch>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.settings }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the switch">
+  <table class="table">
+    <caption>
+      Inputs of ck-switch
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the switch hint">
+  <table class="table">
+    <caption>
+      Inputs of ck-switch-hint
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of hintInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the switch">
+  <table class="table">
+    <caption>
+      Parts of a switch
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The row gets the classes <code>ck-switch</code>, <code>ck-switch--&#123;size&#125;</code>,
+  <code>ck-switch--label-start</code> or <code>ck-switch--label-end</code> and, while it applies,
+  <code>ck-switch--disabled</code>. The value is also available as <code>(valueChange)</code>, which
+  fires once per user change and never for a programmatic write.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a switch">
+  <table class="table">
+    <caption>
+      Keys in a switch
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    It follows the WAI-ARIA switch pattern: a native checkbox with <code>role="switch"</code>, so
+    the checked state is native and a screen reader says "on" or "off". The text names it and a
+    <code>ck-switch-hint</code> describes it; the name does not repeat the hint.
+  </li>
+  <li>
+    The state is never colour alone: the thumb sits at the start of the track when off and at the
+    end when on, and moves to the other side in right-to-left text. The on track is at least 3:1
+    from the off track, and each thumb is at least 3:1 from its track, in both shipped themes.
+  </li>
+  <li>
+    The row is the tap target: at least the control height of the size, so 44px or more on a coarse
+    pointer and 60px at <code>xl</code>. A long label wraps in its own block and never pushes the
+    switch out of the row.
+  </li>
+  <li>
+    The focus ring is drawn around the track for keyboard focus only. In forced-colors mode the
+    track border and the thumb are <code>CanvasText</code>, the on track is
+    <code>Highlight</code> with a <code>HighlightText</code> thumb, and a disabled switch is
+    <code>GrayText</code>.
+  </li>
+  <li>
+    The thumb moves over <code>--ck-duration-normal</code>, and not at all under
+    <code>prefers-reduced-motion</code>.
+  </li>
+  <li>
+    A switch applies immediately, so there is nothing to announce beyond the state change the screen
+    reader already reports. When another part of the page depends on it, say what changed yourself.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The parts are a plain <code>label</code> and
+    <code>input</code>. An unlayered rule such as <code>input &#123; border: … &#125;</code> beats
+    the layered control. Keep those rules off the switch (<code>input:not(.ck-switch__input)</code>)
+    or put resets in a layer declared before ckui. The first rule below really breaks the switch;
+    the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-switch">
+  <table class="table">
+    <caption>
+      Component tokens of ck-switch
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The switch also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

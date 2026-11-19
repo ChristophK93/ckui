@@ -1,0 +1,325 @@
+<h1>Chip</h1>
+<p>
+  <code>ckChip</code> turns a native <code>button</code> into a compact toggle: a pill that is on or
+  off. It is for filters and options that stay on the page, such as choosing categories, not for
+  actions. Chips sit in a <code>ck-chip-group</code> that wraps onto several rows. Import
+  <code>CK_CHIP_IMPORTS</code> from <code>&#64;ckui/core/chip</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="filter">A multi-select filter</h3>
+<p>
+  Bind each chip with <code>[(selected)]</code>. A click, Space or Enter toggles it, and a selected
+  chip shows a check mark before its label, so the state is never colour alone.
+</p>
+<div class="demo demo-column">
+  <ck-chip-group aria-label="Category">
+    <button ckChip [(selected)]="endurance">Endurance</button>
+    <button ckChip [(selected)]="vo2">VO2max</button>
+    <button ckChip [(selected)]="threshold">Threshold</button>
+  </ck-chip-group>
+  <p class="status" role="status">
+    Showing:
+    <span class="value"
+      >{{ endurance() ? 'endurance ' : '' }}{{ vo2() ? 'VO2max ' : ''
+      }}{{ threshold() ? 'threshold' : '' }}</span
+    >
+  </p>
+</div>
+<pre class="code"><code>{{ samples.filter }}</code></pre>
+
+<h3 id="icon">Icon</h3>
+<p>
+  Put <code>ckChipIcon</code> on an inline <code>svg</code> for a leading icon. It is decorative and
+  hidden from assistive technology. While the chip is selected the check mark takes its place, so
+  the chip does not get wider.
+</p>
+<div class="demo">
+  <ck-chip-group aria-label="Quick filters">
+    <button ckChip [(selected)]="favourites">
+      <svg
+        ckChipIcon
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M8 13.5L3.4 8.9a3 3 0 014.6-3.8 3 3 0 014.6 3.8L8 13.5z" />
+      </svg>
+      Favourites
+    </button>
+  </ck-chip-group>
+</div>
+<pre class="code"><code>{{ samples.icon }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  <code>sm</code> is the default, 2rem high. <code>md</code>, <code>lg</code> and
+  <code>xl</code> follow the control heights, up to 3.75rem. Under a coarse pointer
+  <code>sm</code> and <code>md</code> grow to 2.75rem, so every chip is a touch target.
+</p>
+<div class="demo">
+  <ck-chip-group aria-label="Sizes">
+    <button ckChip size="sm">Small</button>
+    <button ckChip size="md">Medium</button>
+    <button ckChip size="lg">Large</button>
+    <button ckChip size="xl">Extra large</button>
+  </ck-chip-group>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="wrapping">Wrapping</h3>
+<p>
+  The group is a flex row that wraps. <code>--ck-chip-group-gap</code> sets the space between chips
+  and between rows; it falls back to <code>--ck-space-2</code>.
+</p>
+<div class="demo">
+  <div class="narrow-wide">
+    <ck-chip-group aria-label="Category" style="--ck-chip-group-gap: var(--ck-space-3)">
+      <button ckChip>Endurance</button>
+      <button ckChip>VO2max</button>
+      <button ckChip>Threshold</button>
+      <button ckChip>Sprint</button>
+      <button ckChip>Recovery</button>
+      <button ckChip>Cadence</button>
+    </ck-chip-group>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.wrapping }}</code></pre>
+
+<h3 id="disabled">Disabled</h3>
+<p>
+  <code>disabled</code> sets the native attribute. A disabled chip is out of the tab order, ignores
+  clicks and keys, and keeps its check mark when it is selected. A chip inside
+  <code>&lt;fieldset disabled&gt;</code> looks and behaves the same.
+</p>
+<div class="demo demo-column">
+  <ck-chip-group aria-label="Disabled">
+    <button ckChip disabled>Endurance</button>
+    <button ckChip disabled [selected]="true">VO2max</button>
+  </ck-chip-group>
+  <fieldset class="plain-fieldset" disabled>
+    <ck-chip-group aria-label="In a disabled fieldset">
+      <button ckChip>Threshold</button>
+    </ck-chip-group>
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.disabled }}</code></pre>
+
+<h3 id="truncation">Long text</h3>
+<p>
+  A chip never grows past its row. Text that does not fit is cut with an ellipsis while the check
+  mark and the icon keep their size. Screen readers still read the full text.
+</p>
+<div class="demo">
+  <div class="narrow">
+    <ck-chip-group aria-label="Category">
+      <button ckChip>Long endurance intervals with short recovery</button>
+    </ck-chip-group>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.truncation }}</code></pre>
+
+<h3 id="programmatic">Changing chips from code</h3>
+<p>
+  Setting <code>selected</code> in code only redraws the chip. It never emits
+  <code>selectedChange</code>, so resetting a filter does not run your change handlers.
+</p>
+<div class="demo">
+  <ck-chip-group aria-label="Category">
+    <button ckChip [(selected)]="resetEndurance">Endurance</button>
+    <button ckChip [(selected)]="resetVo2">VO2max</button>
+    <button ckChip [(selected)]="resetThreshold">Threshold</button>
+  </ck-chip-group>
+  <button ckButton type="button" size="sm" (click)="clear()">Clear</button>
+  <p class="status" role="status">
+    Cleared <span class="value">{{ cleared() }}</span> times
+  </p>
+</div>
+<pre class="code"><code>{{ samples.programmatic }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the chip">
+  <table class="table">
+    <caption>
+      Inputs of ckChip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the chip">
+  <table class="table">
+    <caption>
+      Parts of a chip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The chip gets the classes <code>ck-chip</code>, <code>ck-chip--&#123;size&#125;</code>,
+  <code>ck-chip--selected</code> and <code>ck-chip--disabled</code>. Its text lives in
+  <code>ck-chip__label</code>, a block of its own, so inline markup inside the text keeps its
+  spaces. Chips are not removable and are not a listbox: each is an independent toggle.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  A chip is a native button, so the browser handles its keys. Every chip is in the tab order; there
+  is no arrow-key roving.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys of the chip">
+  <table class="table">
+    <caption>
+      Keys of a chip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys) {
+        <tr>
+          <th scope="row">
+            <kbd>{{ row.keys }}</kbd>
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    <strong>Toggle button.</strong> A chip follows the WAI-ARIA toggle button pattern: a native
+    <code>button</code> with <code>aria-pressed</code> set to <code>true</code> or
+    <code>false</code>. Screen readers say "toggle button, pressed". The chip owns
+    <code>aria-pressed</code>; do not set it yourself.
+  </li>
+  <li>
+    <strong>Never colour alone.</strong> A selected chip shows a check mark before the label, and
+    its fill stays 3:1 or better from an unselected chip in both shipped themes. The check is hidden
+    from assistive technology.
+  </li>
+  <li>
+    <strong>Name the chip and the group.</strong> A chip needs text, an <code>aria-label</code> or
+    an <code>aria-labelledby</code>. A <code>ck-chip-group</code> needs an
+    <code>aria-label</code> or <code>aria-labelledby</code>. Development builds warn when either is
+    missing.
+  </li>
+  <li>
+    Target size is 2rem at <code>sm</code> and 2.75rem under a coarse pointer, 3.75rem at
+    <code>xl</code>; the space between chips keeps neighbouring targets apart.
+  </li>
+  <li>
+    In forced-colors mode a selected chip is drawn in the system highlight colours, and the check
+    mark stays. The focus ring and the disabled look follow the same rules as the button. Under
+    reduced motion the fill changes without a transition.
+  </li>
+  <li>
+    In right-to-left text the check and the icon move to the right of the label with the rest of the
+    content.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The chip is a <code>button</code> with an
+    <code>svg</code> inside. An unlayered rule such as
+    <code>button &#123; border: 0; background: none &#125;</code> (the chip loses its fill and
+    border) or <code>svg &#123; inline-size: 100% &#125;</code> (the icon fills the chip) beats the
+    layered chip. Scope such rules away from the chip or declare resets in a layer before ckui.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of the chip">
+  <table class="table">
+    <caption>
+      Component tokens of the chip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The chip also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

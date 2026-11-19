@@ -242,7 +242,7 @@ describe('FieldPage', () => {
 
   describe('table layout', () => {
     afterEach(async () => {
-      await page.viewport(414, 896);
+      await page.viewport(800, 600);
     });
 
     it('keeps every row header on one line at 1280px', async () => {

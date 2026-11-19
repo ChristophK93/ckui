@@ -90,6 +90,8 @@ export function setTokens(tokens: Record<string, string> = LIGHT_TOKENS): void {
 export function resetEnvironment(): void {
   document.documentElement.style.cssText = '';
   document.documentElement.removeAttribute('dir');
+  // Never `body.dir = ''`: an empty dir attribute leaves the body ltr and hides <html dir>.
+  document.body.removeAttribute('dir');
   document.body.replaceChildren();
   delete (document as { visibilityState?: unknown }).visibilityState;
 }

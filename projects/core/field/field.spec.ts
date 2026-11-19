@@ -62,7 +62,7 @@ const PLAIN = `
 
 describe('CkField', () => {
   afterEach(() => {
-    document.body.dir = '';
+    document.body.removeAttribute('dir');
     document.body.replaceChildren();
     TestBed.resetTestingModule();
   });

@@ -14,8 +14,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { createCkId } from '@ckui/core/internal';
-import { CK_DIALOG_CONTEXT } from './dialog-context';
-import { CkDialogRef } from './dialog-ref';
+import { CK_DIALOG_CONTEXT, CkDialogRef } from '@ckui/core/internal/dialog';
 
 /** Marks a heading as the title of the dialog: it names the dialog (`aria-labelledby`). */
 @Directive({

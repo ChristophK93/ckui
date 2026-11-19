@@ -27,7 +27,7 @@ export interface CkDialogContainerSetup {
 
 export const CK_DIALOG_SETUP = new InjectionToken<CkDialogContainerSetup>('CK_DIALOG_SETUP');
 
-/** The dialog's own element inside the overlay: the padding, the close button and the consumer's content. */
+/** The dialog's (or drawer's) own element inside the overlay: the padding, the close button and the consumer's content. */
 @Component({
   selector: 'ck-dialog-container',
   imports: [CdkPortalOutlet, CkButton, CkIcon],
@@ -36,6 +36,7 @@ export const CK_DIALOG_SETUP = new InjectionToken<CkDialogContainerSetup>('CK_DI
   host: {
     class: 'ck-dialog',
     '[class.ck-dialog--sheet]': 'context.mode() === "sheet"',
+    '[class.ck-dialog--side]': 'context.mode() === "side"',
     '[class.ck-dialog--grab]': 'context.mode() === "sheet" && setup.dismissible',
     '[class.ck-dialog--has-close]': 'setup.closeButton',
     '[class.ck-dialog--no-title]': 'context.titleId() === null',
@@ -59,7 +60,7 @@ export const CK_DIALOG_SETUP = new InjectionToken<CkDialogContainerSetup>('CK_DI
       </button>
     }
   `,
-  styleUrl: './dialog.css',
+  styleUrls: ['./dialog.css', './drawer.css'],
 })
 export class CkDialogContainer {
   protected readonly context = inject(CK_DIALOG_CONTEXT);

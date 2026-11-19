@@ -57,6 +57,30 @@ export const routes: Routes = [
     title: 'Stepper · ckui',
   },
   {
+    path: 'components/chip',
+    loadComponent: () =>
+      import('./pages/components/chip/chip-page').then((module) => module.ChipPage),
+    title: 'Chip · ckui',
+  },
+  {
+    path: 'components/drawer',
+    loadComponent: () =>
+      import('./pages/components/drawer/drawer-page').then((module) => module.DrawerPage),
+    title: 'Drawer · ckui',
+  },
+  {
+    path: 'components/switch',
+    loadComponent: () =>
+      import('./pages/components/switch/switch-page').then((module) => module.SwitchPage),
+    title: 'Switch · ckui',
+  },
+  {
+    path: 'components/tabs',
+    loadComponent: () =>
+      import('./pages/components/tabs/tabs-page').then((module) => module.TabsPage),
+    title: 'Tabs · ckui',
+  },
+  {
     path: 'tokens',
     loadComponent: () => import('./pages/tokens/tokens').then((module) => module.Tokens),
     title: 'Tokens · ckui',

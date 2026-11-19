@@ -1,5 +1,14 @@
 # @ckui/core
 
+## 0.1.0-next.3
+
+### Minor Changes
+
+- Add `CkChip`, `CkChipIcon` and `CkChipGroup` (`@ckui/core/chip`): compact toggle chips on a native button with `aria-pressed`, a check mark when selected, four sizes and a wrapping group for multi-select filters.
+- Add `CkDrawer` and `<ck-drawer>` (`@ckui/core/drawer`): a modal panel that slides in from the start or end edge as a full-height side panel, and becomes the dialog's bottom sheet on a narrow screen with a coarse pointer. It is built from the dialog building blocks (`CK_DRAWER_IMPORTS`), takes a component or a template, returns a `CkDrawerRef` with the result, and follows the writing direction. Tokens: `--ck-drawer-bg`, `--ck-drawer-width`, `--ck-drawer-padding` and `--ck-drawer-shadow`.
+- Add `CkSwitch` and `CkSwitchHint` (`@ckui/core/switch`): an on/off switch with a label and an optional hint, four sizes, a native switch input underneath and the form APIs.
+- Add `CkTabs`, `CkTabList`, `CkTab`, `CkTabPanel` and `CkTabContent` (`@ckui/core/tabs`): underline tabs with a shared or per-tab panels, lazy panel content, automatic or manual activation, four sizes, a row that scrolls sideways and keeps the selected tab in view, and the WAI-ARIA tabs keyboard pattern.
+
 ## 0.1.0-next.2
 
 ### Minor Changes

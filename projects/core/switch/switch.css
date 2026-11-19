@@ -1,0 +1,242 @@
+@layer ckui {
+  .ck-switch-host {
+    display: block;
+  }
+
+  /* A row: the text block and the switch. The text sits in its own block, never in a flex item run. */
+  .ck-switch {
+    --_ck-switch-border: 1px;
+    --_ck-switch-gap: var(--ck-switch-thumb-gap, 0.1875rem);
+    --_ck-switch-thumb-size: calc(
+      var(--_ck-switch-height) - 2 * (var(--_ck-switch-border) + var(--_ck-switch-gap))
+    );
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--_ck-switch-row);
+    padding-block: var(--ck-space-1);
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-switch-font-size);
+    line-height: var(--ck-line-height-tight);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-switch--sm {
+    --_ck-switch-row: var(--ck-control-height-sm);
+    --_ck-switch-font-size: var(--ck-control-font-size-sm);
+    --_ck-switch-width: 2.25rem;
+    --_ck-switch-height: 1.25rem;
+  }
+
+  .ck-switch--md {
+    --_ck-switch-row: var(--ck-control-height-md);
+    --_ck-switch-font-size: var(--ck-control-font-size-md);
+    --_ck-switch-width: 2.75rem;
+    --_ck-switch-height: 1.5rem;
+  }
+
+  .ck-switch--lg {
+    --_ck-switch-row: var(--ck-control-height-lg);
+    --_ck-switch-font-size: var(--ck-control-font-size-lg);
+    --_ck-switch-width: 3.25rem;
+    --_ck-switch-height: 1.75rem;
+  }
+
+  .ck-switch--xl {
+    --_ck-switch-row: var(--ck-control-height-xl);
+    --_ck-switch-font-size: var(--ck-control-font-size-xl);
+    --_ck-switch-width: 4rem;
+    --_ck-switch-height: 2.25rem;
+  }
+
+  .ck-switch__control {
+    position: relative;
+    flex: none;
+    box-sizing: border-box;
+    inline-size: var(--_ck-switch-width);
+    block-size: var(--_ck-switch-height);
+  }
+
+  /* The real control, invisible, over the whole track. */
+  .ck-switch__input {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    appearance: none;
+    cursor: inherit;
+  }
+
+  .ck-switch__track {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: var(--_ck-switch-border) solid
+      var(--ck-switch-border-color, var(--ck-color-control-border));
+    border-radius: var(--ck-switch-radius, var(--ck-radius-full));
+    background: var(--ck-switch-track, var(--ck-color-control));
+    pointer-events: none;
+    transition:
+      background-color var(--ck-duration-normal) var(--ck-ease-standard),
+      border-color var(--ck-duration-normal) var(--ck-ease-standard);
+  }
+
+  /* The thumb position is the state, so it never depends on colour alone. */
+  .ck-switch__thumb {
+    position: absolute;
+    inset-block-start: var(--_ck-switch-gap);
+    inset-inline-start: var(--_ck-switch-gap);
+    box-sizing: border-box;
+    inline-size: var(--_ck-switch-thumb-size);
+    block-size: var(--_ck-switch-thumb-size);
+    border-radius: var(--ck-radius-full);
+    background: var(--ck-switch-thumb, var(--ck-color-fg-muted));
+    transition:
+      inset-inline-start var(--ck-duration-normal) var(--ck-ease-standard),
+      background-color var(--ck-duration-normal) var(--ck-ease-standard);
+  }
+
+  .ck-switch__input:checked + .ck-switch__track {
+    border-color: var(--ck-switch-track-on, var(--ck-color-primary));
+    background: var(--ck-switch-track-on, var(--ck-color-primary));
+  }
+
+  .ck-switch__input:checked + .ck-switch__track .ck-switch__thumb {
+    inset-inline-start: calc(100% - var(--_ck-switch-thumb-size) - var(--_ck-switch-gap));
+    background: var(--ck-switch-thumb-on, var(--ck-color-on-primary));
+  }
+
+  .ck-switch__body {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+
+  .ck-switch--label-start .ck-switch__body {
+    order: -1;
+  }
+
+  /* The gap only exists while there is text or a hint. */
+  .ck-switch--label-start .ck-switch__body:has(> :not(:empty)) {
+    margin-inline-end: var(--ck-space-3);
+  }
+
+  .ck-switch--label-end .ck-switch__body:has(> :not(:empty)) {
+    margin-inline-start: var(--ck-space-3);
+  }
+
+  .ck-switch__text {
+    display: block;
+  }
+
+  /* No text and no hint: the row is just the switch, not a full-width tap area. */
+  .ck-switch:not(:has(.ck-switch__body > :not(:empty))) {
+    inline-size: fit-content;
+    max-inline-size: 100%;
+  }
+
+  .ck-switch:not(:has(.ck-switch__body > :not(:empty))) .ck-switch__body {
+    flex: none;
+  }
+
+  .ck-switch-hint {
+    display: block;
+    margin-block-start: var(--ck-space-1);
+    color: var(--ck-color-fg-muted);
+    font-size: var(--ck-font-size-sm);
+    line-height: var(--ck-line-height-normal);
+  }
+
+  .ck-switch__input:focus-visible + .ck-switch__track {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  /* Also inside a <fieldset disabled>, where only the input's :disabled state knows. */
+  .ck-switch--disabled,
+  .ck-switch:has(.ck-switch__input:disabled) {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-switch:has(.ck-switch__input:disabled) .ck-switch-hint {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-switch__input:disabled + .ck-switch__track {
+    border-color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-switch__input:disabled + .ck-switch__track .ck-switch__thumb {
+    background: var(--ck-color-fg-disabled);
+  }
+
+  .ck-switch__input:disabled:checked + .ck-switch__track {
+    background: var(--ck-color-fg-disabled);
+  }
+
+  .ck-switch__input:disabled:checked + .ck-switch__track .ck-switch__thumb {
+    background: var(--ck-color-on-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-switch__track,
+    .ck-switch__thumb {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-switch__track {
+      border-color: CanvasText;
+      background: Canvas;
+    }
+
+    .ck-switch__thumb {
+      background: CanvasText;
+    }
+
+    .ck-switch__input:checked + .ck-switch__track {
+      border-color: Highlight;
+      background: Highlight;
+    }
+
+    .ck-switch__input:checked + .ck-switch__track .ck-switch__thumb {
+      background: HighlightText;
+    }
+
+    .ck-switch__input:focus-visible + .ck-switch__track {
+      outline: var(--ck-focus-ring-width) solid Highlight;
+      outline-offset: var(--ck-focus-ring-offset);
+    }
+
+    .ck-switch--disabled,
+    .ck-switch--disabled .ck-switch-hint,
+    .ck-switch:has(.ck-switch__input:disabled),
+    .ck-switch:has(.ck-switch__input:disabled) .ck-switch-hint {
+      color: GrayText;
+    }
+
+    .ck-switch__input:disabled + .ck-switch__track,
+    .ck-switch__input:disabled:checked + .ck-switch__track {
+      border-color: GrayText;
+      background: Canvas;
+    }
+
+    .ck-switch__input:disabled + .ck-switch__track .ck-switch__thumb,
+    .ck-switch__input:disabled:checked + .ck-switch__track .ck-switch__thumb {
+      background: GrayText;
+    }
+  }
+}

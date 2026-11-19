@@ -1,0 +1,217 @@
+@layer ckui {
+  .ck-tabs {
+    display: block;
+  }
+
+  .ck-tabs--sm {
+    --_ck-tabs-height: var(--ck-control-height-sm);
+    --_ck-tabs-font-size: var(--ck-control-font-size-sm);
+    --_ck-tabs-padding-inline: var(--ck-tabs-padding-inline, var(--ck-control-padding-inline-sm));
+  }
+
+  .ck-tabs--md {
+    --_ck-tabs-height: var(--ck-control-height-md);
+    --_ck-tabs-font-size: var(--ck-control-font-size-md);
+    --_ck-tabs-padding-inline: var(--ck-tabs-padding-inline, var(--ck-control-padding-inline-md));
+  }
+
+  .ck-tabs--lg {
+    --_ck-tabs-height: var(--ck-control-height-lg);
+    --_ck-tabs-font-size: var(--ck-control-font-size-lg);
+    --_ck-tabs-padding-inline: var(--ck-tabs-padding-inline, var(--ck-control-padding-inline-lg));
+  }
+
+  .ck-tabs--xl {
+    --_ck-tabs-height: var(--ck-control-height-xl);
+    --_ck-tabs-font-size: var(--ck-control-font-size-xl);
+    --_ck-tabs-padding-inline: var(--ck-tabs-padding-inline, var(--ck-control-padding-inline-xl));
+  }
+
+  /* The row scrolls sideways when the tabs do not fit; the focus ring is drawn inside each tab so
+     the scroll container cannot clip it. */
+  .ck-tab-list {
+    position: relative;
+    display: flex;
+    box-sizing: border-box;
+    gap: var(--ck-tabs-gap, 0);
+    border-block-end: 1px solid var(--ck-tabs-border-color, var(--ck-color-border-subtle));
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-tight);
+    overflow: auto hidden;
+    overscroll-behavior-x: contain;
+  }
+
+  /* A plain wheel does not scroll a horizontal row, so a mouse user keeps a thin scrollbar. Touch hides it. */
+  @media (hover: hover) and (pointer: fine) {
+    .ck-tab-list {
+      scrollbar-width: thin;
+    }
+  }
+
+  @media not ((hover: hover) and (pointer: fine)) {
+    .ck-tab-list {
+      scrollbar-width: none;
+    }
+
+    .ck-tab-list::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Direction comes from the dir attribute alone, so the row, the indicator and the keys agree. */
+  .ck-tab-list:dir(ltr) {
+    direction: ltr;
+  }
+
+  .ck-tab {
+    position: relative;
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    block-size: var(--_ck-tabs-height);
+    max-inline-size: 100%;
+    padding-inline: var(--_ck-tabs-padding-inline);
+    color: var(--ck-tabs-fg, var(--ck-color-fg-muted));
+    font-size: var(--_ck-tabs-font-size);
+    font-weight: var(--ck-tabs-font-weight, var(--ck-font-weight-medium));
+    white-space: nowrap;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color var(--ck-duration-fast) var(--ck-ease-standard),
+      background-color var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  /* The label is its own block, so consumer text keeps its inline flow and a long one is cut. */
+  .ck-tab__label {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ck-tabs--full-width .ck-tab {
+    flex: 1 1 0;
+    min-inline-size: min(max-content, 100%);
+  }
+
+  /* The underline: drawn by the selected tab itself, so it follows the tab through scrolling,
+     right-to-left text and server rendering. */
+  .ck-tab::after {
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    block-size: var(--ck-tabs-indicator-thickness, var(--ck-space-1));
+    background: var(--ck-tabs-indicator, var(--ck-color-primary));
+    pointer-events: none;
+    scale: 0 1;
+    transition: scale var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  .ck-tab--selected {
+    color: var(--ck-tabs-fg-selected, var(--ck-color-fg));
+    font-weight: var(--ck-tabs-font-weight-selected, var(--ck-font-weight-semibold));
+  }
+
+  .ck-tab--selected::after {
+    scale: 1 1;
+  }
+
+  @media (hover: hover) {
+    .ck-tab:hover {
+      background-color: var(--ck-color-surface-hover);
+    }
+  }
+
+  .ck-tab:active {
+    background-color: var(--ck-color-surface-active);
+  }
+
+  /* The ring is a pseudo-element inside the tab, so a global :focus-visible rule cannot move it out
+     of the box and under the clipping row. */
+  .ck-tab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .ck-tab:focus-visible {
+    outline: none;
+  }
+
+  .ck-tab:focus-visible::before {
+    outline: var(--ck-focus-ring);
+    outline-offset: calc(-1 * var(--ck-focus-ring-width));
+  }
+
+  .ck-tab--disabled,
+  .ck-tab--disabled:hover,
+  .ck-tab--disabled:active {
+    background-color: transparent;
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-tab-panel {
+    display: block;
+  }
+
+  .ck-tab-panel[hidden] {
+    display: none;
+  }
+
+  .ck-tab-panel:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-tab,
+    .ck-tab::after {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-tab-list {
+      border-block-end-color: CanvasText;
+    }
+
+    .ck-tab {
+      color: ButtonText;
+    }
+
+    .ck-tab--selected {
+      color: CanvasText;
+    }
+
+    .ck-tab::after {
+      background-color: Highlight;
+    }
+
+    .ck-tab--disabled,
+    .ck-tab--disabled:hover,
+    .ck-tab--disabled:active {
+      color: GrayText;
+    }
+
+    .ck-tab:focus-visible::before,
+    .ck-tab-panel:focus-visible {
+      outline-color: Highlight;
+    }
+  }
+
+  @media (forced-colors: active) and (hover: hover) {
+    .ck-tab:not(.ck-tab--disabled):hover {
+      color: Highlight;
+    }
+  }
+}

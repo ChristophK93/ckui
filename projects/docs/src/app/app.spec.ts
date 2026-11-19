@@ -62,11 +62,15 @@ describe('App', () => {
       'Tokens',
       'Badge',
       'Button',
+      'Chip',
       'Dialog',
+      'Drawer',
       'Field',
       'Progress',
       'Segmented',
       'Stepper',
+      'Switch',
+      'Tabs',
       'Toast',
     ]);
     const group = element.querySelector(
@@ -76,11 +80,15 @@ describe('App', () => {
     expect(Array.from(group.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
       '/components/badge',
       '/components/button',
+      '/components/chip',
       '/components/dialog',
+      '/components/drawer',
       '/components/field',
       '/components/progress',
       '/components/segmented',
       '/components/stepper',
+      '/components/switch',
+      '/components/tabs',
       '/components/toast',
     ]);
     expect(element.querySelector('header fieldset legend')?.textContent?.trim()).toBe('Theme');
@@ -98,6 +106,10 @@ describe('App', () => {
     ['/components/badge', 'Badge'],
     ['/components/progress', 'Progress'],
     ['/components/stepper', 'Stepper'],
+    ['/components/switch', 'Switch'],
+    ['/components/chip', 'Chip'],
+    ['/components/tabs', 'Tabs'],
+    ['/components/drawer', 'Drawer'],
   ])('marks only the active link as the current page on %s', async (url, label) => {
     const element = await render(url);
     expect(currentLinks(element)).toEqual([label]);
@@ -120,16 +132,30 @@ describe('App', () => {
     expect(document.title).toBe('Button · ckui');
     await TestBed.inject(Router).navigateByUrl('/components/field');
     expect(document.title).toBe('Field · ckui');
-    for (const name of ['Segmented', 'Toast', 'Dialog', 'Badge', 'Progress', 'Stepper']) {
+    for (const name of [
+      'Segmented',
+      'Toast',
+      'Dialog',
+      'Badge',
+      'Progress',
+      'Stepper',
+      'Switch',
+      'Chip',
+      'Tabs',
+      'Drawer',
+    ]) {
       await TestBed.inject(Router).navigateByUrl(`/components/${name.toLowerCase()}`);
       expect(document.title).toBe(`${name} · ckui`);
     }
   });
 
-  it.each(['Badge', 'Progress', 'Stepper'])('shows the %s page', async (name) => {
-    const element = await render(`/components/${name.toLowerCase()}`);
-    expect(element.querySelector('main h1')?.textContent).toBe(name);
-  });
+  it.each(['Badge', 'Progress', 'Stepper', 'Switch', 'Chip', 'Tabs', 'Drawer'])(
+    'shows the %s page',
+    async (name) => {
+      const element = await render(`/components/${name.toLowerCase()}`);
+      expect(element.querySelector('main h1')?.textContent).toBe(name);
+    },
+  );
 
   it('shows the Field page', async () => {
     const element = await render('/components/field');

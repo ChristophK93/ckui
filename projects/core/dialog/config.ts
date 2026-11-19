@@ -1,4 +1,4 @@
-import { InjectionToken, Injector } from '@angular/core';
+import { Injector } from '@angular/core';
 
 export type CkDialogRole = 'dialog' | 'alertdialog';
 /** Largest inline size of a modal dialog: 24, 32 or 48rem. */
@@ -30,6 +30,3 @@ export interface CkDialogConfig<D = unknown> {
   /** The accessible name when the content has no `ckDialogTitle`. */
   ariaLabel?: string;
 }
-
-/** The `data` of the config, for a dialog opened with a component. */
-export const CK_DIALOG_DATA = new InjectionToken<unknown>('CK_DIALOG_DATA');

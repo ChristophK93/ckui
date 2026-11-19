@@ -1,0 +1,9 @@
+@layer ckui {
+  .ck-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ck-chip-group-gap, var(--ck-space-2));
+    min-inline-size: 0;
+  }
+}

@@ -9,8 +9,7 @@ import {
 } from './dialog-parts';
 
 export type { CkDialogConfig, CkDialogMode, CkDialogRole, CkDialogWidth } from './config';
-export { CK_DIALOG_DATA } from './config';
-export { CkDialogRef } from './dialog-ref';
+export { CK_DIALOG_DATA, CkDialogRef } from '@ckui/core/internal/dialog';
 export { CkDialog } from './dialog.service';
 export { CkDialogComponent } from './dialog.component';
 export {

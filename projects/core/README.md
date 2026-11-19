@@ -80,6 +80,54 @@ Global element styles: your own unlayered rules such as `a { color: … }` or
 `a:hover { text-decoration: … }` beat the layered button, by design. Scope them with
 `a:not(.ck-button)`, or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
+## Chip
+
+```ts
+import { CK_CHIP_IMPORTS } from '@ckui/core/chip';
+```
+
+```html
+<ck-chip-group aria-label="Category">
+  <button ckChip [(selected)]="endurance">Endurance</button>
+  <button ckChip [(selected)]="vo2">
+    <svg
+      ckChipIcon
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M8 13.5L3.4 8.9a3 3 0 014.6-3.8 3 3 0 014.6 3.8L8 13.5z" />
+    </svg>
+    VO2max
+  </button>
+</ck-chip-group>
+```
+
+`ckChip` turns a native `<button>` into a compact toggle for filters (`CkChip`, `CkChipIcon`, `CkChipGroup`;
+`CK_CHIP_IMPORTS` is all three). Inputs: `selected` (a `model<boolean>`, `false`; use `[(selected)]`; a click toggles it
+and emits, a programmatic change never emits), `size` (`sm`, the default, `md`, `lg`, `xl`; an unknown value falls back
+to `sm`) and `disabled` (the native attribute; `<fieldset disabled>` blocks and styles the chip the same). The button
+keeps its own `type` (default `button`), `tabindex`, `aria-*` and classes; the chip owns `aria-pressed`. A selected chip
+shows a check before the label (it replaces a projected `ckChipIcon` while on), so the state is never colour alone.
+The label is cut with an ellipsis when it does not fit.
+
+`ck-chip-group` is a `role="group"` flex row that wraps; give it an `aria-label` or `aria-labelledby`. Development
+builds warn about a chip without a name and a group without one.
+
+Keyboard: Tab moves between chips, Space or Enter toggles the focused chip. Height follows the control-height tokens
+(2rem at `sm`, 2.75rem for `sm` and `md` under a coarse pointer, 3.75rem at `xl`). In forced colors a selected chip is
+`Highlight`; motion stops under `prefers-reduced-motion`. Component tokens: `--ck-chip-bg` (default
+`--ck-color-control`), `--ck-chip-fg` (`--ck-color-fg`), `--ck-chip-border-color` (`--ck-color-control-border`),
+`--ck-chip-selected-bg` (`--ck-color-primary`), `--ck-chip-selected-fg` (`--ck-color-on-primary`), `--ck-chip-radius`
+(`--ck-radius-full`) and `--ck-chip-group-gap` (`--ck-space-2`). Keep the selected fill 3:1 from the unselected one.
+
+Global element styles: an unlayered `button { border: …; background: … }` or `svg { inline-size: 100% }` beats the
+layered chip. Keep them off the chip (`button:not(.ck-chip)`) or put resets in a layer declared before ckui:
+`@layer reset, ckui;`.
+
 ## Field and input
 
 ```ts
@@ -272,6 +320,111 @@ Global element styles: an unlayered `button { border: … }` or `input { … }` 
 `:focus-visible { outline: … }` draws a second ring on the input. Keep them off the stepper
 (`button:not(.ck-stepper__button)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
+## Switch
+
+```ts
+import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
+```
+
+```html
+<ck-switch [(value)]="autoUpload">
+  Auto-upload
+  <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+</ck-switch>
+<ck-switch aria-label="Audio cues" labelPosition="end" [formControl]="audio" />
+```
+
+`ck-switch` is an on/off switch with a label (`CkSwitch`, a form control for Reactive Forms, `ngModel` and Signal
+Forms; `CK_SWITCH_IMPORTS` is `[CkSwitch, CkSwitchHint]`). The value is a `boolean`, off by default; `null` from a
+form counts as off. Inputs: `size` (`sm`, `md`, `lg`, `xl`, default from `provideCkui`), `disabled`, `labelPosition`
+(`start`, the default, puts the text first and the switch at the end of the row; `end` puts the switch first) and
+`aria-label` / `aria-labelledby` / `aria-describedby` (inputs that move onto the input element; bind them as
+`[aria-label]`). `(valueChange)` fires once per user change and never for a programmatic write; the control is
+touched when focus leaves it.
+
+The row is a `<label>` around one native `<input type="checkbox" role="switch">`, so the checked state, Space and a
+click on the text, the hint or the switch all work natively. The projected text names the switch; a
+`<ck-switch-hint>` is its description (it takes an `id`, else it gets one) and is part of the row, so a click on it
+toggles too. A switch without visible text needs an `aria-label` or `aria-labelledby`; development builds warn
+otherwise. The state is shown by the thumb's position, never by colour alone, and the thumb moves to the other side
+in right-to-left text. `<fieldset disabled>` blocks and styles the switch like `disabled`.
+
+The row is at least the control height of its size (44px or more on a coarse pointer, 60px at `xl`); the track is
+2.25 × 1.25rem at `sm`, 2.75 × 1.5rem at `md`, 3.25 × 1.75rem at `lg` and 4 × 2.25rem at `xl`. Component tokens:
+`--ck-switch-track` (off, default `--ck-color-control`), `--ck-switch-track-on` (default `--ck-color-primary`),
+`--ck-switch-thumb` (off, default `--ck-color-fg-muted`), `--ck-switch-thumb-on` (default `--ck-color-on-primary`),
+`--ck-switch-border-color` (off track, default `--ck-color-control-border`), `--ck-switch-radius` and
+`--ck-switch-thumb-gap`. Keep the on track 3:1 from the off track. In forced colors the track border and thumb are
+`CanvasText` and the on track is `Highlight`; motion stops under `prefers-reduced-motion`.
+
+Global element styles: an unlayered `input { … }` or `label { … }` beats the layered parts. Keep them off the switch
+(`input:not(.ck-switch__input)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Tabs
+
+```ts
+import { CK_TABS_IMPORTS } from '@ckui/core/tabs';
+```
+
+```html
+<ck-tabs [(value)]="source">
+  <ck-tab-list aria-label="Workout source">
+    <ck-tab value="predefined">Predefined</ck-tab>
+    <ck-tab value="mine">Mine</ck-tab>
+    <ck-tab value="shared">Shared</ck-tab>
+  </ck-tab-list>
+  <ck-tab-panel>One list for the selected source.</ck-tab-panel>
+</ck-tabs>
+```
+
+`ck-tabs` switches between views on one page: underlined tabs and the panel of the selected one. It is not a
+form control and not navigation between pages (`CkTabs`, `CkTabList`, `CkTab`, `CkTabPanel`, `CkTabContent`;
+`CK_TABS_IMPORTS` is all five). Inputs of `ck-tabs`: `value` (two-way; `null` shows the first enabled tab),
+`activation` (`auto`, the default, selects a tab as soon as the arrow keys focus it; `manual` waits for Enter or
+Space), `size` (`sm`, `md`, `lg`, `xl`, default from `provideCkui`) and `fullWidth` (the tabs share the row
+equally). `ck-tab` takes a required `value`, `disabled` and `id`; `ck-tab-panel` takes an optional `value` and
+`id`. `(valueChange)` fires when the user picks a tab.
+
+A panel with a `value` belongs to the tab of that value and is hidden (`hidden` attribute, content kept) unless
+that tab is selected; a development build warns about a panel whose value matches no tab. A panel without a
+`value` is shared: every tab points at it with `aria-controls`, and it is labelled by whichever tab is selected.
+Put an `<ng-template ckTabContent>` inside a panel to create its content only while the panel is shown and destroy
+it when it is hidden. Lazy content in a shared panel lives on across tab switches: the panel stays shown, so it is
+created once.
+
+A `value` of `null`, one no tab has, or one that names a disabled tab shows the first enabled tab. That is only
+reflected: the model is written when the user picks a tab, never for the implicit default, and tabs may be added
+and removed at any time (removing the selected one shows the first tab). Values are compared with `Object.is`
+and must not be `null`.
+
+The row follows the WAI-ARIA tabs pattern: `role="tablist"` (it needs an `aria-label` or `aria-labelledby`;
+development builds warn without one), `role="tab"` with `aria-selected`, `aria-controls` and a roving `tabindex`
+(one tab stop, on the selected tab), and panels with `role="tabpanel"`, `aria-labelledby` and `tabindex="0"`.
+Keys: `ArrowRight` / `ArrowLeft` move between enabled tabs and wrap (swapped in right-to-left text), `Home` and
+`End` jump, and `Enter` or `Space` select the focused tab; with `activation="auto"` the arrow keys, `Home` and
+`End` select too. A disabled tab is skipped by the arrow keys (`tabindex="-1"`, never the tab stop). When the tabs do not fit, the row scrolls
+sideways inside itself (the page never does), keeps the selected and the focused tab in view and cuts a label
+wider than the row with an ellipsis. A fine pointer keeps a thin scrollbar (a plain wheel does not scroll a
+horizontal row); touch hides it.
+
+Each tab is at least the control height of its size (44px or more on a coarse pointer, 60px at `xl`). The selected
+tab is marked by an underline, a heavier weight and the stronger text colour, never by colour alone; keep a custom
+underline 3:1 from the page. The focus ring is drawn inside the tab on keyboard focus only. In forced colors the
+underline is `Highlight`, the selected text and the line under the row are `CanvasText`, and a disabled tab is
+`GrayText`; the underline grows in over `--ck-duration-fast` and not at all under `prefers-reduced-motion`.
+
+Component tokens: `--ck-tabs-fg` (unselected text, default `--ck-color-fg-muted`), `--ck-tabs-fg-selected`
+(default `--ck-color-fg`), `--ck-tabs-indicator` (underline, default `--ck-color-primary`),
+`--ck-tabs-indicator-thickness` (default `--ck-space-1`), `--ck-tabs-border-color` (the 1px line under the row,
+default `--ck-color-border-subtle`), `--ck-tabs-gap` (between tabs, default `0`), `--ck-tabs-padding-inline`
+(default the control padding of the size), `--ck-tabs-font-weight` (unselected, default `--ck-font-weight-medium`)
+and `--ck-tabs-font-weight-selected` (default `--ck-font-weight-semibold`). Set the two weights equal and no tab
+changes width when it is selected.
+
+Global element styles: an unlayered `ck-tab-panel { display: … }` keeps hidden panels on screen (use
+`ck-tab-panel:not([hidden])`), and a global `:focus-visible { outline: … }` adds a second ring on the tab itself
+(use `:focus-visible:not(.ck-tab)`). Or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
 ## Toast
 
 ```ts
@@ -358,6 +511,68 @@ Global element styles: a global `h2`, `p` or `button:focus-visible` rule beats t
 with `:not(.ck-dialog__title)`, `:not(.ck-dialog__description)` and `:not(.ck-button)`, or put resets in a layer
 declared before ckui: `@layer reset, ckui;`. A component opened through `CkDialog` must keep its host element a
 flex column (the default styles do this); a global `display` on it stops the body from scrolling.
+
+## Drawer
+
+```ts
+import { CK_DRAWER_DATA, CK_DRAWER_IMPORTS, CkDrawer, CkDrawerRef } from '@ckui/core/drawer';
+
+@Component({
+  imports: [CK_DRAWER_IMPORTS],
+  template: `
+    <h2 ckDialogTitle>Devices</h2>
+    <ck-dialog-body>
+      @for (device of data.devices; track device) {
+        <button (click)="ref.close(device)">{{ device }}</button>
+      }
+    </ck-dialog-body>
+    <ck-dialog-actions><button ckDialogClose>Cancel</button></ck-dialog-actions>
+  `,
+})
+class DeviceSheet {
+  protected readonly data = inject<{ devices: string[] }>(CK_DRAWER_DATA);
+  protected readonly ref = inject<CkDrawerRef<string>>(CkDrawerRef);
+}
+
+const ref = inject(CkDrawer).open<DeviceSheet, { devices: string[] }, string>(DeviceSheet, {
+  side: 'end',
+  data: { devices: ['Bike', 'Treadmill'] },
+});
+const device = await ref.closed; // undefined when dismissed
+```
+
+A drawer is a modal panel that slides in from the side of the screen. On a tablet or desktop it is a full-height side
+panel; on a narrow screen with a coarse pointer it is the dialog's bottom sheet. It is written with the dialog's
+building blocks, which `CK_DRAWER_IMPORTS` re-exports: `ckDialogTitle` (names the drawer), `ckDialogDescription`,
+`ck-dialog-body` (the only part that scrolls), `ck-dialog-actions`, `ckDialogClose="result"` and
+`ckDialogInitialFocus`.
+
+`CkDrawer.open(componentOrTemplate, config)` returns a `CkDrawerRef` (`close(result?)`, `closed`, `closing`); it is
+the ref of `CkDialog`, and `CK_DRAWER_DATA` is the token of `CK_DIALOG_DATA`, so content written for a dialog works in
+a drawer. `closeAll()` closes the drawers and leaves dialogs open. Config: `data`, `side` (`start` or `end`, default
+`end`: the right edge in a left-to-right page, the left edge in a right-to-left one), `mode` (`auto`, `side`,
+`sheet`; `auto` is decided when the drawer opens), `width` (`sm`, `md`, `lg`: 20, 24 or 32rem, never wider than the
+screen minus a margin), `role` (`dialog` or `alertdialog`), `dismissible` (Escape and backdrop, and a swipe on a
+sheet; default `true`), `closeButton`, `fullHeight` (a sheet as tall as the screen allows), `injector` and
+`ariaLabel`. `closed` resolves after the drawer has left the screen, with the first result passed to `close()`;
+Escape, the backdrop, a swipe and destroying the app resolve it with `undefined`.
+
+The same drawer can be declared in a template: `<ck-drawer [(open)]="open" side="end" (closed)="onClosed($event)">`
+with one `<ng-template>` inside, which is rendered only while the drawer is open.
+
+The drawer is modal like a dialog: `role="dialog"` (or `alertdialog`) with `aria-modal`, a focus trap, an inert page
+behind it, Escape and backdrop close when dismissible, and focus returns to the opener. A side panel has no swipe; a
+dialog opened from a drawer sits above it. The panel keeps its content out of display cut-outs (safe-area insets),
+does not slide under `prefers-reduced-motion` and has a visible border in forced-colors mode.
+
+Component tokens: `--ck-drawer-bg` (panel and grab area; falls back to `--ck-color-surface-raised`),
+`--ck-drawer-width` (side panel; falls back to the 20, 24 or 32rem of `width`), `--ck-drawer-padding` (falls back to
+`--ck-space-6`, `--ck-space-4` on a sheet) and `--ck-drawer-shadow` (falls back to `--ck-shadow-lg`). The drawer
+does not read the `--ck-dialog-*` tokens.
+
+Global element styles: as for the dialog, scope a global `h2`, `p` or `button:focus-visible` rule with
+`:not(.ck-dialog__title)`, `:not(.ck-dialog__description)` and `:not(.ck-button)`, or put resets in a layer declared
+before ckui: `@layer reset, ckui;`.
 
 ## Status
 

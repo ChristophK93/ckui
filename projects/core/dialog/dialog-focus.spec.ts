@@ -102,7 +102,7 @@ describe('CkDialog focus', () => {
     TestBed.resetTestingModule();
     await wait(0);
     resetEnvironment();
-    await page.viewport(414, 896);
+    await page.viewport(800, 600);
   });
 
   const dialog = () => TestBed.inject(CkDialog);

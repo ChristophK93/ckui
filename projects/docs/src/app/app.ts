@@ -21,11 +21,15 @@ export class App {
   protected readonly componentLinks = [
     { path: '/components/badge', label: 'Badge' },
     { path: '/components/button', label: 'Button' },
+    { path: '/components/chip', label: 'Chip' },
     { path: '/components/dialog', label: 'Dialog' },
+    { path: '/components/drawer', label: 'Drawer' },
     { path: '/components/field', label: 'Field' },
     { path: '/components/progress', label: 'Progress' },
     { path: '/components/segmented', label: 'Segmented' },
     { path: '/components/stepper', label: 'Stepper' },
+    { path: '/components/switch', label: 'Switch' },
+    { path: '/components/tabs', label: 'Tabs' },
     { path: '/components/toast', label: 'Toast' },
   ] as const;
 

@@ -2,11 +2,15 @@ import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CK_BADGE_IMPORTS } from '@ckui/core/badge';
 import { CkButton } from '@ckui/core/button';
+import { CK_CHIP_IMPORTS } from '@ckui/core/chip';
 import { CK_DIALOG_IMPORTS, CkDialog } from '@ckui/core/dialog';
+import { CK_DRAWER_IMPORTS, CkDrawer } from '@ckui/core/drawer';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CkProgress } from '@ckui/core/progress';
 import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
 import { CkStepper } from '@ckui/core/stepper';
+import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
+import { CK_TABS_IMPORTS } from '@ckui/core/tabs';
 import { CkToast } from '@ckui/core/toast';
 import { cdp, userEvent } from 'vitest/browser';
 import { contrastRatio, resolveToken } from '../../core/testing/contrast';
@@ -24,6 +28,9 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
     CK_BADGE_IMPORTS,
     CkProgress,
     CkStepper,
+    CK_SWITCH_IMPORTS,
+    CK_CHIP_IMPORTS,
+    CK_TABS_IMPORTS,
   ],
   template: `
     <button id="before" type="button">Before</button>
@@ -53,6 +60,21 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
       <ck-badge id="badge-danger" tone="danger" dot>Upload failed</ck-badge>
       <ck-progress id="progress" aria-label="Workout" [value]="40" />
       <ck-stepper id="stepper" aria-label="FTP" unit="W" [min]="50" [max]="600" [value]="250" />
+      <ck-switch id="switch-on" [value]="true">
+        Auto-upload
+        <ck-switch-hint>Uploads every finished ride.</ck-switch-hint>
+      </ck-switch>
+      <ck-switch id="switch-off">Audio cues</ck-switch>
+      <ck-chip-group id="chips" aria-label="Category">
+        <button ckChip id="chip-off">Threshold</button>
+        <button ckChip id="chip-on" [selected]="true">Endurance</button>
+      </ck-chip-group>
+      <ck-tabs id="tabs" value="mine">
+        <ck-tab-list aria-label="Source">
+          <ck-tab id="tab-off" value="predefined">Predefined</ck-tab>
+          <ck-tab id="tab-on" value="mine">Mine</ck-tab>
+        </ck-tab-list>
+      </ck-tabs>
     </div>
   `,
 })
@@ -71,6 +93,18 @@ class ThemedHost {
   `,
 })
 class ThemedDialogContent {}
+
+@Component({
+  imports: [CK_DRAWER_IMPORTS],
+  template: `
+    <h2 ckDialogTitle>Devices</h2>
+    <p ckDialogDescription>Bike and treadmill.</p>
+    <ck-dialog-actions>
+      <button type="button" ckDialogClose ckDialogInitialFocus>Done</button>
+    </ck-dialog-actions>
+  `,
+})
+class ThemedDrawerContent {}
 
 /** Every token the shipped dark theme block declares, found in the loaded library stylesheet. */
 function darkThemeTokens(): string[] {
@@ -104,7 +138,7 @@ function darkThemeTokens(): string[] {
 /** Tabs forward from a sentinel before the area until the element has focus, as a keyboard user would. */
 async function keyboardFocus(element: HTMLElement): Promise<void> {
   document.querySelector<HTMLElement>('#before')!.focus();
-  for (let step = 0; step < 12 && document.activeElement !== element; step++) {
+  for (let step = 0; step < 30 && document.activeElement !== element; step++) {
     await userEvent.tab();
   }
   expect(document.activeElement).toBe(element);
@@ -461,6 +495,205 @@ describe('custom theme', () => {
       });
     });
 
+    describe('switch', () => {
+      const track = (id: string) => getComputedStyle(query(`#${id} .ck-switch__track`));
+      const thumb = (id: string) => getComputedStyle(query(`#${id} .ck-switch__thumb`));
+
+      it('paints the off track with the control colour and the on track with the white primary', () => {
+        expect(track('switch-off').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(track('switch-on').backgroundColor).toBe('rgb(255, 255, 255)');
+      });
+
+      it('keeps the off border transparent, hides the on border in the fill and rounds fully', () => {
+        expect(track('switch-off').borderTopColor).toBe('rgba(0, 0, 0, 0)');
+        expect(track('switch-on').borderTopColor).toBe('rgb(255, 255, 255)');
+        for (const id of ['switch-off', 'switch-on']) {
+          expect(track(id).borderTopLeftRadius).toBe('9999px');
+        }
+      });
+
+      it('keeps the on track 3:1 from the off track, and each thumb 3:1 from its own track', () => {
+        expect(
+          contrastRatio(track('switch-on').backgroundColor, track('switch-off').backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(thumb('switch-off').backgroundColor, track('switch-off').backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(thumb('switch-on').backgroundColor, track('switch-on').backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('shows the state with the thumb position as well as the colour', () => {
+        const offTrack = query('#switch-off .ck-switch__track').getBoundingClientRect();
+        const offThumb = query('#switch-off .ck-switch__thumb').getBoundingClientRect();
+        const onTrack = query('#switch-on .ck-switch__track').getBoundingClientRect();
+        const onThumb = query('#switch-on .ck-switch__thumb').getBoundingClientRect();
+        expect(offThumb.left - offTrack.left).toBeLessThan(offTrack.right - offThumb.right);
+        expect(onThumb.left - onTrack.left).toBeGreaterThan(onTrack.right - onThumb.right);
+      });
+
+      it('writes the label white, the hint muted at 4.5:1, in the custom font', () => {
+        const label = getComputedStyle(query('#switch-on .ck-switch'));
+        const hint = getComputedStyle(query('#switch-on ck-switch-hint'));
+        expect(label.color).toBe('rgb(255, 255, 255)');
+        expect(label.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(hint.color).toBe('rgb(185, 185, 190)');
+        expect(contrastRatio(hint.color, 'rgb(11, 11, 12)')).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('draws the 3px yellow ring around the track on keyboard focus', async () => {
+        await keyboardFocus(query<HTMLInputElement>('#switch-off .ck-switch__input'));
+        const ring = track('switch-off');
+        expect(ring.outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring.outlineWidth).toBe('3px');
+        expect(ring.outlineOffset).toBe('3px');
+      });
+
+      it('is 60px high at size xl', () => {
+        query('#switch-off .ck-switch').classList.replace('ck-switch--md', 'ck-switch--xl');
+        expect(
+          query('#switch-off .ck-switch').getBoundingClientRect().height,
+        ).toBeGreaterThanOrEqual(60);
+      });
+
+      it('restyles with its own tokens, over the theme', async () => {
+        const element = query('#switch-on');
+        element.style.setProperty('--ck-switch-track-on', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-switch-thumb-on', 'rgb(4, 5, 6)');
+        await settleAnimations();
+        expect(track('switch-on').backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(thumb('switch-on').backgroundColor).toBe('rgb(4, 5, 6)');
+      });
+    });
+
+    describe('tabs', () => {
+      const tab = (id: string) => getComputedStyle(query(`#${id}`));
+      const underline = (id: string) => getComputedStyle(query(`#${id}`), '::after');
+      const ring = (id: string) => getComputedStyle(query(`#${id}`), '::before');
+      const areaBackground = () => getComputedStyle(query('.area')).backgroundColor;
+
+      it('uses the custom font and tabular numerals', () => {
+        expect(tab('tab-on').fontFamily).toMatch(/^"Fira Sans"/);
+        expect(tab('tab-on').fontVariantNumeric).toBe('tabular-nums');
+        expect(getComputedStyle(query('#tabs ck-tab-list')).fontVariantNumeric).toBe(
+          'tabular-nums',
+        );
+      });
+
+      it('colours the selected text white and the others with the muted text colour', () => {
+        expect(tab('tab-on').color).toBe('rgb(255, 255, 255)');
+        expect(tab('tab-off').color).toBe('rgb(185, 185, 190)');
+      });
+
+      it('draws the underline in the white primary, 3:1 from the page, and the line under the row', () => {
+        expect(underline('tab-on').backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(underline('tab-on').scale).toBe('1');
+        expect(underline('tab-off').scale).not.toBe('1');
+        expect(
+          contrastRatio(underline('tab-on').backgroundColor, areaBackground()),
+        ).toBeGreaterThanOrEqual(3);
+        expect(getComputedStyle(query('#tabs ck-tab-list')).borderBottomColor).toBe(
+          'rgb(47, 47, 51)',
+        );
+      });
+
+      it('keeps both texts at 4.5:1 on the page', () => {
+        expect(contrastRatio(tab('tab-on').color, areaBackground())).toBeGreaterThanOrEqual(4.5);
+        expect(contrastRatio(tab('tab-off').color, areaBackground())).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('takes a yellow wayfinding underline of its own at 4px, 3:1 from the page', () => {
+        const element = query('#tabs');
+        element.style.setProperty('--ck-tabs-indicator', FOCUS_YELLOW);
+        element.style.setProperty('--ck-tabs-indicator-thickness', '4px');
+        expect(underline('tab-on').backgroundColor).toBe(FOCUS_YELLOW);
+        expect(parseFloat(underline('tab-on').blockSize)).toBe(4);
+        expect(
+          contrastRatio(underline('tab-on').backgroundColor, areaBackground()),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('is 60px high at size xl and draws the 3px yellow ring inside the tab on keyboard focus only', async () => {
+        query('#tabs').classList.replace('ck-tabs--md', 'ck-tabs--xl');
+        expect(query('#tab-on').getBoundingClientRect().height).toBe(60);
+        const element = query<HTMLElement>('#tab-on');
+        await userEvent.click(element);
+        expect(ring('tab-on').outlineStyle).toBe('none');
+        await keyboardFocus(element);
+        expect(ring('tab-on').outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring('tab-on').outlineWidth).toBe('3px');
+        expect(ring('tab-on').outlineOffset).toBe('-3px');
+      });
+    });
+
+    describe('chip', () => {
+      const chip = (id: string) => getComputedStyle(query(`#${id}`));
+
+      it('fills the unselected chip with the control colour, without a visible border', () => {
+        expect(chip('chip-off').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(chip('chip-off').borderTopColor).toBe('rgba(0, 0, 0, 0)');
+        expect(chip('chip-off').color).toBe('rgb(255, 255, 255)');
+      });
+
+      it('fills the selected chip white with near-black text and its check', () => {
+        expect(chip('chip-on').backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(chip('chip-on').color).toBe('rgb(11, 11, 12)');
+        expect(chip('chip-on').borderTopColor).toBe('rgb(255, 255, 255)');
+        expect(query('#chip-on .ck-chip__check')).not.toBeNull();
+        expect(query('#chip-off .ck-chip__check')).toBeNull();
+      });
+
+      it('keeps the selected chip 3:1 from the unselected one and each text at 4.5:1', () => {
+        expect(
+          contrastRatio(chip('chip-on').backgroundColor, chip('chip-off').backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(chip('chip-on').color, chip('chip-on').backgroundColor),
+        ).toBeGreaterThanOrEqual(4.5);
+        expect(
+          contrastRatio(chip('chip-off').color, chip('chip-off').backgroundColor),
+        ).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('uses the custom font, tabular numerals and the full radius', () => {
+        expect(chip('chip-off').fontFamily).toMatch(/^"Fira Sans"/);
+        expect(chip('chip-off').fontVariantNumeric).toBe('tabular-nums');
+        expect(chip('chip-off').borderTopLeftRadius).toBe('9999px');
+      });
+
+      it('is 60px high at size xl', () => {
+        query('#chip-off').classList.replace('ck-chip--sm', 'ck-chip--xl');
+        expect(query('#chip-off').getBoundingClientRect().height).toBeGreaterThanOrEqual(60);
+      });
+
+      it('draws the 3px yellow ring on keyboard focus', async () => {
+        const sentinel = document.createElement('button');
+        query('#chips').before(sentinel);
+        sentinel.focus();
+        await userEvent.tab();
+        expect(document.activeElement).toBe(query('#chip-off'));
+        await settleAnimations();
+        expect(chip('chip-off').outlineColor).toBe(FOCUS_YELLOW);
+        expect(chip('chip-off').outlineWidth).toBe('3px');
+        expect(chip('chip-off').outlineOffset).toBe('3px');
+      });
+
+      it('restyles with its own tokens, over the theme', async () => {
+        const group = query('#chips');
+        group.style.setProperty('--ck-chip-selected-bg', 'rgb(1, 2, 3)');
+        group.style.setProperty('--ck-chip-bg', 'rgb(4, 5, 6)');
+        group.style.setProperty('--ck-chip-group-gap', '20px');
+        await settleAnimations();
+        expect(chip('chip-on').backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(chip('chip-off').backgroundColor).toBe('rgb(4, 5, 6)');
+        expect(
+          query('#chip-on').getBoundingClientRect().left -
+            query('#chip-off').getBoundingClientRect().right,
+        ).toBe(20);
+      });
+    });
+
     describe('stepper', () => {
       const host = () => getComputedStyle(query('#stepper'));
       const input = () => getComputedStyle(query('#stepper .ck-stepper__input'));
@@ -701,6 +934,79 @@ describe('custom theme', () => {
         } finally {
           root.removeProperty('--ck-dialog-bg');
           root.removeProperty('--ck-dialog-radius');
+        }
+      });
+    });
+
+    describe('drawer', () => {
+      async function openDrawer(mode: 'side' | 'sheet' = 'side'): Promise<HTMLElement> {
+        TestBed.inject(CkDrawer).open(ThemedDrawerContent, { mode });
+        const appRef = TestBed.inject(ApplicationRef);
+        await appRef.whenStable();
+        appRef.tick();
+        await appRef.whenStable();
+        await settleAnimations();
+        return document.querySelector<HTMLElement>('.ck-drawer-panel')!;
+      }
+
+      it('fills the panel with the raised colour, white text and the sample shadow, square on the edge', async () => {
+        const style = getComputedStyle(await openDrawer());
+        expect(style.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(style.color).toBe('rgb(255, 255, 255)');
+        expect(style.boxShadow).toContain('rgba(0, 0, 0, 0.65)');
+        expect(style.borderTopLeftRadius).toBe('0px');
+        expect(style.colorScheme).toBe('dark');
+      });
+
+      it('uses the custom font, keeps the text 4.5:1 on the panel and dims the page with the backdrop token', async () => {
+        const panel = await openDrawer();
+        const surface = getComputedStyle(panel).backgroundColor;
+        expect(getComputedStyle(panel).fontFamily).toMatch(/^"Fira Sans"/);
+        for (const selector of ['h2', '.ck-dialog__description']) {
+          expect(
+            contrastRatio(getComputedStyle(panel.querySelector(selector)!).color, surface),
+          ).toBeGreaterThanOrEqual(4.5);
+        }
+        expect(
+          getComputedStyle(document.querySelector('.ck-overlay-backdrop')!).backgroundColor,
+        ).toBe('rgba(0, 0, 0, 0.7)');
+      });
+
+      it('shows the 3px yellow ring on the close button after keyboard focus, 3:1 on the panel', async () => {
+        const panel = await openDrawer();
+        const close = panel.querySelector<HTMLElement>('.ck-dialog__close')!;
+        for (let step = 0; step < 4 && document.activeElement !== close; step++) {
+          await userEvent.tab();
+        }
+        expect(document.activeElement).toBe(close);
+        await settleAnimations();
+        const ring = getComputedStyle(close);
+        expect(ring.outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring.outlineWidth).toBe('3px');
+        expect(
+          contrastRatio(ring.outlineColor, getComputedStyle(panel).backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('restyles side panel and sheet with the drawer tokens, and ignores the dialog ones', async () => {
+        const root = document.documentElement.style;
+        root.setProperty('--ck-drawer-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-drawer-padding', '10px');
+        root.setProperty('--ck-dialog-bg', 'rgb(200, 0, 0)');
+        try {
+          for (const mode of ['side', 'sheet'] as const) {
+            const panel = await openDrawer(mode);
+            expect(getComputedStyle(panel).backgroundColor, mode).toBe('rgb(10, 20, 30)');
+            expect(getComputedStyle(panel.querySelector('.ck-dialog')!).paddingLeft, mode).toBe(
+              '10px',
+            );
+            TestBed.inject(CkDrawer).closeAll();
+            await settleAnimations();
+          }
+        } finally {
+          root.removeProperty('--ck-drawer-bg');
+          root.removeProperty('--ck-drawer-padding');
+          root.removeProperty('--ck-dialog-bg');
         }
       });
     });

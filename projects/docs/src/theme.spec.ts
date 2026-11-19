@@ -100,8 +100,33 @@ function buildTargets(): Target[] {
   add(['focus-ring'], ['surface-raised'], 3);
   // Badge text on the control fill (neutral is covered above; danger is on-danger on danger).
   add(['success-fg', 'warning-fg'], ['control'], 4.5);
-  // A progress bar's fill against its track.
+  // A progress bar's fill against its track. A switch's on track against its off track and its
+  // thumbs against their tracks are the same pairs: primary/control, on-primary/primary and
+  // fg-muted/control above.
   add(['primary'], ['control'], 3);
+  // Tabs: the unselected text (fg-muted) on the hover and active overlays over the page surfaces.
+  // The selected text is fg on the same overlays above, the underline is primary/bg|surface above.
+  for (const overlay of ['surface-hover', 'surface-active']) {
+    for (const base of surfaces) {
+      targets.push({
+        foreground: '--ck-color-fg-muted',
+        background: `--ck-color-${overlay}`,
+        over: `--ck-color-${base}`,
+        minimum: 4.5,
+      });
+    }
+  }
+  // A chip: selected primary fill against the unselected control fill is primary/control above,
+  // its text is on-primary/primary above and fg/control above. Its hover and active overlays sit
+  // on the primary fill too.
+  for (const overlay of ['surface-hover', 'surface-active']) {
+    targets.push({
+      foreground: '--ck-color-on-primary',
+      background: `--ck-color-${overlay}`,
+      over: '--ck-color-primary',
+      minimum: 4.5,
+    });
+  }
   return targets;
 }
 
@@ -237,8 +262,8 @@ describe('theme stylesheet', () => {
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 + 2 text pairs, 13 + 3 + 1 non-text pairs
-    expect(buildTargets().length).toBe(64);
+    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 + 2 + 2 + 6 text pairs, 13 + 3 + 1 non-text pairs
+    expect(buildTargets().length).toBe(72);
   });
 
   describe('contrast', () => {

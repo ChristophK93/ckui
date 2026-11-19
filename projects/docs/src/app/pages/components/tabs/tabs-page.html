@@ -1,0 +1,438 @@
+<h1>Tabs</h1>
+<p>
+  <code>ck-tabs</code> switches between views on the same page: a row of underlined tabs and the
+  panel of the selected one, such as Predefined, Mine and Shared. It follows the WAI-ARIA tabs
+  pattern. It is not a form control and not navigation between pages. Import
+  <code>CK_TABS_IMPORTS</code> from <code>&#64;ckui/core/tabs</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">One panel for every tab</h3>
+<p>
+  Each <code>ck-tab</code> has a <code>value</code>; the group's <code>value</code> is the one of
+  the selected tab and works two-way with <code>[(value)]</code>. A
+  <code>ck-tab-panel</code> without a <code>value</code> is shared: it stays in place and you show
+  the content of the selected tab in it, like one list that follows the source. Give the row an
+  <code>aria-label</code>: a tab list needs a name.
+</p>
+<div class="demo demo-column">
+  <ck-tabs [(value)]="source">
+    <ck-tab-list aria-label="Workout source">
+      <ck-tab value="predefined">Predefined</ck-tab>
+      <ck-tab value="mine">Mine</ck-tab>
+      <ck-tab value="shared">Shared</ck-tab>
+    </ck-tab-list>
+    <ck-tab-panel>
+      <p class="panel-text">
+        One list for the <span class="value">{{ source() ?? 'predefined' }}</span> workouts.
+      </p>
+    </ck-tab-panel>
+  </ck-tabs>
+  <p class="status">
+    Model: <output>{{ source() ?? 'null' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+<p>
+  The model starts as <code>null</code> and the first tab is shown. That default is only
+  <em>reflected</em>: the model stays <code>null</code> until the user picks a tab, and a click on
+  the tab that is already shown writes its value. A value that matches no enabled tab, because it is
+  missing or disabled, shows the first enabled tab in the same way and is never written back.
+</p>
+
+<h3 id="panels">A panel for each tab</h3>
+<p>
+  Give a panel the <code>value</code> of its tab and it is hidden unless that tab is selected. Every
+  tab points at its own panel with <code>aria-controls</code>, and each panel is labelled by its
+  tab. A panel whose value matches no tab is never shown, and development builds warn about it. Add
+  <code>value="audio"</code> to the group to start on a tab.
+</p>
+<div class="demo demo-column">
+  <ck-tabs value="audio">
+    <ck-tab-list aria-label="Settings">
+      <ck-tab value="audio">Audio</ck-tab>
+      <ck-tab value="video">Video</ck-tab>
+      <ck-tab value="account">Account</ck-tab>
+    </ck-tab-list>
+    <ck-tab-panel value="audio"><p class="panel-text">Volume and cues.</p></ck-tab-panel>
+    <ck-tab-panel value="video">
+      <p class="panel-text">Resolution and frame rate.</p>
+    </ck-tab-panel>
+    <ck-tab-panel value="account">
+      <p class="panel-text">Name, e-mail and password.</p>
+    </ck-tab-panel>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.panels }}</code></pre>
+
+<h3 id="lazy">Lazy content</h3>
+<p>
+  A panel's content normally stays in the DOM while it is hidden, so what the user typed is still
+  there when they come back. Wrap it in <code>&lt;ng-template ckTabContent&gt;</code> and it is
+  created only while the panel is shown and destroyed when the panel is hidden, which suits
+  expensive content such as a chart. Type into both fields, switch tabs and come back. Lazy content
+  in a shared panel lives on across tab switches: that panel stays shown, so its content is created
+  once.
+</p>
+<div class="demo demo-column">
+  <ck-tabs value="notes">
+    <ck-tab-list aria-label="Ride">
+      <ck-tab value="notes">Notes</ck-tab>
+      <ck-tab value="chart">Chart</ck-tab>
+    </ck-tab-list>
+    <ck-tab-panel value="notes">
+      <label class="field"
+        >Kept while hidden <input class="text-input" placeholder="Type here"
+      /></label>
+    </ck-tab-panel>
+    <ck-tab-panel value="chart">
+      <ng-template ckTabContent>
+        <label class="field"
+          >Created when shown <input class="text-input" placeholder="Type here"
+        /></label>
+      </ng-template>
+    </ck-tab-panel>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.lazy }}</code></pre>
+
+<h3 id="manual">Manual activation</h3>
+<p>
+  With <code>activation="manual"</code> the arrow keys only move focus, and <kbd>Enter</kbd> or
+  <kbd>Space</kbd> selects the focused tab. Use it when showing a panel is slow or moves the page.
+  The one tab stop stays on the selected tab while focus has moved on.
+</p>
+<div class="demo demo-column">
+  <ck-tabs activation="manual" [(value)]="view">
+    <ck-tab-list aria-label="Calendar view">
+      <ck-tab value="day">Day</ck-tab>
+      <ck-tab value="week">Week</ck-tab>
+      <ck-tab value="month">Month</ck-tab>
+    </ck-tab-list>
+    <ck-tab-panel>
+      <p class="panel-text">
+        Showing: <output>{{ view() }}</output>
+      </p>
+    </ck-tab-panel>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.manual }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. Each tab is as tall as the control
+  height of the size, so the row lines up with a button or an input of the same size. Under a coarse
+  pointer <code>sm</code> and <code>md</code> are 44px high; <code>xl</code> is 60px.
+</p>
+<div class="demo demo-column">
+  <ck-tabs size="sm" value="a">
+    <ck-tab-list aria-label="Small">
+      <ck-tab value="a">First</ck-tab>
+      <ck-tab value="b">Second</ck-tab>
+    </ck-tab-list>
+  </ck-tabs>
+  <ck-tabs size="md" value="a">
+    <ck-tab-list aria-label="Medium">
+      <ck-tab value="a">First</ck-tab>
+      <ck-tab value="b">Second</ck-tab>
+    </ck-tab-list>
+  </ck-tabs>
+  <ck-tabs size="lg" value="a">
+    <ck-tab-list aria-label="Large">
+      <ck-tab value="a">First</ck-tab>
+      <ck-tab value="b">Second</ck-tab>
+    </ck-tab-list>
+  </ck-tabs>
+  <ck-tabs size="xl" value="a">
+    <ck-tab-list aria-label="Extra large">
+      <ck-tab value="a">First</ck-tab>
+      <ck-tab value="b">Second</ck-tab>
+    </ck-tab-list>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="full-width">Full width</h3>
+<p>
+  <code>fullWidth</code> stretches the tabs to share the row equally. A tab whose label needs more
+  than its share keeps the room it needs.
+</p>
+<div class="demo demo-column">
+  <div class="phone">
+    <ck-tabs fullWidth value="mine">
+      <ck-tab-list aria-label="Workout source, phone width">
+        <ck-tab value="predefined">Vordefiniert</ck-tab>
+        <ck-tab value="mine">Meine</ck-tab>
+        <ck-tab value="shared">Geteilt</ck-tab>
+      </ck-tab-list>
+    </ck-tabs>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.fullWidth }}</code></pre>
+
+<h3 id="overflow">Overflow</h3>
+<p>
+  When the tabs do not fit, the row scrolls sideways, inside itself: the page never does. The
+  selected tab is brought into view when it changes and when the row gets narrower, and so is the
+  focused tab. Labels are never squeezed; a single label wider than the row is cut with an ellipsis.
+  The scrollbar is hidden, because the tabs themselves are keyboard operable. The group below sits
+  in a 328px container, the content width of a phone, and starts on Week 11.
+</p>
+<div class="demo demo-column">
+  <div class="phone">
+    <ck-tabs [(value)]="week">
+      <ck-tab-list aria-label="Training weeks">
+        @for (number of weeks; track number) {
+          <ck-tab [value]="number">Week {{ number }}</ck-tab>
+        }
+      </ck-tab-list>
+    </ck-tabs>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.overflow }}</code></pre>
+
+<h3 id="disabled">Disabled</h3>
+<p>
+  A disabled tab stays visible, cannot be selected and is skipped by the arrow keys. It sets
+  <code>aria-disabled</code>, so assistive technology announces it as unavailable, and like any
+  disabled control it is exempt from the contrast minimum. It has <code>tabindex="-1"</code>, so
+  focus never falls to the page when a focused tab becomes disabled.
+</p>
+<div class="demo demo-column">
+  <ck-tabs value="free">
+    <ck-tab-list aria-label="Plan">
+      <ck-tab value="free">Free</ck-tab>
+      <ck-tab value="team" disabled>Team</ck-tab>
+      <ck-tab value="company">Company</ck-tab>
+    </ck-tab-list>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.disabled }}</code></pre>
+
+<h3 id="dynamic">Tabs that come and go</h3>
+<p>
+  Tabs can be added and removed while the page runs. When the selected tab is removed, the first
+  enabled tab is shown, the focus stays where it was and the model keeps its old value until you
+  change it, as in the sample.
+</p>
+<div class="demo demo-column">
+  <ck-tabs [(value)]="ride">
+    <ck-tab-list aria-label="Open rides">
+      @for (name of rides(); track name) {
+        <ck-tab [value]="name">{{ name }}</ck-tab>
+      }
+    </ck-tab-list>
+    <ck-tab-panel>
+      <p class="panel-text">
+        Details of <output>{{ ride() ?? rides()[0] }}</output
+        >.
+      </p>
+    </ck-tab-panel>
+  </ck-tabs>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="closeRide()">Close the selected ride</button>
+    <button ckButton type="button" size="sm" (click)="resetRides()">Restore</button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.dynamic }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the tabs">
+  <table class="table">
+    <caption>
+      Inputs of ck-tabs, ck-tab and ck-tab-panel
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">On</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.on + row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.on }}</code>
+          </td>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the tabs">
+  <table class="table">
+    <caption>
+      Parts of the tabs
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The group gets the classes <code>ck-tabs</code>, <code>ck-tabs--&#123;size&#125;</code> and
+  <code>ck-tabs--full-width</code> while it applies. A tab gets <code>ck-tab--selected</code> and
+  <code>ck-tab--disabled</code>. The value is also available as <code>(valueChange)</code>, which
+  fires when the user picks a tab and for a programmatic write only as far as the model itself does.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in the tabs">
+  <table class="table">
+    <caption>
+      Keys in the tabs
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The tabs follow the WAI-ARIA tabs pattern: <code>role="tablist"</code> on the row,
+    <code>role="tab"</code> with <code>aria-selected</code> and <code>aria-controls</code> on each
+    tab, <code>role="tabpanel"</code> with <code>aria-labelledby</code> and
+    <code>tabindex="0"</code> on the panel. The row is one tab stop (a roving tabindex on the
+    selected tab) and the arrow keys move between tabs. A shared panel is labelled by whichever tab
+    is selected.
+  </li>
+  <li>
+    The row needs a name (<code>aria-label</code> or <code>aria-labelledby</code>). A tab is named
+    by its text. Development builds warn when the row has no name.
+  </li>
+  <li>
+    The selected tab is not marked by colour alone: it has an underline, a heavier weight and the
+    stronger text colour. The underline is at least 3:1 against the page in both shipped themes; a
+    custom <code>--ck-tabs-indicator</code> has to keep that.
+  </li>
+  <li>
+    In forced-colors mode the underline is <code>Highlight</code>, the line under the row
+    <code>CanvasText</code> and the selected text <code>CanvasText</code>. A hovered tab turns
+    <code>Highlight</code>; a disabled one is <code>GrayText</code>.
+  </li>
+  <li>
+    Every tab is as tall as the control height (at least 44px on a coarse pointer, 60px at
+    <code>xl</code>) and as wide as its label with padding.
+  </li>
+  <li>
+    The focus ring is drawn inside the tab (on a pseudo-element), on keyboard focus only, so the
+    scrolling row can never cut it off. The panel gets the ring around itself when it is focused by
+    keyboard.
+  </li>
+  <li>
+    In right-to-left text the tabs run right to left, the underline follows each tab, and
+    <kbd>ArrowLeft</kbd> and <kbd>ArrowRight</kbd> swap. The direction comes from the
+    <code>dir</code> attribute on the row or an ancestor, not from the CSS
+    <code>direction</code> property.
+  </li>
+  <li>
+    The underline grows in over <code>--ck-duration-fast</code> and not at all under
+    <code>prefers-reduced-motion</code>. It belongs to the selected tab, so server-rendered markup
+    is right without script.
+  </li>
+  <li>
+    The weight changes when a tab is selected, so the labels can shift a little. Set
+    <code>--ck-tabs-font-weight</code> to the selected weight to prevent it.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> A global <code>:focus-visible</code> rule such as this
+    site's beats the layered rules and draws a second ring on the tab itself, outside the row, where
+    the scrolling row cuts it off; the demos here switch it off. A global
+    <code>ck-tab-panel &#123; display: … &#125;</code> keeps hidden panels on screen. Scope the rule
+    or put resets in a layer declared before ckui.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-tabs">
+  <table class="table">
+    <caption>
+      Component tokens of ck-tabs
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>
+<p>
+  The tabs also read these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>

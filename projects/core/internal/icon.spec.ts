@@ -33,7 +33,7 @@ describe('CkIcon', () => {
   }
 
   afterEach(() => {
-    document.body.dir = '';
+    document.body.removeAttribute('dir');
     document.body.replaceChildren();
   });
 

@@ -6,13 +6,18 @@ import { CkFocusTrap, CkFocusTrapFactory, CkInert, CkMedia } from '@ckui/core/in
 import { CkOverlayPane } from './overlay-pane';
 import { attachSheetSwipe } from './sheet-swipe';
 
-export type CkOverlayMode = 'auto' | 'modal' | 'sheet';
+export type CkOverlayMode = 'auto' | 'modal' | 'sheet' | 'side';
 export type CkOverlayDismissReason = 'escape' | 'backdrop' | 'swipe';
 
 export interface CkOverlayConfig {
-  /** `auto` becomes a sheet when `CkMedia.sheet()` is true at the moment of opening. Default `auto`. */
+  /**
+   * `auto` becomes a sheet when `CkMedia.sheet()` is true at the moment of opening, else a modal;
+   * it never becomes `side`. Default `auto`.
+   */
   mode?: CkOverlayMode;
-  /** Escape, a click on the backdrop and a swipe down may close the overlay. Default `true`. */
+  /** The edge a `side` panel sits on; `end` is the right edge in a left-to-right page. Resolved when opening. Default `end`. */
+  side?: 'start' | 'end';
+  /** Escape and a click on the backdrop, and for a sheet a swipe down, may close the overlay. Default `true`. */
   dismissible?: boolean;
   /** A sheet as tall as the viewport allows instead of as tall as its content. */
   fullHeight?: boolean;
@@ -37,7 +42,7 @@ export interface CkOverlayConfig {
 
 export interface CkOverlayHandle {
   /** The mode resolved when the overlay opened. */
-  readonly mode: 'modal' | 'sheet';
+  readonly mode: 'modal' | 'sheet' | 'side';
   /** The element that carries `role`, `aria-modal` and the labels; set `aria-labelledby` here when the title appears later. */
   readonly panel: HTMLElement;
   /** Resolves once the opening animation and the initial focus are done. */
@@ -51,6 +56,7 @@ export interface CkOverlayHandle {
 const DEFAULT_DURATION = 200;
 const SHEET_MAX_HEIGHT = 'calc(100dvh - env(safe-area-inset-top, 0px))';
 const MODAL_MARGIN = 'var(--ck-space-4, 1rem)';
+const SIDE_HEIGHT = '100dvh';
 
 type State = 'open' | 'closing' | 'closed';
 
@@ -75,7 +81,7 @@ function parseDuration(value: string): number {
 }
 
 /**
- * Opens modal dialogs and bottom sheets on the CDK overlay: backdrop, scroll lock, focus trap and
+ * Opens modal dialogs, bottom sheets and side panels on the CDK overlay: backdrop, scroll lock, focus trap and
  * restore, `inert` background, Escape / backdrop / swipe dismissal and the open and close animation.
  */
 @Injectable({ providedIn: 'root' })
@@ -117,28 +123,47 @@ export class CkOverlayHost {
     injector?: Injector,
   ): CkOverlayHandle {
     const requested = config.mode ?? 'auto';
-    const mode = requested === 'auto' ? (this.media.sheet() ? 'sheet' : 'modal') : requested;
+    const mode: 'modal' | 'sheet' | 'side' =
+      requested === 'auto' ? (this.media.sheet() ? 'sheet' : 'modal') : requested;
     if (!this.isBrowser) {
       return this.inertHandle(mode);
     }
 
     const sheet = mode === 'sheet';
+    const side = mode === 'side';
     const dismissible = config.dismissible ?? true;
     const container = this.overlayContainer.getContainerElement();
     container.style.zIndex = 'var(--ck-z-overlay, 1000)';
+    const view = this.document.defaultView;
+    // The physical edge is resolved now, from the written direction of the page.
+    const rtl = view?.getComputedStyle(container).direction === 'rtl';
+    const onRight = (config.side ?? 'end') === 'end' ? !rtl : rtl;
 
     const overlayRef = this.overlay.create({
-      positionStrategy: sheet
-        ? this.overlay.position().global().bottom('0').centerHorizontally()
-        : this.overlay.position().global().centerHorizontally().centerVertically(),
+      // Content direction follows the same reading as the edge, not the CDK's startup snapshot.
+      direction: rtl ? 'rtl' : 'ltr',
+      positionStrategy: side
+        ? this.sidePosition(onRight)
+        : sheet
+          ? this.overlay.position().global().bottom('0').centerHorizontally()
+          : this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.overlay.scrollStrategies.noop(),
       width: sheet ? '100%' : undefined,
-      height: sheet && config.fullHeight ? SHEET_MAX_HEIGHT : undefined,
-      maxWidth: sheet ? undefined : `calc(100% - 2 * ${MODAL_MARGIN})`,
-      maxHeight: sheet ? SHEET_MAX_HEIGHT : `calc(100dvh - 2 * ${MODAL_MARGIN})`,
+      height: side ? SIDE_HEIGHT : sheet && config.fullHeight ? SHEET_MAX_HEIGHT : undefined,
+      maxWidth: sheet
+        ? undefined
+        : side
+          ? `calc(100% - ${MODAL_MARGIN})`
+          : `calc(100% - 2 * ${MODAL_MARGIN})`,
+      maxHeight: side
+        ? SIDE_HEIGHT
+        : sheet
+          ? SHEET_MAX_HEIGHT
+          : `calc(100dvh - 2 * ${MODAL_MARGIN})`,
       panelClass: [
         'ck-overlay',
-        sheet ? 'ck-overlay--sheet' : 'ck-overlay--modal',
+        `ck-overlay--${mode}`,
+        ...(side ? [`ck-overlay--${onRight ? 'right' : 'left'}`] : []),
         ...(config.panelClass === undefined ? [] : [config.panelClass].flat()),
       ],
       disposeOnNavigation: false,
@@ -194,7 +219,6 @@ export class CkOverlayHost {
     let released = false;
     let finishedOnce = false;
     let openAnimations: Animation[] = [];
-    const view = this.document.defaultView;
 
     const motion = () => {
       const style = view!.getComputedStyle(panel);
@@ -306,12 +330,15 @@ export class CkOverlayHost {
       resolveClosed();
     };
 
-    const enter: Keyframe[] = sheet
-      ? [{ transform: 'translateY(100%)' }, { transform: 'none' }]
-      : [
-          { opacity: 0, transform: 'scale(0.96)' },
-          { opacity: 1, transform: 'none' },
-        ];
+    // Out of the screen towards the edge the panel sits on.
+    const offscreen = side ? `translateX(${onRight ? '' : '-'}100%)` : 'translateY(100%)';
+    const enter: Keyframe[] =
+      sheet || side
+        ? [{ transform: offscreen }, { transform: 'none' }]
+        : [
+            { opacity: 0, transform: 'scale(0.96)' },
+            { opacity: 1, transform: 'none' },
+          ];
     openAnimations = [
       play(panel, enter, 'none'),
       play(backdrop, [{ opacity: 0 }, { opacity: 1 }], 'none'),
@@ -333,9 +360,8 @@ export class CkOverlayHost {
         return closing;
       }
       release();
-      const leave: Keyframe[] = sheet
-        ? [{ transform: 'translateY(100%)' }]
-        : [{ opacity: 0, transform: 'scale(0.96)' }];
+      const leave: Keyframe[] =
+        sheet || side ? [{ transform: offscreen }] : [{ opacity: 0, transform: 'scale(0.96)' }];
       const animations = [
         play(panel, leave, 'forwards'),
         play(backdrop, [{ opacity: 0 }], 'forwards'),
@@ -367,6 +393,12 @@ export class CkOverlayHost {
     top?.overlayRef.overlayElement.focus({ preventScroll: true });
   }
 
+  /** Full height, flush against the physical left or right edge. */
+  private sidePosition(right: boolean) {
+    const position = this.overlay.position().global().top('0');
+    return right ? position.right('0') : position.left('0');
+  }
+
   private contentPortal<C>(
     content: ComponentType<C> | TemplateRef<unknown>,
     pane: CkOverlayPane,
@@ -378,7 +410,7 @@ export class CkOverlayHost {
   }
 
   /** What the server gets: nothing is rendered, and the overlay counts as closed. */
-  private inertHandle(mode: 'modal' | 'sheet'): CkOverlayHandle {
+  private inertHandle(mode: 'modal' | 'sheet' | 'side'): CkOverlayHandle {
     return {
       mode,
       panel: this.document.createElement('div'),

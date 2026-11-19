@@ -1,3 +1,4 @@
+import { OverlayContainer } from '@angular/cdk/overlay';
 import { Component, PLATFORM_ID, TemplateRef, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
@@ -221,6 +222,163 @@ describe('CkOverlayHost', () => {
 
     it('has no axe violations', async () => {
       await open({ mode: 'sheet', ariaLabel: 'Sheet' });
+      await expectNoAxeViolations(query('.cdk-overlay-container')!);
+    });
+  });
+
+  describe('side', () => {
+    // Only the overlay container turns right-to-left: the page's own <html> is shared with other specs.
+    const direction = (value: 'ltr' | 'rtl'): void =>
+      TestBed.inject(OverlayContainer).getContainerElement().setAttribute('dir', value);
+
+    const keyframeTransform = (element: HTMLElement): unknown =>
+      (element.getAnimations()[0]?.effect as KeyframeEffect | undefined)?.getKeyframes()[0]?.[
+        'transform'
+      ];
+
+    it('fills the viewport height against the right edge by default', async () => {
+      const handle = await open({ mode: 'side' });
+      expect(handle.mode).toBe('side');
+      const rect = handle.panel.getBoundingClientRect();
+      expect(Math.round(rect.top)).toBe(0);
+      expect(Math.round(rect.height)).toBe(window.innerHeight);
+      expect(Math.round(rect.right)).toBe(window.innerWidth);
+      expect(handle.panel.classList.contains('ck-overlay--side')).toBe(true);
+      expect(handle.panel.classList.contains('ck-overlay--right')).toBe(true);
+      expect(handle.panel.getAttribute('role')).toBe('dialog');
+      expect(handle.panel.getAttribute('aria-modal')).toBe('true');
+      expect(handle.panel.querySelector('.ck-overlay-grab')).toBeNull();
+    });
+
+    it('sits against the left edge for the start side', async () => {
+      const handle = await open({ mode: 'side', side: 'start' });
+      expect(Math.round(handle.panel.getBoundingClientRect().left)).toBe(0);
+      expect(handle.panel.classList.contains('ck-overlay--left')).toBe(true);
+    });
+
+    it('swaps the edges in a right-to-left page, decided when it opens', async () => {
+      direction('rtl');
+      const end = await open({ mode: 'side', side: 'end' });
+      expect(Math.round(end.panel.getBoundingClientRect().left)).toBe(0);
+      const start = await open({ mode: 'side', side: 'start' });
+      expect(Math.round(start.panel.getBoundingClientRect().right)).toBe(window.innerWidth);
+      direction('ltr');
+      expect(Math.round(end.panel.getBoundingClientRect().left)).toBe(0);
+      await start.close();
+      await end.close();
+    });
+
+    it('is never chosen by mode auto', async () => {
+      for (const sheet of [false, true]) {
+        TestBed.resetTestingModule();
+        fakeMedia({ sheet });
+        const handle = host().open(Content, { mode: 'auto', side: 'start' });
+        expect(handle.mode).toBe(sheet ? 'sheet' : 'modal');
+        await handle.close();
+      }
+    });
+
+    it('slides in from the edge it sits on, and out again', async () => {
+      const cases = [
+        { dir: 'ltr', side: 'end', transform: 'translateX(100%)' },
+        { dir: 'ltr', side: 'start', transform: 'translateX(-100%)' },
+        { dir: 'rtl', side: 'end', transform: 'translateX(-100%)' },
+        { dir: 'rtl', side: 'start', transform: 'translateX(100%)' },
+      ] as const;
+      for (const { dir, side, transform } of cases) {
+        direction(dir);
+        const handle = host().open(Content, { mode: 'side', side });
+        expect(keyframeTransform(handle.panel), `${dir} ${side}`).toBe(transform);
+        await handle.opened;
+        const closing = handle.close();
+        expect(keyframeTransform(handle.panel), `${dir} ${side} out`).toBe(transform);
+        await closing;
+      }
+    });
+
+    it('does not slide under reduced motion', async () => {
+      fakeMedia({ reducedMotion: true });
+      const handle = host().open(Content, { mode: 'side' });
+      expect(handle.panel.getAnimations()).toHaveLength(0);
+      await handle.close();
+      expect(query('.cdk-overlay-pane')).toBeNull();
+    });
+
+    it('closes on Escape and on the backdrop, and has no swipe', async () => {
+      const first = await open({ mode: 'side' });
+      press('Escape');
+      await first.closed;
+      expect(query('.cdk-overlay-pane')).toBeNull();
+
+      const second = await open({ mode: 'side' });
+      const backdrop = query<HTMLElement>('.ck-overlay-backdrop')!;
+      backdrop.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await second.closed;
+      expect(query('.cdk-overlay-pane')).toBeNull();
+      expect(document.activeElement).toBe(opener);
+    });
+
+    it('stays open for Escape and the backdrop when it is not dismissible', async () => {
+      const handle = await open({ mode: 'side', dismissible: false });
+      press('Escape');
+      query<HTMLElement>('.ck-overlay-backdrop')!.click();
+      await wait(50);
+      expect(query('.cdk-overlay-pane')).not.toBeNull();
+      await handle.close();
+    });
+
+    it('traps focus, makes the app inert and gives both back on close', async () => {
+      const handle = await open({ mode: 'side' });
+      expect(app.hasAttribute('inert')).toBe(true);
+      const buttons = handle.panel.querySelectorAll<HTMLElement>('button');
+      expect(document.activeElement).toBe(buttons[0]);
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(handle.panel.contains(document.activeElement)).toBe(true);
+      await handle.close();
+      expect(app.hasAttribute('inert')).toBe(false);
+      expect(document.activeElement).toBe(opener);
+    });
+
+    it('opens twice, stacks a modal above it and closes in either order', async () => {
+      const drawer = await open({ mode: 'side' });
+      const again = await open({ mode: 'side', side: 'start' });
+      const modal = await open({ mode: 'modal' });
+      press('Escape');
+      await modal.closed;
+      expect(query('.cdk-overlay-pane')).not.toBeNull();
+      await drawer.close();
+      expect(app.hasAttribute('inert')).toBe(true);
+      press('Escape');
+      await again.closed;
+      expect(app.hasAttribute('inert')).toBe(false);
+      expect(document.activeElement).toBe(opener);
+    });
+
+    it('can be closed while it is still sliding in, and reopened while it slides out', async () => {
+      const first = host().open(Content, { mode: 'side' });
+      const closing = first.close();
+      const second = host().open(Content, { mode: 'side' });
+      await closing;
+      await second.opened;
+      expect(document.querySelectorAll('.cdk-overlay-pane')).toHaveLength(1);
+      expect(app.hasAttribute('inert')).toBe(true);
+      await second.close();
+      expect(app.hasAttribute('inert')).toBe(false);
+    });
+
+    it('tears down with the injector like any other overlay', async () => {
+      const handle = await open({ mode: 'side' });
+      TestBed.resetTestingModule();
+      await handle.closed;
+      expect(query('.cdk-overlay-pane')).toBeNull();
+      expect(app.hasAttribute('inert')).toBe(false);
+      expect(document.activeElement).toBe(opener);
+      expect(document.documentElement.classList.contains('cdk-global-scrollblock')).toBe(false);
+    });
+
+    it('has no axe violations', async () => {
+      await open({ mode: 'side', ariaLabel: 'Devices' });
       await expectNoAxeViolations(query('.cdk-overlay-container')!);
     });
   });

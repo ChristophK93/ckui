@@ -4,7 +4,7 @@ import { CkButton } from '@ckui/core/button';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CkToast } from '@ckui/core/toast';
 
-/** Uses button, field and toast in the initial bundle; the dialog lives behind a lazy route. */
+/** Uses button, field and toast in the initial bundle; the dialog and the drawer live behind lazy routes. */
 @Component({
   selector: 'probe-root',
   imports: [CkButton, CK_FIELD_IMPORTS, RouterOutlet],

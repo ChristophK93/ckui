@@ -15,8 +15,8 @@ import {
   output,
   untracked,
 } from '@angular/core';
+import { CkDialogRef } from '@ckui/core/internal/dialog';
 import { CkDialogMode, CkDialogRole, CkDialogWidth } from './config';
-import { CkDialogRef } from './dialog-ref';
 import { CkDialog } from './dialog.service';
 
 declare const ngDevMode: unknown;

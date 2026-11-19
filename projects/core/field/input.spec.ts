@@ -15,7 +15,7 @@ function writeLines(textarea: HTMLTextAreaElement, count: number): void {
 
 describe('CkInput', () => {
   afterEach(() => {
-    document.body.dir = '';
+    document.body.removeAttribute('dir');
     document.body.replaceChildren();
     TestBed.resetTestingModule();
   });

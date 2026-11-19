@@ -1,0 +1,70 @@
+@layer ckui {
+  .ck-drawer-panel {
+    box-sizing: border-box;
+    background: var(--ck-drawer-bg, var(--ck-color-surface-raised));
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    box-shadow: var(--ck-drawer-shadow, var(--ck-shadow-lg));
+    font-family: var(--ck-font-sans);
+    font-size: var(--ck-font-size-md);
+    line-height: var(--ck-line-height-normal);
+    outline: none;
+  }
+
+  .ck-drawer-panel:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: calc(-1 * var(--ck-focus-ring-width, 2px));
+  }
+
+  .ck-drawer-panel--sm {
+    --_ck-drawer-width: 20rem;
+  }
+
+  .ck-drawer-panel--md {
+    --_ck-drawer-width: 24rem;
+  }
+
+  .ck-drawer-panel--lg {
+    --_ck-drawer-width: 32rem;
+  }
+
+  /* The viewport margin is the overlay's own max-inline-size. */
+  .ck-drawer-panel.ck-overlay--side {
+    inline-size: min(var(--ck-drawer-width, var(--_ck-drawer-width, 24rem)), 100%);
+  }
+
+  /* Display cut-outs are physical: the panel keeps its content out of them on its own edge. */
+  .ck-drawer-panel.ck-overlay--right {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .ck-drawer-panel.ck-overlay--left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .ck-drawer-panel.ck-overlay--sheet {
+    border-start-start-radius: var(--ck-radius-xl);
+    border-start-end-radius: var(--ck-radius-xl);
+  }
+
+  /* The grab area is drawn by the overlay; it has to be the same surface as the drawer under it. */
+  .ck-drawer-panel .ck-overlay-grab {
+    border-start-start-radius: var(--ck-radius-xl);
+    border-start-end-radius: var(--ck-radius-xl);
+    background: var(--ck-drawer-bg, var(--ck-color-surface-raised));
+  }
+
+  /* Two classes: beats the dialog's own padding rules, which share the container. */
+  .ck-drawer-panel .ck-dialog {
+    --_ck-dialog-padding: var(--ck-drawer-padding, var(--ck-space-6));
+  }
+
+  .ck-drawer-panel .ck-dialog--sheet {
+    --_ck-dialog-padding: var(--ck-drawer-padding, var(--ck-space-4));
+  }
+
+  .ck-drawer-panel .ck-dialog--side {
+    --_ck-dialog-padding-top: calc(var(--_ck-dialog-padding) + env(safe-area-inset-top, 0px));
+    padding-block-end: calc(var(--_ck-dialog-padding) + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -91,7 +91,7 @@ describe('CkBadge', () => {
     document.body.removeAttribute('dir');
     TestBed.resetTestingModule();
     await emulate([]);
-    await page.viewport(414, 896);
+    await page.viewport(800, 600);
   });
 
   describe('structure', () => {
