@@ -432,10 +432,10 @@ describe('CkSelect filter', () => {
         providers: [provideCkui({ labels: { resultCount: '{count} Treffer, {count}' } })],
       });
       await openAndType('item', COUNTRY_FILTER, (host) =>
-        host.countries.set(Array.from({ length: 1200 }, (_, index) => `Item ${index}`)),
+        host.countries.set(Array.from({ length: 1000 }, (_, index) => `Item ${index}`)),
       );
       await wait(650);
-      expect(live()).toContain('1,200 Treffer, 1,200');
+      expect(live()).toContain('1,000 Treffer, 1,000');
     });
 
     it('says "1 result" for one match, "2 results" for two and the noResults text for none', async () => {

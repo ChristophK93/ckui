@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  OnInit,
   ViewEncapsulation,
   booleanAttribute,
   computed,
   inject,
   input,
+  signal,
 } from '@angular/core';
 import { CkIcon, collapseText, createCkId, readableText } from '@ckui/core/internal';
 import { CK_OPTGROUP, CK_SELECT } from './select-context';
@@ -40,7 +42,7 @@ import { CK_OPTGROUP, CK_SELECT } from './select-context';
     }
   `,
 })
-export class CkOption<T = unknown> {
+export class CkOption<T = unknown> implements OnInit {
   /** What the select's value becomes when this option is picked. Compared with `compareWith`. */
   readonly value = input.required<T>();
   /** Greyed out: it cannot be picked and keyboard moves skip it. */
@@ -68,13 +70,19 @@ export class CkOption<T = unknown> {
     return collapseText(readableText(this.element.querySelector('.ck-option__content')));
   }
 
-  /** The value, or `null` while the input has not been bound yet (a required input throws until then). */
+  /**
+   * Set once the inputs are bound. Reading an unbound required input throws, and building that
+   * error for every option on every re-read made a select with many options mount in seconds.
+   */
+  private readonly bound = signal(false);
+
+  ngOnInit(): void {
+    this.bound.set(true);
+  }
+
+  /** The value, or `null` while the input has not been bound yet. */
   get current(): { readonly value: T } | null {
-    try {
-      return { value: this.value() };
-    } catch {
-      return null;
-    }
+    return this.bound() ? { value: this.value() } : null;
   }
 
   protected choose(): void {

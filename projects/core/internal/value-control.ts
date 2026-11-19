@@ -1,4 +1,5 @@
 import {
+  DestroyRef,
   Directive,
   ModelSignal,
   Provider,
@@ -6,6 +7,7 @@ import {
   booleanAttribute,
   computed,
   forwardRef,
+  inject,
   input,
   model,
   signal,
@@ -38,6 +40,7 @@ export abstract class CkValueControl<T> implements ControlValueAccessor, FormVal
   readonly touched = model(false);
 
   private readonly controlDisabled = signal(false);
+  private readonly controlDestroyRef = inject(DestroyRef);
   private onChange: (value: T) => void = noop;
   private onTouched: () => void = noop;
 
@@ -60,17 +63,23 @@ export abstract class CkValueControl<T> implements ControlValueAccessor, FormVal
     this.controlDisabled.set(isDisabled);
   }
 
-  /** A change made by the user. Ignored while disabled or when the value is the current one. */
+  /** A change made by the user. Ignored while disabled, destroyed or when the value is the current one. */
   protected commit(value: T): void {
-    if (this.isDisabled() || Object.is(value, this.value())) {
+    if (this.controlDestroyRef.destroyed || this.isDisabled() || Object.is(value, this.value())) {
       return;
     }
     this.value.set(value);
     this.onChange(value);
   }
 
-  /** Call when focus leaves the whole control, not a part of it. */
+  /**
+   * Call when focus leaves the whole control, not a part of it. Ignored once destroyed: removing a
+   * focused element from the page fires its blur after the outputs are gone.
+   */
   protected markTouched(): void {
+    if (this.controlDestroyRef.destroyed) {
+      return;
+    }
     this.touched.set(true);
     this.onTouched();
   }
