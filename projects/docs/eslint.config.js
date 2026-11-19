@@ -31,7 +31,7 @@ module.exports = defineConfig([
   },
   {
     // ck-field sets the label's for attribute and the control's id at runtime.
-    files: ['**/src/app/pages/components/**/*.html'],
+    files: ['**/src/app/pages/components/**/*.html', '**/src/custom-theme.spec.ts/*.html'],
     rules: {
       '@angular-eslint/template/label-has-associated-control': 'off',
     },

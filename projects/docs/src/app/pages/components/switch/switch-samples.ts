@@ -67,7 +67,7 @@ export const SAMPLES = {
     'app-auto-upload-hint',
     `<ck-switch [(value)]="autoUpload">
   Auto-upload
-  <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+  <ck-hint>Uploads every finished ride to Strava.</ck-hint>
 </ck-switch>`,
     {
       signals: true,
@@ -167,11 +167,11 @@ export class AudioSignal {
     `<ck-switch [(value)]="developerTools">Developer tools</ck-switch>
 <ck-switch [(value)]="audio">
   Audio cues
-  <ck-switch-hint>Beeps before every interval.</ck-switch-hint>
+  <ck-hint>Beeps before every interval.</ck-hint>
 </ck-switch>
 <ck-switch [(value)]="autoUpload">
   Auto-upload
-  <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+  <ck-hint>Uploads every finished ride to Strava.</ck-hint>
 </ck-switch>`,
     {
       signals: true,

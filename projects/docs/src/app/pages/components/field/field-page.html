@@ -4,7 +4,12 @@
   <code>&lt;textarea&gt;</code> marked with <code>ckInput</code>, and gives it a floating label, a
   hint, an error, and prefix and suffix content. It works with Reactive Forms,
   <code>ngModel</code> and Signal Forms. Import <code>CK_FIELD_IMPORTS</code> from
-  <code>&#64;ckui/core/field</code>.
+  <code>&#64;ckui/core/field</code>. <code>ck-hint</code> and <code>ck-error</code> come from
+  <code>&#64;ckui/core/form</code>, which the field entry point re-exports.
+</p>
+<p>
+  A <a routerLink="/components/stepper#in-field"><code>ck-stepper</code></a> can be the control of a
+  field instead of an input: the field draws the box, label, hint and error around it.
 </p>
 
 <ng-template #eye>

@@ -17,11 +17,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { CK_CONFIG, CkSize } from '@ckui/core';
-import { CK_CONTROL_STATE, CK_FIELD_CONTEXT, CkFieldContext } from './control-state';
+import { CkError, CkHint } from '@ckui/core/form';
+import {
+  CK_CONTROL_STATE,
+  CK_FIELD_CONTEXT,
+  CK_MESSAGES_CONTEXT,
+  CkFieldContext,
+  CkMessagesContext,
+  syncRequiredMarker,
+} from '@ckui/core/internal';
 import { CkPrefix } from './affix';
 import { loadFieldStyles } from './styles';
-import { CkError } from './error';
-import { CkHint } from './hint';
 
 declare const ngDevMode: unknown;
 
@@ -29,7 +35,7 @@ const LABEL_CLASS = 'ck-field__label';
 const REQUIRED_CLASS = 'ck-field__required';
 
 /**
- * Wraps one native `ckInput` with a floating `<label>`, `ck-hint`, `ck-error`, and `[ckPrefix]` /
+ * Wraps one control (a native `ckInput` or a `ck-stepper`) with a floating `<label>`, `ck-hint`, `ck-error`, and `[ckPrefix]` /
  * `[ckSuffix]` content, and wires ids and ARIA between them.
  */
 @Component({
@@ -37,13 +43,16 @@ const REQUIRED_CLASS = 'ck-field__required';
   templateUrl: './field.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  providers: [{ provide: CK_FIELD_CONTEXT, useExisting: CkField }],
+  providers: [
+    { provide: CK_FIELD_CONTEXT, useExisting: CkField },
+    { provide: CK_MESSAGES_CONTEXT, useExisting: CkField },
+  ],
   host: {
     class: 'ck-field',
     '[class]': 'modifierClasses()',
   },
 })
-export class CkField implements CkFieldContext {
+export class CkField implements CkFieldContext, CkMessagesContext {
   /** `undefined` uses the size from `provideCkui`. */
   readonly size = input<CkSize | undefined>(undefined);
   /** `always` keeps the label on the border even when the control is empty and unfocused. */
@@ -53,14 +62,14 @@ export class CkField implements CkFieldContext {
 
   private readonly config = inject(CK_CONFIG);
   private readonly controls = contentChildren(CK_CONTROL_STATE, { descendants: true });
-  private readonly hints = contentChildren(CkHint, { descendants: true, read: ElementRef });
-  private readonly errors = contentChildren(CkError, { descendants: true, read: ElementRef });
+  private readonly hints = contentChildren(CkHint, { descendants: true });
+  private readonly errors = contentChildren(CkError, { descendants: true });
   private readonly prefix = contentChild(CkPrefix, { descendants: true });
   private readonly main = viewChild<ElementRef<HTMLElement>>('main');
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private labelForSetByField = '';
 
-  /** @internal Used by `ckInput` and `ck-error`. */
+  /** @internal Used by `ckInput`. */
   readonly resolvedSize = computed(() => this.size() ?? this.config.size);
   private readonly control = computed(() => this.controls()[0] ?? null);
 
@@ -84,7 +93,7 @@ export class CkField implements CkFieldContext {
       (control.focused() ||
         control.hasValue() ||
         control.hasPlaceholder() ||
-        control.nativeUi() ||
+        control.builtInUi() ||
         this.prefix() !== undefined)
     );
   });
@@ -124,7 +133,7 @@ export class CkField implements CkFieldContext {
         const count = this.controls().length;
         if (count !== 1) {
           console.warn(
-            `[ckui] ck-field needs exactly one ckInput, found ${count}.`,
+            `[ckui] ck-field needs exactly one control (ckInput or ck-stepper), found ${count}.`,
             this.main()?.nativeElement.closest('ck-field'),
           );
         }
@@ -150,9 +159,8 @@ export class CkField implements CkFieldContext {
     }
     const errorsVisible = this.errorsVisible();
     const required = control.required();
-    const idOf = (ref: ElementRef): string => (ref.nativeElement as HTMLElement).id;
-    const hintIds = this.hints().map(idOf);
-    const errorIds = this.errors().map(idOf);
+    const hintIds = this.hints().map((hint) => hint.id());
+    const errorIds = this.errors().map((error) => error.id());
     control.setWiring({
       describedBy: [...hintIds, ...(errorsVisible ? errorIds : [])].filter((id) => id !== ''),
       libraryIds: [...hintIds, ...errorIds].filter((id) => id !== ''),
@@ -171,26 +179,6 @@ export class CkField implements CkFieldContext {
       label.setAttribute('for', id);
       this.labelForSetByField = id;
     }
-    this.syncRequiredMarker(label, required);
-  }
-
-  /** Reuses a marker that is already in the label (server render) instead of adding a second. */
-  private syncRequiredMarker(label: HTMLElement, required: boolean): void {
-    const markers = Array.from(label.children).filter((child) =>
-      child.classList.contains(REQUIRED_CLASS),
-    );
-    label.classList.toggle(`${LABEL_CLASS}--required`, required);
-    if (!required) {
-      markers.forEach((marker) => marker.remove());
-      return;
-    }
-    markers.slice(1).forEach((marker) => marker.remove());
-    if (markers.length === 0) {
-      const marker = label.ownerDocument.createElement('span');
-      marker.setAttribute('aria-hidden', 'true');
-      marker.className = REQUIRED_CLASS;
-      marker.textContent = ' *';
-      label.append(marker);
-    }
+    syncRequiredMarker(label, required, { label: LABEL_CLASS, marker: REQUIRED_CLASS });
   }
 }

@@ -94,6 +94,7 @@ export class TabsHost {
   readonly size = signal<CkSize | undefined>(undefined);
   readonly items = signal(['a', 'b', 'c']);
   readonly locked = signal<string[]>([]);
+  readonly tabStop = signal(true);
   readonly ids = signal({ tab: 'tab-one', panel: 'panel-one' });
   readonly objectValue = signal<unknown>(null);
   /** Every `(valueChange)` the template reports. */

@@ -56,7 +56,7 @@ export const DARK_TOKENS = [
   imports: [CK_SWITCH_IMPORTS, ReactiveFormsModule, FormsModule, FormField],
   // Every test overrides this; it only has to use each import once.
   template: `
-    <ck-switch [formControl]="control">Unused <ck-switch-hint>Hint</ck-switch-hint></ck-switch>
+    <ck-switch [formControl]="control">Unused <ck-hint>Hint</ck-hint></ck-switch>
     <ck-switch [(ngModel)]="model">Unused</ck-switch>
     <ck-switch [formField]="signalForm.enabled">Unused</ck-switch>
   `,

@@ -616,6 +616,103 @@ describe('CkTabs', () => {
     });
   });
 
+  describe('panel tab stop', () => {
+    const panel = (root: HTMLElement) => query(root, 'ck-tab-panel');
+    const shared = (attributes: string) =>
+      GROUP('', `<ck-tab-panel ${attributes}>Shared</ck-tab-panel>`);
+
+    it('is a tab stop by default', async () => {
+      const { fixture, root } = mount(GROUP());
+      await settle(fixture);
+      expect(panel(root).getAttribute('tabindex')).toBe('0');
+    });
+
+    it.each([
+      ['a static attribute string', 'tabStop="false"'],
+      ['a binding', '[tabStop]="false"'],
+    ])('has no tabindex with %s', async (_name, attribute) => {
+      const { fixture, root } = mount(shared(attribute));
+      await settle(fixture);
+      expect(panel(root).hasAttribute('tabindex')).toBe(false);
+    });
+
+    it.each(['tabStop', 'tabStop="true"', '[tabStop]="true"'])(
+      'stays a tab stop with %s',
+      async (attribute) => {
+        const { fixture, root } = mount(shared(attribute));
+        await settle(fixture);
+        expect(panel(root).getAttribute('tabindex')).toBe('0');
+      },
+    );
+
+    it('follows the input from true to false and back', async () => {
+      const { fixture, host, root } = mount(shared('[tabStop]="tabStop()"'));
+      await settle(fixture);
+      expect(panel(root).getAttribute('tabindex')).toBe('0');
+      host.tabStop.set(false);
+      await settle(fixture);
+      expect(panel(root).hasAttribute('tabindex')).toBe(false);
+      host.tabStop.set(true);
+      await settle(fixture);
+      expect(panel(root).getAttribute('tabindex')).toBe('0');
+    });
+
+    it('applies to each per-value panel on its own, hidden ones included', async () => {
+      const { fixture, host, root } = mount(
+        `<ck-tabs [value]="value()"><ck-tab-list aria-label="Source">
+           <ck-tab value="a">Alpha</ck-tab><ck-tab value="b">Beta</ck-tab>
+         </ck-tab-list>
+         <ck-tab-panel value="a" [tabStop]="false">A</ck-tab-panel>
+         <ck-tab-panel value="b">B</ck-tab-panel></ck-tabs>`,
+      );
+      await settle(fixture);
+      expect(panelsOf(root).map((item) => item.getAttribute('tabindex'))).toEqual([null, '0']);
+      expect(panelsOf(root).map((item) => item.hidden)).toEqual([false, true]);
+      host.value.set('b');
+      await settle(fixture);
+      expect(panelsOf(root).map((item) => item.getAttribute('tabindex'))).toEqual([null, '0']);
+      expect(panelsOf(root).map((item) => item.hidden)).toEqual([true, false]);
+    });
+
+    it('keeps a static tabindex other than 0, whatever the input says', async () => {
+      const { fixture, host, root } = mount(shared('tabindex="-1" [tabStop]="tabStop()"'));
+      await settle(fixture);
+      expect(panel(root).getAttribute('tabindex')).toBe('-1');
+      host.tabStop.set(false);
+      await settle(fixture);
+      expect(panel(root).getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('lets the input win over a static tabindex="0"', async () => {
+      const { fixture, root } = mount(shared('tabindex="0" [tabStop]="false"'));
+      await settle(fixture);
+      expect(panel(root).hasAttribute('tabindex')).toBe(false);
+    });
+
+    it('writes the attribute into the server markup, or leaves it out', () => {
+      TestBed.configureTestingModule({
+        providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      const { fixture, root } = mount(`${shared('')}${shared('[tabStop]="false"')}`);
+      TestBed.inject(ApplicationRef).tick();
+      expect(panelsOf(root).map((item) => item.getAttribute('tabindex'))).toEqual(['0', null]);
+      fixture.destroy();
+    });
+
+    it('has no axe violations without a tab stop around focusable content', async () => {
+      const { fixture, root } = mount(
+        GROUP(
+          '',
+          `<ck-tab-panel [tabStop]="false"><ul>
+             <li><button>One</button></li><li><button>Two</button></li>
+           </ul></ck-tab-panel>`,
+        ),
+      );
+      await settle(fixture);
+      await expectNoAxeViolations(root);
+    });
+  });
+
   describe('server rendering and hydration', () => {
     it('renders the state into the markup and stays silent', () => {
       TestBed.configureTestingModule({

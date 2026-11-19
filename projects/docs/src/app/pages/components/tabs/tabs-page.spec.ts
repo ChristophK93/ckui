@@ -80,6 +80,7 @@ describe('TabsPage', () => {
     expect(typescript.map(([name]) => name)).toEqual([
       'basics',
       'panels',
+      'tabStop',
       'lazy',
       'manual',
       'sizes',
@@ -132,6 +133,7 @@ describe('TabsPage', () => {
       expect(outside, name).not.toMatch(/\binject\(/);
     }
     expect(SAMPLES.basics).toContain('[(value)]="source"');
+    expect(SAMPLES.tabStop).toContain('[tabStop]="false"');
     expect(SAMPLES.lazy).toContain('ckTabContent');
     expect(SAMPLES.manual).toContain('activation="manual"');
     expect(SAMPLES.sizes).toContain('size="xl"');
@@ -228,6 +230,26 @@ describe('TabsPage', () => {
       await settle();
       expect(selected(host)).toEqual(['Predefined']);
       expect(demoOf(host).querySelector('.status output')!.textContent).toBe('predefined');
+    });
+
+    it('goes from the tab straight to the first button when the panel is no tab stop', async () => {
+      const element = await render();
+      const host = group(element, 'Workout list source');
+      const panel = host.querySelector<HTMLElement>('ck-tab-panel')!;
+      expect(panel.hasAttribute('tabindex')).toBe(false);
+      expect(
+        group(element, 'Workout source').querySelector('ck-tab-panel')!.getAttribute('tabindex'),
+      ).toBe('0');
+      tabs(host)[0].focus();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(panel.querySelector('button'));
+      await userEvent.click(tabs(host)[2]);
+      await settle();
+      expect(Array.from(panel.querySelectorAll('button'), (button) => button.textContent)).toEqual([
+        'Team circuit',
+        'Park run intervals',
+        'Mobility flow',
+      ]);
     });
 
     it('starts on the tab named by value and shows only its panel', async () => {

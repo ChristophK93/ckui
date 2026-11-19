@@ -62,12 +62,14 @@ describe('App', () => {
       'Tokens',
       'Badge',
       'Button',
+      'Checkbox',
       'Chip',
       'Dialog',
       'Drawer',
       'Field',
       'Progress',
       'Segmented',
+      'Slider',
       'Stepper',
       'Switch',
       'Tabs',
@@ -80,12 +82,14 @@ describe('App', () => {
     expect(Array.from(group.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
       '/components/badge',
       '/components/button',
+      '/components/checkbox',
       '/components/chip',
       '/components/dialog',
       '/components/drawer',
       '/components/field',
       '/components/progress',
       '/components/segmented',
+      '/components/slider',
       '/components/stepper',
       '/components/switch',
       '/components/tabs',
@@ -99,12 +103,14 @@ describe('App', () => {
     ['/theming', 'Theming'],
     ['/tokens', 'Tokens'],
     ['/components/button', 'Button'],
+    ['/components/checkbox', 'Checkbox'],
     ['/components/field', 'Field'],
     ['/components/segmented', 'Segmented'],
     ['/components/toast', 'Toast'],
     ['/components/dialog', 'Dialog'],
     ['/components/badge', 'Badge'],
     ['/components/progress', 'Progress'],
+    ['/components/slider', 'Slider'],
     ['/components/stepper', 'Stepper'],
     ['/components/switch', 'Switch'],
     ['/components/chip', 'Chip'],
@@ -137,7 +143,9 @@ describe('App', () => {
       'Toast',
       'Dialog',
       'Badge',
+      'Checkbox',
       'Progress',
+      'Slider',
       'Stepper',
       'Switch',
       'Chip',
@@ -149,13 +157,20 @@ describe('App', () => {
     }
   });
 
-  it.each(['Badge', 'Progress', 'Stepper', 'Switch', 'Chip', 'Tabs', 'Drawer'])(
-    'shows the %s page',
-    async (name) => {
-      const element = await render(`/components/${name.toLowerCase()}`);
-      expect(element.querySelector('main h1')?.textContent).toBe(name);
-    },
-  );
+  it.each([
+    'Badge',
+    'Checkbox',
+    'Progress',
+    'Slider',
+    'Stepper',
+    'Switch',
+    'Chip',
+    'Tabs',
+    'Drawer',
+  ])('shows the %s page', async (name) => {
+    const element = await render(`/components/${name.toLowerCase()}`);
+    expect(element.querySelector('main h1')?.textContent).toBe(name);
+  });
 
   it('shows the Field page', async () => {
     const element = await render('/components/field');

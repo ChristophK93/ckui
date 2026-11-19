@@ -1,0 +1,242 @@
+@layer ckui {
+  .ck-checkbox-host {
+    display: block;
+  }
+
+  /*
+   * A row: the box and the text block. The box and the first line of text share one line box of
+   * the row height minus the padding, so a one-line label is centred and a long one grows downwards.
+   */
+  .ck-checkbox {
+    --_ck-checkbox-border: 2px;
+    --_ck-checkbox-inner: calc(var(--_ck-checkbox-row) - 2 * var(--ck-space-1));
+    --_ck-checkbox-line: calc(var(--_ck-checkbox-font-size) * var(--ck-line-height-tight));
+    display: flex;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-block-size: var(--_ck-checkbox-row);
+    padding-block: var(--ck-space-1);
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-checkbox-font-size);
+    line-height: var(--ck-line-height-tight);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-checkbox--sm {
+    --_ck-checkbox-row: var(--ck-control-height-sm);
+    --_ck-checkbox-font-size: var(--ck-control-font-size-sm);
+    --_ck-checkbox-box: 1.125rem;
+  }
+
+  .ck-checkbox--md {
+    --_ck-checkbox-row: var(--ck-control-height-md);
+    --_ck-checkbox-font-size: var(--ck-control-font-size-md);
+    --_ck-checkbox-box: 1.125rem;
+  }
+
+  .ck-checkbox--lg {
+    --_ck-checkbox-row: var(--ck-control-height-lg);
+    --_ck-checkbox-font-size: var(--ck-control-font-size-lg);
+    --_ck-checkbox-box: 1.25rem;
+  }
+
+  .ck-checkbox--xl {
+    --_ck-checkbox-row: var(--ck-control-height-xl);
+    --_ck-checkbox-font-size: var(--ck-control-font-size-xl);
+    --_ck-checkbox-box: 1.5rem;
+  }
+
+  .ck-checkbox__control {
+    display: grid;
+    flex: none;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_ck-checkbox-box);
+    block-size: var(--_ck-checkbox-inner);
+  }
+
+  /* The real control, invisible, over the box. */
+  .ck-checkbox__input {
+    grid-area: 1 / 1;
+    box-sizing: border-box;
+    inline-size: var(--_ck-checkbox-box);
+    block-size: var(--_ck-checkbox-box);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    appearance: none;
+    cursor: inherit;
+  }
+
+  .ck-checkbox__box {
+    display: grid;
+    grid-area: 1 / 1;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_ck-checkbox-box);
+    block-size: var(--_ck-checkbox-box);
+    border: var(--_ck-checkbox-border) solid var(--ck-checkbox-border-color, var(--ck-color-border));
+    border-radius: var(--ck-checkbox-radius, var(--ck-radius-sm));
+    background: var(--ck-checkbox-bg, var(--ck-color-control));
+    color: var(--ck-checkbox-checked-fg, var(--ck-color-on-primary));
+    pointer-events: none;
+    transition:
+      background-color var(--ck-duration-normal) var(--ck-ease-standard),
+      border-color var(--ck-duration-normal) var(--ck-ease-standard);
+    --ck-icon-size: calc(var(--_ck-checkbox-box) - 2 * var(--_ck-checkbox-border));
+  }
+
+  /* The shape is the state (tick or dash), so it never depends on colour alone. */
+  .ck-checkbox__box .ck-checkbox__mark {
+    display: none;
+    grid-area: 1 / 1;
+    vertical-align: baseline;
+  }
+
+  .ck-checkbox__input:checked + .ck-checkbox__box .ck-checkbox__mark--check {
+    display: block;
+  }
+
+  .ck-checkbox__input:is(:checked, :indeterminate) + .ck-checkbox__box {
+    border-color: var(--ck-checkbox-checked-bg, var(--ck-color-primary));
+    background: var(--ck-checkbox-checked-bg, var(--ck-color-primary));
+  }
+
+  .ck-checkbox__input:indeterminate + .ck-checkbox__box .ck-checkbox__mark--check {
+    display: none;
+  }
+
+  .ck-checkbox__input:indeterminate + .ck-checkbox__box .ck-checkbox__mark--minus {
+    display: block;
+  }
+
+  .ck-checkbox__input[aria-invalid='true'] + .ck-checkbox__box {
+    border-color: var(--ck-color-danger-fg);
+  }
+
+  .ck-checkbox__body {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+
+  .ck-checkbox--label-start .ck-checkbox__body {
+    order: -1;
+  }
+
+  /* The gap only exists while there is text or a hint. */
+  .ck-checkbox--label-start .ck-checkbox__body:has(> :not(:empty)) {
+    margin-inline-end: var(--ck-space-3);
+  }
+
+  .ck-checkbox--label-end .ck-checkbox__body:has(> :not(:empty)) {
+    margin-inline-start: var(--ck-space-3);
+  }
+
+  .ck-checkbox__text {
+    display: block;
+    padding-block: calc((var(--_ck-checkbox-inner) - var(--_ck-checkbox-line)) / 2);
+  }
+
+  /* No text and no hint: the row is just the box, not a full-width tap area. */
+  .ck-checkbox:not(:has(.ck-checkbox__body > :not(:empty))) {
+    inline-size: fit-content;
+    max-inline-size: 100%;
+  }
+
+  .ck-checkbox:not(:has(.ck-checkbox__body > :not(:empty))) .ck-checkbox__body {
+    flex: none;
+  }
+
+  /* Hint and error are shared with other controls: styled only under this container. */
+  .ck-checkbox__body .ck-hint,
+  .ck-checkbox__body .ck-error {
+    display: block;
+    margin-block-end: var(--ck-space-1);
+    font-size: var(--ck-font-size-sm);
+    line-height: var(--ck-line-height-normal);
+    overflow-wrap: break-word;
+  }
+
+  .ck-checkbox__body .ck-hint {
+    color: var(--ck-color-fg-muted);
+  }
+
+  .ck-checkbox__body .ck-error {
+    color: var(--ck-color-danger-fg);
+  }
+
+  .ck-checkbox__body .ck-error[hidden] {
+    display: none;
+  }
+
+  .ck-checkbox__input:focus-visible + .ck-checkbox__box {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  /* Also inside a <fieldset disabled>, where only the input's :disabled state knows. */
+  .ck-checkbox--disabled,
+  .ck-checkbox:has(.ck-checkbox__input:disabled) {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-checkbox:has(.ck-checkbox__input:disabled) .ck-hint {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-checkbox__input:disabled + .ck-checkbox__box {
+    border-color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-checkbox__input:disabled:is(:checked, :indeterminate) + .ck-checkbox__box {
+    background: var(--ck-color-fg-disabled);
+    color: var(--ck-color-on-primary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-checkbox__box {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-checkbox__box {
+      border-color: CanvasText;
+      background: Canvas;
+      color: HighlightText;
+    }
+
+    .ck-checkbox__input:is(:checked, :indeterminate) + .ck-checkbox__box {
+      border-color: Highlight;
+      background: Highlight;
+    }
+
+    .ck-checkbox__input:focus-visible + .ck-checkbox__box {
+      outline: var(--ck-focus-ring-width) solid Highlight;
+      outline-offset: var(--ck-focus-ring-offset);
+    }
+
+    .ck-checkbox--disabled,
+    .ck-checkbox--disabled .ck-hint,
+    .ck-checkbox:has(.ck-checkbox__input:disabled),
+    .ck-checkbox:has(.ck-checkbox__input:disabled) .ck-hint {
+      color: GrayText;
+    }
+
+    .ck-checkbox__input:disabled + .ck-checkbox__box,
+    .ck-checkbox__input:disabled:is(:checked, :indeterminate) + .ck-checkbox__box {
+      border-color: GrayText;
+      background: Canvas;
+      color: GrayText;
+    }
+  }
+}

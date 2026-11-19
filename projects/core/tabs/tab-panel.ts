@@ -2,9 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   PLATFORM_ID,
   ViewEncapsulation,
   afterNextRender,
+  booleanAttribute,
   computed,
   contentChild,
   inject,
@@ -31,7 +33,7 @@ declare const ngDevMode: unknown;
   host: {
     class: 'ck-tab-panel',
     role: 'tabpanel',
-    tabindex: '0',
+    '[attr.tabindex]': 'tabindex()',
     '[id]': 'id()',
     '[hidden]': '!shown()',
     '[attr.aria-labelledby]': 'labelledBy()',
@@ -47,10 +49,26 @@ export class CkTabPanel<T = unknown> implements CkTabPanelRef {
   /** Defaults to a generated id; the tabs' `aria-controls` follow a change. */
   readonly id = input(createCkId('ck-tab-panel'));
 
+  /**
+   * Whether the panel is a tab stop (`tabindex="0"`, the default). Turn it off when the panel's
+   * content starts with a focusable element, such as a list of buttons or links: Tab then goes from
+   * the selected tab straight to that element instead of stopping on the empty panel first. With
+   * `false` the panel has no `tabindex` at all. A static `tabindex` other than `0` on the element
+   * itself (`tabindex="-1"`) is kept as written and wins over this input.
+   */
+  readonly tabStop = input(true, { transform: booleanAttribute });
+
   /** @internal */
   readonly group = inject(CK_TABS_CONTEXT);
   private readonly content = contentChild(CkTabContent);
+  // Read before the first binding. A `0` may be ours from the server render, so only other values count.
+  private readonly ownTabindex = (() => {
+    const value =
+      inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.getAttribute('tabindex');
+    return value !== null && value !== '0' ? value : null;
+  })();
 
+  protected readonly tabindex = computed(() => this.ownTabindex ?? (this.tabStop() ? '0' : null));
   protected readonly shown = computed(() => this.group.isShown(this));
   protected readonly labelledBy = computed(() => this.group.tabIdFor(this));
   protected readonly lazy = computed(() =>

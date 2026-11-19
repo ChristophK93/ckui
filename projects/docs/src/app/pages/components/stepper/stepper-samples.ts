@@ -195,6 +195,44 @@ export class FtpSignal {
       body: '  protected readonly ftp = signal<number | null>(250);',
     },
   ),
+  field: `import { Component, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CkButton } from '@ckui/core/button';
+import { CK_FIELD_IMPORTS } from '@ckui/core/field';
+import { CkStepper } from '@ckui/core/stepper';
+
+@Component({
+  selector: 'app-ftp-field',
+  imports: [ReactiveFormsModule, CK_FIELD_IMPORTS, CkStepper, CkButton],
+  template: \`
+    <form [formGroup]="ftpForm" (ngSubmit)="save()">
+      <ck-field>
+        <label>FTP</label>
+        <ck-stepper formControlName="ftp" [min]="50" [max]="600" [step]="5" unit="W" />
+        <ck-hint>Your functional threshold power.</ck-hint>
+        <ck-error>Enter a value between 50 and 600 W.</ck-error>
+      </ck-field>
+      <button ckButton type="submit">Save</button>
+      <p>Saved: {{ saved() ?? 'nothing yet' }}</p>
+    </form>
+  \`,
+})
+export class FtpField {
+  protected readonly ftpForm = new FormGroup({
+    ftp: new FormControl<number | null>(250, [
+      Validators.required,
+      Validators.min(50),
+      Validators.max(600),
+    ]),
+  });
+  protected readonly saved = signal<number | null>(null);
+
+  protected save(): void {
+    if (this.ftpForm.valid) {
+      this.saved.set(this.ftpForm.controls.ftp.value);
+    }
+  }
+}`,
   reset: `${RESET_BREAKS}\n\n${RESET_SCOPED}`,
   tokens: `/* in your app: one control, a whole toolbar or the root */
 .settings {

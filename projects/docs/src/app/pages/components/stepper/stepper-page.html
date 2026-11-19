@@ -218,6 +218,33 @@
 </div>
 <pre class="code"><code>{{ samples.ftp }}</code></pre>
 
+<h3 id="in-field">In a field</h3>
+<p>
+  <code>ck-stepper</code> can be the control of a <a routerLink="/components/field">field</a>. The
+  field draws the box, the floating label (always floated here, since the buttons sit where a
+  resting label would be), the hint and the error, and names the input with the label. The stepper
+  drops its own border and background, takes the field's size, and its buttons reach the edges of
+  the box. The error shows once the control was touched (focus left the stepper, not just moved
+  between its buttons) or the form was submitted. Clear the value and tab away to see it.
+</p>
+<div class="demo demo-column">
+  <form class="narrow" [formGroup]="fieldForm" (ngSubmit)="saveField()">
+    <ck-field>
+      <label>FTP</label>
+      <ck-stepper formControlName="ftp" [min]="50" [max]="600" [step]="5" unit="W" />
+      <ck-hint>Your functional threshold power.</ck-hint>
+      <ck-error>Enter a value between 50 and 600 W.</ck-error>
+    </ck-field>
+    <div class="actions">
+      <button ckButton type="submit" size="sm">Save</button>
+      <p class="status">
+        Saved: <output>{{ savedFtp() ?? 'nothing yet' }}</output>
+      </p>
+    </div>
+  </form>
+</div>
+<pre class="code"><code>{{ samples.field }}</code></pre>
+
 <h2 id="api">API</h2>
 <div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the stepper">
   <table class="table">
@@ -276,8 +303,9 @@
 <p>
   The host gets the classes <code>ck-stepper</code>, <code>ck-stepper--&#123;size&#125;</code> and,
   while they apply, <code>ck-stepper--disabled</code> and <code>ck-stepper--readonly</code>. The
-  value is also available as <code>(valueChange)</code>, which fires once per user change: one per
-  step of a held button, never for a programmatic write.
+  value is also available as <code>(valueChange)</code>, which reports every write to the value: one
+  per step of a held button, and a write from a form (<code>setValue</code>, <code>reset</code>)
+  too. A <code>[value]</code> binding from the parent does not emit.
 </p>
 
 <h2 id="keyboard">Keyboard</h2>

@@ -4,10 +4,12 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   LOCALE_ID,
   PLATFORM_ID,
   Renderer2,
   ViewEncapsulation,
+  afterEveryRender,
   afterNextRender,
   afterRenderEffect,
   booleanAttribute,
@@ -15,25 +17,35 @@ import {
   effect,
   inject,
   input,
+  linkedSignal,
+  signal,
   viewChild,
 } from '@angular/core';
+import { ControlContainer } from '@angular/forms';
 import { CK_CONFIG, CK_LABELS, CkSize } from '@ckui/core';
 import {
+  CK_CONTROL_STATE,
+  CK_FIELD_CONTEXT,
+  CkAriaWiring,
+  CkControlState,
+  CkFormState,
   CkIcon,
   CkMedia,
   CkValueControl,
-  hasAccessibleName,
-  provideCkValueAccessor,
-} from '@ckui/core/internal';
-import {
-  StepperGrid,
+  NumberGrid,
+  RequiredProbe,
+  createCkId,
   createFormatter,
   decimalsOf,
+  finiteOrNull,
+  hasAccessibleName,
+  lazyNgControl,
   moveBy,
-  parseNumber,
-  separatorsOf,
+  provideCkValueAccessor,
   snap,
-} from './stepper-math';
+  toNumber,
+} from '@ckui/core/internal';
+import { parseNumber, separatorsOf } from './stepper-math';
 
 declare const ngDevMode: unknown;
 
@@ -47,16 +59,20 @@ const SHOWN_DIGITS = 6;
 
 type Direction = 1 | -1;
 
-/** Accepts `50`, `'50'`, `null`, `undefined` and `''`; anything else that is no number is `NaN`. */
-function toNumber(value: unknown): number | null {
-  if (value === null || value === undefined || value === '') {
-    return null;
-  }
-  return typeof value === 'number' || typeof value === 'string' ? Number(value) : NaN;
+function sameWiring(previous: CkAriaWiring | null, next: CkAriaWiring | null): boolean {
+  return (
+    previous === next ||
+    (previous !== null &&
+      next !== null &&
+      previous.invalid === next.invalid &&
+      previous.required === next.required &&
+      previous.describedBy.join(' ') === next.describedBy.join(' '))
+  );
 }
 
-const finiteOrNull = (value: number | null): number | null =>
-  value !== null && Number.isFinite(value) ? value : null;
+function tokens(value: string | null): string[] {
+  return (value ?? '').split(/\s+/).filter((token) => token !== '');
+}
 
 /**
  * A number field with a minus and a plus button. The value is a real text input with the
@@ -67,6 +83,9 @@ const finiteOrNull = (value: number | null): number | null =>
  * Name it with `aria-label` or `aria-labelledby` on `ck-stepper`, or wrap it in a `<label>`. The
  * attributes are inputs here and move to the input element.
  *
+ * Inside a `ck-field` it is the field's control: the field draws the box and the label, and adds
+ * its hint and error to the input's description. The field's size applies unless `size` is set.
+ *
  * The input comes first in the DOM, so a wrapping `<label>` names it rather than a button; the
  * minus button is moved in front of it with CSS `order`.
  */
@@ -75,7 +94,10 @@ const finiteOrNull = (value: number | null): number | null =>
   imports: [CkIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  providers: [provideCkValueAccessor(CkStepper)],
+  providers: [
+    provideCkValueAccessor(CkStepper),
+    { provide: CK_CONTROL_STATE, useFactory: () => inject(CkStepper).fieldControl },
+  ],
   host: {
     class: 'ck-stepper',
     '[class]': 'modifierClasses()',
@@ -90,6 +112,7 @@ const finiteOrNull = (value: number | null): number | null =>
       <input
         #input
         class="ck-stepper__input"
+        [attr.id]="inputId"
         type="text"
         role="spinbutton"
         [attr.inputmode]="inputMode()"
@@ -102,13 +125,17 @@ const finiteOrNull = (value: number | null): number | null =>
         [disabled]="isDisabled()"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-labelledby]="ariaLabelledby()"
-        [attr.aria-describedby]="ariaDescribedby()"
+        [attr.aria-describedby]="describedby()"
+        [attr.aria-invalid]="wiring()?.invalid ? 'true' : null"
+        [attr.aria-required]="wiring()?.required ? 'true' : null"
         [attr.aria-readonly]="readonly() ? 'true' : null"
         [attr.aria-valuenow]="current()"
         [attr.aria-valuemin]="bounds().min"
         [attr.aria-valuemax]="bounds().max"
         [attr.aria-valuetext]="valueText()"
         (input)="editing = true"
+        (focus)="refresh()"
+        (blur)="refresh()"
         (keydown)="onKeydown($event)"
       />
       @if (unit()) {
@@ -187,7 +214,22 @@ export class CkStepper extends CkValueControl<number | null> {
   private readonly document = inject(DOCUMENT);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+  private readonly field = inject(CK_FIELD_CONTEXT, { optional: true });
+  private readonly container = inject(ControlContainer, { optional: true });
+  private readonly lookup = lazyNgControl(inject(Injector));
+  private readonly formState = new CkFormState(
+    { control: this.lookup, container: () => this.container },
+    () => this.refresh(),
+  );
+  private readonly requiredProbe = new RequiredProbe();
   private readonly inputRef = viewChild.required<ElementRef<HTMLInputElement>>('input');
+
+  /** Set by the surrounding `ck-field`, if any. */
+  protected readonly wiring = signal<CkAriaWiring | null>(null, { equal: sameWiring });
+  protected readonly inputId = createCkId('ck-stepper');
+  private readonly focusedState = signal(false);
+  private readonly domDisabled = signal(false);
+  private readonly requiredState = signal(false);
 
   /** Typed text that is not committed yet. */
   protected editing = false;
@@ -201,9 +243,24 @@ export class CkStepper extends CkValueControl<number | null> {
   private repeatElapsed = 0;
   private repeatDirection: Direction = 1;
 
-  protected readonly modifierClasses = computed(
-    () => `ck-stepper ck-stepper--${this.size() ?? this.config.size}`,
+  private readonly resolvedSize = computed(
+    () => this.size() ?? this.field?.resolvedSize() ?? this.config.size,
   );
+
+  protected readonly modifierClasses = computed(
+    () => `ck-stepper ck-stepper--${this.resolvedSize()}`,
+  );
+
+  /** The consumer's ids, then the field's hint and error ids while a field wraps this control. */
+  protected readonly describedby = computed(() => {
+    const own = this.ariaDescribedby();
+    const wiring = this.wiring();
+    if (wiring === null) {
+      return own;
+    }
+    const ids = new Set([...tokens(own), ...wiring.describedBy]);
+    return ids.size > 0 ? [...ids].join(' ') : null;
+  });
 
   /** The decimal keypad has no minus sign, so a range that allows negatives gets the text one. */
   protected readonly inputMode = computed(() => {
@@ -227,7 +284,7 @@ export class CkStepper extends CkValueControl<number | null> {
     Math.max(decimalsOf(this.stepSize()), decimalsOf(this.bounds().min ?? 0)),
   );
 
-  private readonly grid = computed<StepperGrid>(() => ({
+  private readonly grid = computed<NumberGrid>(() => ({
     step: this.stepSize(),
     ...this.bounds(),
     digits: this.digits(),
@@ -247,6 +304,14 @@ export class CkStepper extends CkValueControl<number | null> {
     const value = this.value();
     return typeof value === 'number' && Number.isFinite(value) ? value : null;
   });
+
+  private readonly version = linkedSignal<number | null, number>({
+    source: this.current,
+    computation: (_, previous) => (previous?.value ?? -1) + 1,
+  });
+
+  /** @internal What `ck-field` reads when this stepper is its control. */
+  readonly fieldControl: CkControlState = this.createFieldControl();
 
   private format(value: number | null): string {
     if (value === null) {
@@ -302,7 +367,13 @@ export class CkStepper extends CkValueControl<number | null> {
     renderer.removeAttribute(this.element, 'aria-labelledby');
     renderer.removeAttribute(this.element, 'aria-describedby');
 
+    if (this.browser) {
+      effect(() => this.refresh());
+      afterEveryRender(() => this.refresh());
+    }
+
     inject(DestroyRef).onDestroy(() => {
+      this.formState.release();
       this.holding = false;
       this.clearRepeat();
       this.unwatchRelease();
@@ -337,6 +408,42 @@ export class CkStepper extends CkValueControl<number | null> {
     if (typeof ngDevMode !== 'undefined' && ngDevMode && this.browser) {
       this.watchConfiguration();
     }
+  }
+
+  private createFieldControl(): CkControlState {
+    const inputRef = this.inputRef;
+    return {
+      get element(): HTMLElement {
+        return inputRef().nativeElement;
+      },
+      id: computed(() => this.inputId),
+      focused: this.focusedState.asReadonly(),
+      hasValue: computed(() => this.current() !== null),
+      hasPlaceholder: computed(() => false),
+      builtInUi: computed(() => true),
+      disabled: computed(
+        () => this.isDisabled() || this.formState.disabled() || this.domDisabled(),
+      ),
+      readonly: computed(() => this.readonly()),
+      required: this.requiredState.asReadonly(),
+      invalid: this.formState.invalid,
+      touched: this.formState.touched,
+      submitted: this.formState.submitted,
+      version: this.version,
+      setWiring: (wiring) => this.wiring.set(wiring),
+    };
+  }
+
+  /** Copies the DOM and forms state the field needs into signals. Cheap when nothing changed. */
+  protected refresh(): void {
+    if (!this.browser) {
+      return;
+    }
+    const input = this.inputRef().nativeElement;
+    this.formState.refresh();
+    this.focusedState.set(this.document.activeElement === input);
+    this.domDisabled.set(input.matches(':disabled'));
+    this.requiredState.set(this.requiredProbe.isRequired(this.lookup()?.control));
   }
 
   private watchConfiguration(): void {

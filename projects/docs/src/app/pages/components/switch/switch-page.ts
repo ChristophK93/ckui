@@ -100,7 +100,7 @@ export class SwitchPage {
       type: 'string | null',
       defaultValue: 'null',
       description:
-        'More ids that describe the input, listed after the hint of ck-switch-hint. Moved onto the input element like aria-label.',
+        'More ids that describe the input, listed after the hint of ck-hint. Moved onto the input element like aria-label.',
     },
     {
       name: 'touched',
@@ -115,7 +115,7 @@ export class SwitchPage {
     {
       name: 'id',
       type: 'string',
-      defaultValue: "'ck-switch-hint-N'",
+      defaultValue: "'ck-hint-N'",
       description:
         'The id of the hint, which the switch lists in aria-describedby. A static or a bound id both work, and the switch follows a change.',
     },
@@ -147,7 +147,7 @@ export class SwitchPage {
         'The projected label text, in a block of its own so inline markup keeps its spaces. It names the input.',
     },
     {
-      name: 'ck-switch-hint',
+      name: 'ck-hint',
       description:
         'Optional help text under the label. It describes the input and is part of the row.',
     },

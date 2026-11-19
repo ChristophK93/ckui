@@ -61,17 +61,17 @@
    * The border itself becomes the ring: no outside offset, so it never crosses the floated label,
    * and the notch interrupts it like the border. The inset shadow keeps the box size stable.
    */
-  .ck-field:has(.ck-input:focus-visible) .ck-field__box {
+  .ck-field:has(.ck-field__main :focus-visible) .ck-field__box {
     border-color: var(--ck-color-focus-ring);
     box-shadow: inset 0 0 0 calc(var(--ck-focus-ring-width) - 1px) var(--ck-color-focus-ring);
   }
 
   .ck-field--invalid .ck-field__box,
-  .ck-field--invalid:has(.ck-input:focus-visible) .ck-field__box {
+  .ck-field--invalid:has(.ck-field__main :focus-visible) .ck-field__box {
     border-color: var(--ck-color-danger);
   }
 
-  .ck-field--invalid:has(.ck-input:focus-visible) .ck-field__box {
+  .ck-field--invalid:has(.ck-field__main :focus-visible) .ck-field__box {
     box-shadow: inset 0 0 0 calc(var(--ck-focus-ring-width) - 1px) var(--ck-color-danger);
   }
 
@@ -152,7 +152,7 @@
    * Floated: centred on the top border. The bottom half is opaque, so it hides the border behind
    * the label; the top half stays transparent and shows whatever the page is.
    */
-  :is(.ck-field--floated, .ck-field:has(.ck-input:autofill)) .ck-field__label {
+  :is(.ck-field--floated, .ck-field:has(.ck-field__main :autofill)) .ck-field__label {
     inset-block-start: -1px;
     background: linear-gradient(
       to bottom,
@@ -299,8 +299,9 @@
     overflow-y: auto;
   }
 
-  .ck-hint,
-  .ck-error {
+  /* ck-hint and ck-error are shared with other controls; style them only inside a field. */
+  .ck-field .ck-hint,
+  .ck-field .ck-error {
     display: block;
     margin-block-start: var(--ck-space-1);
     padding-inline: var(--_ck-pad-x);
@@ -309,15 +310,16 @@
     overflow-wrap: break-word;
   }
 
-  .ck-hint {
+  .ck-field .ck-hint {
     color: var(--ck-color-fg-muted);
   }
 
-  .ck-error {
+  .ck-field .ck-error {
     color: var(--ck-color-danger-fg);
   }
 
-  .ck-error[hidden] {
+  .ck-error[hidden],
+  .ck-field .ck-error[hidden] {
     display: none;
   }
 
@@ -339,11 +341,11 @@
       border-color: Mark;
     }
 
-    :is(.ck-field--floated, .ck-field:has(.ck-input:autofill)) .ck-field__label {
+    :is(.ck-field--floated, .ck-field:has(.ck-field__main :autofill)) .ck-field__label {
       background: linear-gradient(to bottom, transparent 50%, Canvas 50%);
     }
 
-    .ck-field:has(.ck-input:focus-visible) .ck-field__box {
+    .ck-field:has(.ck-field__main :focus-visible) .ck-field__box {
       border-color: Highlight;
       outline: calc(var(--ck-focus-ring-width) - 1px) solid Highlight;
       outline-offset: calc(-1 * var(--ck-focus-ring-width));

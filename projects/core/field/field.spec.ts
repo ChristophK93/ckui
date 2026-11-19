@@ -401,6 +401,51 @@ describe('CkField', () => {
         expect(inputOf(root).hasAttribute('aria-describedby')).toBe(false);
       });
 
+      it('lists a static hint id', async () => {
+        const { fixture, root } = mount(`
+          <ck-field><label>Name</label><input ckInput /><ck-hint id="static-hint">Help</ck-hint></ck-field>
+        `);
+        await settle(fixture);
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe('static-hint');
+      });
+
+      it('lists a bound hint id and follows a change of it', async () => {
+        const { fixture, host, root } = mount(`
+          <ck-field>
+            <label>Name</label>
+            <input ckInput />
+            <ck-hint [id]="hintId()">Help</ck-hint>
+          </ck-field>
+        `);
+        await settle(fixture);
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-a');
+        host.hintId.set('hint-b');
+        await settle(fixture);
+        expect(query(root, 'ck-hint').id).toBe('hint-b');
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-b');
+      });
+
+      it('follows a changed error id while the error shows, and drops the old one', async () => {
+        const { fixture, host, root } = mount(`
+          <ck-field [invalid]="forced()">
+            <label>Name</label>
+            <input ckInput />
+            <ck-hint>Help</ck-hint>
+            <ck-error [id]="errorId()">Wrong</ck-error>
+          </ck-field>
+        `);
+        host.forced.set(true);
+        await settle(fixture);
+        const hint = query(root, 'ck-hint').id;
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe(`${hint} error-a`);
+        host.errorId.set('error-b');
+        await settle(fixture);
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe(`${hint} error-b`);
+        host.forced.set(false);
+        await settle(fixture);
+        expect(inputOf(root).getAttribute('aria-describedby')).toBe(hint);
+      });
+
       it('lists several hints in order and drops one that is removed', async () => {
         const { fixture, host, root } = mount(`
           <ck-field>
@@ -958,7 +1003,7 @@ describe('CkField', () => {
       const { fixture } = mount('<ck-field><label>Name</label></ck-field>');
       await settle(fixture);
       expect(warn.mock.calls.map((call) => String(call[0])).join('\n')).toContain(
-        'exactly one ckInput, found 0',
+        'exactly one control (ckInput or ck-stepper), found 0',
       );
     });
 
@@ -969,7 +1014,7 @@ describe('CkField', () => {
       );
       await settle(fixture);
       expect(warn.mock.calls.map((call) => String(call[0])).join('\n')).toContain(
-        'exactly one ckInput, found 2',
+        'exactly one control (ckInput or ck-stepper), found 2',
       );
     });
 

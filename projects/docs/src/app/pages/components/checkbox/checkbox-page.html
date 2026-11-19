@@ -1,0 +1,545 @@
+<h1>Checkbox</h1>
+<p>
+  <code>ck-checkbox</code> is one yes or no choice that is saved with a form: accept the terms, save
+  as template. <code>ck-checkbox-group</code> turns several of them into one array value. A checkbox
+  is a native <code>&lt;input type="checkbox"&gt;</code> under a label, so the whole row is the tap
+  target. Both work with Reactive Forms, <code>ngModel</code> and Signal Forms. Import
+  <code>CK_CHECKBOX_IMPORTS</code> (the checkbox, the group, <code>ck-hint</code> and
+  <code>ck-error</code>) from <code>&#64;ckui/core/checkbox</code>. For a setting that applies the
+  moment it is flipped, a <a routerLink="/components/switch">switch</a> says that better.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  The value is a <code>boolean</code> and works two-way with <code>[(value)]</code>. The text inside
+  <code>ck-checkbox</code> is the label: it names the checkbox, and a click anywhere on the row
+  toggles it. <code>ck-hint</code> adds a line of help; it describes the checkbox (a screen reader
+  reads it after the name) and is part of the row, so a click on it toggles too.
+</p>
+<div class="demo demo-column">
+  <ck-checkbox class="wide" [(value)]="saveAsTemplate">
+    Save as template
+    <ck-hint>Shows up under "Mine".</ck-hint>
+  </ck-checkbox>
+  <p class="status">
+    Save as template is <output>{{ saveAsTemplate() ? 'on' : 'off' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="label-position">Label position</h3>
+<p>
+  By default the box comes first. <code>labelPosition="start"</code> puts the text first and the box
+  at the end of the row. In right-to-left text both flip.
+</p>
+<div class="demo demo-column">
+  <ck-checkbox class="wide" [(value)]="positioned">Audio cues</ck-checkbox>
+  <ck-checkbox class="wide" labelPosition="start" [(value)]="positioned">Audio cues</ck-checkbox>
+</div>
+<pre class="code"><code>{{ samples.position }}</code></pre>
+
+<h3 id="select-all">Select all</h3>
+<p>
+  <code>indeterminate</code> shows the mixed state with a dash instead of a tick, and sets the
+  native property, so a screen reader says "mixed". A click clears it and checks the box. Derive it
+  from your list: here "All rides" is mixed while some, but not all, rides are picked, and its click
+  picks or clears them all.
+</p>
+<div class="demo demo-column">
+  <div class="settings">
+    <ck-checkbox
+      [value]="allRides()"
+      [indeterminate]="someRides()"
+      (valueChange)="setAllRides($event)"
+    >
+      All rides
+    </ck-checkbox>
+    <ck-checkbox-group [(value)]="selectedRides">
+      <label>Rides</label>
+      @for (ride of rides; track ride) {
+        <ck-checkbox [option]="ride">{{ ride }}</ck-checkbox>
+      }
+    </ck-checkbox-group>
+  </div>
+  <p class="status">
+    Picked: <output>{{ selectedRides().join(', ') || 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.selectAll }}</code></pre>
+
+<h3 id="terms">Accept the terms</h3>
+<p>
+  A checkbox that must be ticked holds a <code>ck-error</code>. It stays hidden until the control is
+  invalid and touched (focus has left it), or its form was submitted. While it shows, the input is
+  <code>aria-invalid</code> and the error is part of its description, so it is announced when the
+  checkbox is focused. The validator is yours: <code>Validators.requiredTrue</code> here.
+</p>
+<div class="demo">
+  <form class="form" [formGroup]="profile" (ngSubmit)="submitTerms()">
+    <ck-checkbox formControlName="terms">
+      I accept the terms
+      <ck-hint>Required to continue.</ck-hint>
+      <ck-error>You have to accept the terms.</ck-error>
+    </ck-checkbox>
+    <button ckButton type="submit">Continue</button>
+  </form>
+  <p class="status">
+    Result: <output>{{ termsResult() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.terms }}</code></pre>
+
+<h3 id="group">A group with an array value</h3>
+<p>
+  <code>ck-checkbox-group</code> holds the array of the options that are checked. Each checkbox in
+  it takes an <code>option</code> instead of a value. The array keeps the order of the checkboxes in
+  the page, whatever order they were clicked in. The first <code>&lt;label&gt;</code> names the
+  group (it has <code>role="group"</code>). The group shows the error, once, below the list: focus
+  moving between its checkboxes does not count as touched, leaving the whole group does, and every
+  checkbox is <code>aria-invalid</code> while it shows.
+</p>
+<div class="demo">
+  <form class="form" [formGroup]="plan" (ngSubmit)="submitPlan()">
+    <ck-checkbox-group formControlName="zones" required>
+      <label>Zones</label>
+      <ck-checkbox option="endurance">Endurance</ck-checkbox>
+      <ck-checkbox option="vo2">VO2max</ck-checkbox>
+      <ck-checkbox option="tempo">Tempo</ck-checkbox>
+      <ck-hint>Pick at least one.</ck-hint>
+      <ck-error>Pick at least one zone.</ck-error>
+    </ck-checkbox-group>
+    <button ckButton type="submit">Save</button>
+  </form>
+  <p class="status">
+    Value: <output>{{ plan.controls.zones.value?.join(', ') || 'none' }}</output
+    >, result: <output>{{ planResult() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.group }}</code></pre>
+<p>
+  <code>required</code> on the group only draws the marker on the label; a group is not allowed
+  <code>aria-required</code>, and it never validates by itself. Your form does.
+  <code>Validators.required</code> fails an empty array, but
+  <code>Validators.minLength(1)</code> does not (Angular skips empty values), so use the first. The
+  <code>required</code> attribute next to <code>formControl</code> or <code>ngModel</code> adds
+  <code>Validators.required</code> too. In Signal Forms use <code>required()</code> or
+  <code>minLength(path, 1)</code>. A value in the array that no checkbox has as its option is kept,
+  at the end, and development builds warn. Hint and error must be direct children of the group, and
+  so must the checkboxes for the gap between rows.
+</p>
+
+<h3 id="objects">Options that are objects</h3>
+<p>
+  Options are compared with <code>Object.is</code>: objects by identity, so keep the same objects in
+  the options and in the value.
+</p>
+<div class="demo demo-column">
+  <ck-checkbox-group [(value)]="chosenZones">
+    <label>Zones</label>
+    @for (zone of zoneObjects; track zone.id) {
+      <ck-checkbox [option]="zone">{{ zone.name }}</ck-checkbox>
+    }
+  </ck-checkbox-group>
+  <p class="status">
+    Chosen: <output>{{ zoneNames(chosenZones()) }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.objects }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same controls three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) moves the box and never counts as a change by the user; only a click or Space
+  does. <code>null</code> from a form counts as unchecked, and as an empty array for a group. A
+  checkbox is touched when focus leaves it, a group when focus leaves the whole group.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-checkbox class="wide" [formControl]="reactiveTemplate"
+    >Save as template, Reactive Forms</ck-checkbox
+  >
+  <ck-checkbox-group class="wide" [formControl]="reactiveZones">
+    <label>Zones, Reactive Forms</label>
+    <ck-checkbox option="endurance">Endurance</ck-checkbox>
+    <ck-checkbox option="vo2">VO2max</ck-checkbox>
+  </ck-checkbox-group>
+  <p class="status">
+    Value: <output>{{ reactiveTemplate.value ?? 'none' }}</output
+    >, zones: <output>{{ reactiveZones.value?.join(', ') || 'none' }}</output
+    >, touched: <output>{{ reactiveTemplate.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveTemplate.setValue(false)">
+      Set unchecked in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveZones.setValue(null)">
+      Set zones null
+    </button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveTemplate.disabled ? reactiveTemplate.enable() : reactiveTemplate.disable()"
+    >
+      {{ reactiveTemplate.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-checkbox class="wide" [(ngModel)]="templateTemplate">Save as template, ngModel</ck-checkbox>
+  <ck-checkbox-group class="wide" [(ngModel)]="templateZones">
+    <label>Zones, ngModel</label>
+    <ck-checkbox option="endurance">Endurance</ck-checkbox>
+    <ck-checkbox option="vo2">VO2max</ck-checkbox>
+  </ck-checkbox-group>
+  <p class="status">
+    Value: <output>{{ templateTemplate }}</output
+    >, zones: <output>{{ templateZones.join(', ') || 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-checkbox class="wide" [formField]="signalForm.template"
+    >Save as template, Signal Forms</ck-checkbox
+  >
+  <ck-checkbox-group class="wide" [formField]="signalForm.zones">
+    <label>Zones, Signal Forms</label>
+    <ck-checkbox option="endurance">Endurance</ck-checkbox>
+    <ck-checkbox option="vo2">VO2max</ck-checkbox>
+    <ck-error>Pick at least one zone.</ck-error>
+  </ck-checkbox-group>
+  <p class="status">
+    Value: <output>{{ signalForm.template().value() }}</output
+    >, zones: <output>{{ signalForm.zones().value().join(', ') || 'none' }}</output
+    >, touched: <output>{{ signalForm.zones().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. The box grows from 1.125rem to
+  1.5rem, and the row is never lower than the control height of its size, so it is 44px or more on a
+  coarse pointer and 60px at <code>xl</code>. A group's <code>size</code> is the default for its
+  checkboxes; a checkbox can still set its own.
+</p>
+<div class="demo demo-column">
+  <ck-checkbox class="wide" size="sm">Small</ck-checkbox>
+  <ck-checkbox class="wide" size="md">Medium</ck-checkbox>
+  <ck-checkbox class="wide" size="lg">Large</ck-checkbox>
+  <ck-checkbox class="wide" size="xl">Extra large</ck-checkbox>
+  <ck-checkbox-group class="wide" size="lg" aria-label="Zones, large group">
+    <ck-checkbox option="endurance">Endurance</ck-checkbox>
+    <ck-checkbox option="vo2" size="sm">VO2max, set to small</ck-checkbox>
+  </ck-checkbox-group>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="states">Disabled</h3>
+<p>
+  A disabled checkbox is blocked, greyed and skipped by <kbd>Tab</kbd>, and it keeps showing its
+  state by the tick or the dash. A disabled group disables every checkbox in it, and a
+  <code>&lt;fieldset disabled&gt;</code> around checkboxes does the same without any input.
+</p>
+<div class="demo demo-column">
+  <ck-checkbox class="wide" disabled>Disabled, unchecked</ck-checkbox>
+  <ck-checkbox class="wide" disabled [value]="true">Disabled, checked</ck-checkbox>
+  <ck-checkbox-group class="wide" disabled [value]="['vo2']">
+    <label>Zones, disabled</label>
+    <ck-checkbox option="endurance">Endurance</ck-checkbox>
+    <ck-checkbox option="vo2">VO2max</ck-checkbox>
+    <ck-checkbox option="tempo">Tempo</ck-checkbox>
+  </ck-checkbox-group>
+  <fieldset class="group" disabled>
+    <legend>Locked group</legend>
+    <ck-checkbox [value]="true">Developer tools</ck-checkbox>
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="no-text">Without visible text</h3>
+<p>
+  A checkbox with no text needs a name of its own: <code>aria-label</code> or
+  <code>aria-labelledby</code> on <code>ck-checkbox</code> (they move onto the input), as for a
+  "select this row" box in a table. Development builds warn when there is none. A group needs a name
+  too: its <code>&lt;label&gt;</code>, or <code>aria-label</code>.
+</p>
+<div class="demo">
+  <ck-checkbox aria-label="Select this ride, no text" [(value)]="bare" />
+  <p class="status">
+    Value: <output>{{ bare() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.noText }}</code></pre>
+
+<h3 id="rtl">Right-to-left text</h3>
+<p>
+  Rows and boxes use logical properties: in right-to-left text the box is on the right, the text
+  follows it, and <code>labelPosition</code> flips with them. Nothing is configured.
+</p>
+<div class="demo demo-column">
+  <div dir="rtl" class="wide">
+    <ck-checkbox [(value)]="saved">حفظ كقالب</ck-checkbox>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.rtl }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the checkbox">
+  <table class="table">
+    <caption>
+      Inputs of ck-checkbox
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the checkbox group">
+  <table class="table">
+    <caption>
+      Inputs of ck-checkbox-group
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of groupInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of hint and error">
+  <table class="table">
+    <caption>
+      Inputs of ck-hint and ck-error
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of messageInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the checkbox">
+  <table class="table">
+    <caption>
+      Parts of a checkbox
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The row gets the classes <code>ck-checkbox</code>, <code>ck-checkbox--&#123;size&#125;</code>,
+  <code>ck-checkbox--label-start</code> or <code>ck-checkbox--label-end</code> and, while it
+  applies, <code>ck-checkbox--disabled</code>. The group gets <code>ck-checkbox-group</code> and
+  <code>ck-checkbox-group--&#123;size&#125;</code>. The value is also available as
+  <code>(valueChange)</code>, which reports every write to the value: a user change, and a write
+  from a form (<code>setValue</code>, <code>reset</code>) too; a <code>[value]</code> binding from
+  the parent does not emit.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a checkbox">
+  <table class="table">
+    <caption>
+      Keys in a checkbox
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    It follows the WAI-ARIA checkbox pattern with a native
+    <code>&lt;input type="checkbox"&gt;</code>, so the checked and mixed states are native. The text
+    names it and a <code>ck-hint</code> describes it; the name does not repeat the hint. A group is
+    a <code>role="group"</code> named by its label, as the pattern's grouping advice says.
+  </li>
+  <li>
+    The state is never colour alone: the box shows a tick when checked and a dash when mixed, and
+    the border of the unchecked box is at least 3:1 from the surface, in both shipped themes.
+  </li>
+  <li>
+    Errors: while a checkbox or group shows its error, the input is
+    <code>aria-invalid="true"</code> and the error is in <code>aria-describedby</code>, so it is
+    read when focus arrives. A group cannot carry <code>aria-invalid</code> itself, so each of its
+    checkboxes does. The error appears after the control was touched or the form submitted, never
+    while the user is still on the first pass.
+  </li>
+  <li>
+    The row is the tap target: at least the control height of the size, so 44px or more on a coarse
+    pointer and 60px at <code>xl</code>. A long label wraps in its own block, with the box next to
+    its first line.
+  </li>
+  <li>
+    The focus ring is drawn around the box for keyboard focus only. In forced-colors mode the box
+    border is <code>CanvasText</code>, a checked or mixed box is <code>Highlight</code> with a
+    <code>HighlightText</code> mark, and a disabled one is <code>GrayText</code>.
+  </li>
+  <li>
+    The fill fades over <code>--ck-duration-normal</code>, and not at all under
+    <code>prefers-reduced-motion</code>.
+  </li>
+  <li>
+    <strong>Linting.</strong> angular-eslint's <code>label-has-associated-control</code> flags the
+    <code>&lt;label&gt;</code> that names a group, because it labels no control by <code>for</code>.
+    Turn the rule off for templates that use <code>ck-checkbox-group</code>, or name the group with
+    <code>aria-label</code>.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The parts are a plain <code>label</code> and
+    <code>input</code>. An unlayered rule such as <code>input &#123; border: … &#125;</code> beats
+    the layered control. Keep those rules off the checkbox
+    (<code>input:not(.ck-checkbox__input)</code>) or put resets in a layer declared before ckui. The
+    first rule below really breaks the checkbox; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-checkbox">
+  <table class="table">
+    <caption>
+      Component tokens of ck-checkbox
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The checkbox also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

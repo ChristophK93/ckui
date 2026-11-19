@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CkButton } from '@ckui/core/button';
 import { CK_TABS_IMPORTS } from '@ckui/core/tabs';
@@ -28,6 +28,12 @@ interface TokenRow {
   readonly description: string;
 }
 
+const WORKOUTS: Record<string, readonly string[]> = {
+  predefined: ['Full body', 'Upper body', 'Core'],
+  mine: ['Monday pull', 'Friday legs'],
+  shared: ['Team circuit', 'Park run intervals', 'Mobility flow'],
+};
+
 @Component({
   selector: 'docs-tabs-page',
   imports: [CK_TABS_IMPORTS, CkButton, RouterLink],
@@ -39,6 +45,8 @@ export class TabsPage {
   protected readonly samples = SAMPLES;
 
   protected readonly source = signal<string | null>(null);
+  protected readonly listSource = signal<string | null>(null);
+  protected readonly workouts = computed(() => WORKOUTS[this.listSource() ?? 'predefined'] ?? []);
   protected readonly view = signal<string | null>('day');
   protected readonly week = signal<number | null>(11);
   protected readonly weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -121,6 +129,14 @@ export class TabsPage {
         'The value of the tab the panel belongs to; the panel is hidden unless that tab is selected. Without it the panel is shared: it is shown for every tab, and every tab points at it.',
     },
     {
+      name: 'tabStop',
+      on: 'ck-tab-panel',
+      type: 'boolean',
+      defaultValue: 'true',
+      description:
+        'Whether the panel is a tab stop (tabindex="0"). Set it to false when the content starts with a focusable element, such as a list of buttons or links; the panel then has no tabindex. A static tabindex other than 0 on the element is kept and wins.',
+    },
+    {
       name: 'id',
       on: 'ck-tab-panel',
       type: 'string',
@@ -148,7 +164,7 @@ export class TabsPage {
     {
       name: 'ck-tab-panel',
       description:
-        'A tabpanel with tabindex="0". Hidden with the hidden attribute when it is not shown, so its content stays in the DOM.',
+        'A tabpanel, a tab stop (tabindex="0") unless tabStop is false. Hidden with the hidden attribute when it is not shown, so its content stays in the DOM.',
     },
     {
       name: 'ckTabContent',
@@ -165,7 +181,7 @@ export class TabsPage {
     {
       keys: ['Tab'],
       action:
-        'Moves into the row, onto the selected tab (the first enabled one when none is selected), then to the panel and on. The row is one tab stop; Shift+Tab goes back.',
+        'Moves into the row, onto the selected tab (the first enabled one when none is selected), then to the panel (skipped when its tabStop is false) and on. The row is one tab stop; Shift+Tab goes back.',
     },
     {
       keys: ['ArrowRight'],

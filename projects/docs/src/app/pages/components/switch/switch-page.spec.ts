@@ -1,7 +1,7 @@
 import { ApplicationRef, reflectComponentType } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CkSwitch, CkSwitchHint } from '@ckui/core/switch';
+import { CkSwitch } from '@ckui/core/switch';
 import { page, userEvent } from 'vitest/browser';
 import { expectNoAxeViolations } from '../../../../../../core/testing/axe';
 import { resetTestTheme, setTestTheme, settleAnimations } from '../../../testing/theme-env';
@@ -153,7 +153,7 @@ describe('SwitchPage', () => {
       expect(SAMPLES[name], name).toContain("import { Component, signal } from '@angular/core'");
       expect(SAMPLES[name], name).toMatch(/\[\(value\)\]="\w+"/);
     }
-    expect(SAMPLES.hint).toContain('<ck-switch-hint>');
+    expect(SAMPLES.hint).toContain('<ck-hint>');
     expect(SAMPLES.reactive).toContain('[formControl]="audio"');
     expect(SAMPLES.template).toContain('[(ngModel)]="audio"');
     expect(SAMPLES.signal).toContain('[formField]="settings.audio"');
@@ -183,8 +183,8 @@ describe('SwitchPage', () => {
       Array.from(tables[index].querySelectorAll('tbody tr'), (row) =>
         row.querySelector('th')!.textContent!.trim(),
       ).sort();
-    const declared = (type: typeof CkSwitch | typeof CkSwitchHint): string[] =>
-      reflectComponentType(type as typeof CkSwitch)!
+    const declared = (type: typeof CkSwitch): string[] =>
+      reflectComponentType(type)!
         .inputs.map((input) => input.templateName)
         .sort();
     expect(documented(0)).toEqual(declared(CkSwitch));
@@ -228,10 +228,10 @@ describe('SwitchPage', () => {
       const demo = demoAfter(element, 'hint');
       const input = demo.querySelector<HTMLInputElement>('.ck-switch__input')!;
       expect(input.checked).toBe(true);
-      await userEvent.click(demo.querySelector('ck-switch-hint')!);
+      await userEvent.click(demo.querySelector('ck-hint')!);
       await settle();
       expect(input.checked).toBe(false);
-      expect(input.getAttribute('aria-describedby')).toBe(demo.querySelector('ck-switch-hint')!.id);
+      expect(input.getAttribute('aria-describedby')).toBe(demo.querySelector('ck-hint')!.id);
     });
 
     it('puts the switch before the text with labelPosition end', async () => {
@@ -318,7 +318,7 @@ describe('SwitchPage', () => {
       const element = await render();
       const rows = Array.from(element.querySelectorAll<HTMLElement>('.settings ck-switch'));
       expect(rows).toHaveLength(3);
-      expect(rows.filter((row) => row.querySelector('ck-switch-hint'))).toHaveLength(2);
+      expect(rows.filter((row) => row.querySelector('ck-hint'))).toHaveLength(2);
       const tools = rows[0].querySelector<HTMLInputElement>('.ck-switch__input')!;
       expect(tools.checked).toBe(false);
       await userEvent.click(rows[0].querySelector('.ck-switch__text')!);

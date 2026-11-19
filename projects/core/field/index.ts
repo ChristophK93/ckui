@@ -1,13 +1,11 @@
+import { CkError, CkHint } from '@ckui/core/form';
 import { CkPrefix, CkSuffix } from './affix';
-import { CkError } from './error';
 import { CkField } from './field';
-import { CkHint } from './hint';
 import { CkInput } from './input';
 
+export { CkError, CkHint } from '@ckui/core/form';
 export { CkPrefix, CkSuffix } from './affix';
-export { CkError } from './error';
 export { CkField } from './field';
-export { CkHint } from './hint';
 export { CkInput } from './input';
 
 /** Everything a template needs for a field: `imports: [CK_FIELD_IMPORTS]`. */

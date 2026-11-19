@@ -1,8 +1,15 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { FormField, form, max, min } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { CkButton } from '@ckui/core/button';
+import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CkStepper } from '@ckui/core/stepper';
 import { SAMPLES } from './stepper-samples';
 
@@ -31,7 +38,15 @@ interface TokenRow {
 
 @Component({
   selector: 'docs-stepper-page',
-  imports: [CkStepper, CkButton, RouterLink, FormsModule, ReactiveFormsModule, FormField],
+  imports: [
+    CkStepper,
+    CkButton,
+    CK_FIELD_IMPORTS,
+    RouterLink,
+    FormsModule,
+    ReactiveFormsModule,
+    FormField,
+  ],
   styleUrl: './stepper-page.css',
   templateUrl: './stepper-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +61,15 @@ export class StepperPage {
   protected readonly empty = signal<number | null>(null);
   protected readonly ftp = signal<number | null>(250);
   protected readonly labelled = signal<number | null>(250);
+
+  protected readonly fieldForm = new FormGroup({
+    ftp: new FormControl<number | null>(250, [
+      Validators.required,
+      Validators.min(50),
+      Validators.max(600),
+    ]),
+  });
+  protected readonly savedFtp = signal<number | null>(null);
 
   protected readonly reactiveFtp = new FormControl<number | null>(250);
   protected templateFtp: number | null = 250;
@@ -249,6 +273,12 @@ export class StepperPage {
     '--ck-color-surface-hover, --ck-color-surface-active, --ck-focus-ring, --ck-focus-ring-offset',
     '--ck-control-height-*, --ck-control-font-size-*, --ck-control-radius, --ck-font-weight-bold, --ck-font-variant-numeric, --ck-line-height-tight',
   ];
+
+  protected saveField(): void {
+    if (this.fieldForm.valid) {
+      this.savedFtp.set(this.fieldForm.controls.ftp.value);
+    }
+  }
 
   protected clear(): void {
     this.empty.set(null);

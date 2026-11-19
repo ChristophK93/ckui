@@ -17,13 +17,13 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CK_CONFIG, CkSize } from '@ckui/core';
+import { CkHint } from '@ckui/core/form';
 import {
   CkValueControl,
   createCkId,
   hasAccessibleName,
   provideCkValueAccessor,
 } from '@ckui/core/internal';
-import { CkSwitchHint } from './switch-hint';
 
 declare const ngDevMode: unknown;
 
@@ -32,7 +32,7 @@ declare const ngDevMode: unknown;
  * checked state, Space and a click on the whole row (label text, hint and switch) work natively.
  * The value is a `boolean`; `null` or `undefined` from a form counts as off.
  *
- * The projected text names the switch; a `ck-switch-hint` describes it. Without visible text, give
+ * The projected text names the switch; a `ck-hint` describes it. Without visible text, give
  * `ck-switch` an `aria-label` or `aria-labelledby`: they are inputs and move onto the input element.
  */
 @Component({
@@ -63,7 +63,7 @@ declare const ngDevMode: unknown;
       </span>
       <span class="ck-switch__body">
         <span class="ck-switch__text" [id]="textId"><ng-content /></span>
-        <ng-content select="ck-switch-hint" />
+        <ng-content select="ck-hint" />
       </span>
     </label>
   `,
@@ -86,7 +86,7 @@ export class CkSwitch extends CkValueControl<boolean> {
   private readonly config = inject(CK_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly inputRef = viewChild.required<ElementRef<HTMLInputElement>>('input');
-  private readonly hint = contentChild(CkSwitchHint);
+  private readonly hint = contentChild(CkHint);
 
   protected readonly textId = createCkId('ck-switch-text');
 

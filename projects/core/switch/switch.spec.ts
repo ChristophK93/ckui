@@ -8,7 +8,7 @@ import { DARK_TOKENS, SwitchHost, inputOf, mount, query, settle } from '../testi
 const SWITCH = (attributes = '', content = 'Auto-upload') =>
   `<ck-switch ${attributes} [value]="value()" (valueChange)="emitted.push($event)">${content}</ck-switch>`;
 
-const HINT = '<ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>';
+const HINT = '<ck-hint>Uploads every finished ride to Strava.</ck-hint>';
 
 interface Session {
   send(method: string, params: unknown): Promise<unknown>;
@@ -111,7 +111,7 @@ describe('CkSwitch', () => {
     it('toggles on a click on the hint', async () => {
       const { fixture, host, root } = mount(SWITCH('', `Auto-upload ${HINT}`));
       await settle(fixture);
-      await userEvent.click(query(root, 'ck-switch-hint'));
+      await userEvent.click(query(root, 'ck-hint'));
       expect(host.emitted).toEqual([true]);
     });
 
@@ -171,11 +171,11 @@ describe('CkSwitch', () => {
       await settle(fixture);
       expect(inputOf(root).matches(':disabled')).toBe(true);
       query(root, '.ck-switch__text').click();
-      query(root, 'ck-switch-hint').click();
+      query(root, 'ck-hint').click();
       await settle(fixture);
       expect(host.emitted).toEqual([]);
       expect(getComputedStyle(query(root, '.ck-switch')).color).toBe('rgb(150, 150, 160)');
-      expect(getComputedStyle(query(root, 'ck-switch-hint')).color).toBe('rgb(150, 150, 160)');
+      expect(getComputedStyle(query(root, 'ck-hint')).color).toBe('rgb(150, 150, 160)');
     });
 
     it('takes a change of the disabled input back and forth', async () => {
@@ -195,8 +195,8 @@ describe('CkSwitch', () => {
     it('describes the input and keeps the name free of the hint text', async () => {
       const { fixture, root } = mount(SWITCH('', `Auto-upload ${HINT}`));
       await settle(fixture);
-      const hint = query(root, 'ck-switch-hint');
-      expect(hint.id).toMatch(/^ck-switch-hint-\d+$/);
+      const hint = query(root, 'ck-hint');
+      expect(hint.id).toMatch(/^ck-hint-\d+$/);
       expect(inputOf(root).getAttribute('aria-describedby')).toBe(hint.id);
       expect(query(root, '.ck-switch__text').textContent).toBe('Auto-upload ');
       expect(hint.parentElement).toBe(query(root, '.ck-switch__body'));
@@ -204,20 +204,17 @@ describe('CkSwitch', () => {
 
     it('follows a hint that appears, disappears and changes its id', async () => {
       const { fixture, host, root } = mount(
-        SWITCH(
-          '',
-          `Auto-upload @if (hint()) {<ck-switch-hint [id]="hintId()">{{ hint() }}</ck-switch-hint>}`,
-        ),
+        SWITCH('', `Auto-upload @if (hint()) {<ck-hint [id]="hintId()">{{ hint() }}</ck-hint>}`),
       );
       await settle(fixture);
       expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-a');
       host.hintId.set('hint-b');
       await settle(fixture);
-      expect(query(root, 'ck-switch-hint').id).toBe('hint-b');
+      expect(query(root, 'ck-hint').id).toBe('hint-b');
       expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-b');
       host.hint.set('Other text.');
       await settle(fixture);
-      expect(query(root, 'ck-switch-hint').textContent).toBe('Other text.');
+      expect(query(root, 'ck-hint').textContent).toBe('Other text.');
       host.hint.set(null);
       await settle(fixture);
       expect(inputOf(root).hasAttribute('aria-describedby')).toBe(false);
@@ -226,15 +223,25 @@ describe('CkSwitch', () => {
       expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-b');
     });
 
-    it('keeps a static id and adds the consumer aria-describedby after the hint', async () => {
-      const { fixture, root } = mount(
-        SWITCH(
-          'aria-describedby="mine"',
-          `Auto-upload <ck-switch-hint id="fixed">Help</ck-switch-hint>`,
-        ),
+    it('still toggles on a click on the hint after its id changed', async () => {
+      const { fixture, host, root } = mount(
+        SWITCH('', `Auto-upload <ck-hint [id]="hintId()">Help</ck-hint>`),
       );
       await settle(fixture);
-      expect(query(root, 'ck-switch-hint').id).toBe('fixed');
+      host.hintId.set('hint-c');
+      await settle(fixture);
+      await userEvent.click(query(root, 'ck-hint'));
+      await settle(fixture);
+      expect(host.emitted).toEqual([true]);
+      expect(inputOf(root).getAttribute('aria-describedby')).toBe('hint-c');
+    });
+
+    it('keeps a static id and adds the consumer aria-describedby after the hint', async () => {
+      const { fixture, root } = mount(
+        SWITCH('aria-describedby="mine"', `Auto-upload <ck-hint id="fixed">Help</ck-hint>`),
+      );
+      await settle(fixture);
+      expect(query(root, 'ck-hint').id).toBe('fixed');
       expect(inputOf(root).getAttribute('aria-describedby')).toBe('fixed mine');
       expect(query(root, 'ck-switch').hasAttribute('aria-describedby')).toBe(false);
     });
@@ -242,7 +249,7 @@ describe('CkSwitch', () => {
     it('gives two switches two different hint ids', async () => {
       const { fixture, root } = mount(SWITCH('', `A ${HINT}`) + SWITCH('', `B ${HINT}`));
       await settle(fixture);
-      const [first, second] = Array.from(root.querySelectorAll('ck-switch-hint'));
+      const [first, second] = Array.from(root.querySelectorAll('ck-hint'));
       expect(first.id).not.toBe(second.id);
     });
   });
@@ -396,6 +403,15 @@ describe('CkSwitch', () => {
       await settle(fixture);
       expect(inputOf(root).checked).toBe(false);
       expect(host.emitted).toEqual([]);
+    });
+
+    it('reuses a pre-rendered hint: one element, and aria-describedby follows its final id', async () => {
+      const { fixture, root } = mount(SWITCH('', `Auto-upload ${HINT}`), undefined, (rendered) => {
+        query(rendered, 'ck-hint').id = 'server-id';
+      });
+      await settle(fixture);
+      expect(root.querySelectorAll('ck-hint')).toHaveLength(1);
+      expect(inputOf(root).getAttribute('aria-describedby')).toBe(query(root, 'ck-hint').id);
     });
 
     it('uses the size from provideCkui when none is set', async () => {
@@ -595,11 +611,11 @@ describe('CkSwitch', () => {
         getComputedStyle(host.querySelector(selector)!);
       for (const host of [fieldset, disabled]) {
         expect(of(host, '.ck-switch').color).toBe(gray);
-        expect(of(host, 'ck-switch-hint').color).toBe(gray);
+        expect(of(host, 'ck-hint').color).toBe(gray);
         expect(of(host, '.ck-switch__track').borderTopColor).toBe(gray);
         expect(of(host, '.ck-switch__thumb').backgroundColor).toBe(gray);
       }
-      expect(of(live, 'ck-switch-hint').color).not.toBe(gray);
+      expect(of(live, 'ck-hint').color).not.toBe(gray);
       expect(of(live, '.ck-switch').color).not.toBe(gray);
     });
 

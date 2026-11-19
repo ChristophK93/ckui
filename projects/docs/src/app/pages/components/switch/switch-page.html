@@ -25,13 +25,13 @@
 
 <h3 id="hint">Hint</h3>
 <p>
-  <code>ck-switch-hint</code> adds a line of help under the label. It describes the switch (a screen
-  reader reads it after the name) and is part of the row, so a click on it toggles too.
+  <code>ck-hint</code> adds a line of help under the label. It describes the switch (a screen reader
+  reads it after the name) and is part of the row, so a click on it toggles too.
 </p>
 <div class="demo demo-column">
   <ck-switch class="wide" [(value)]="hinted">
     Auto-upload
-    <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+    <ck-hint>Uploads every finished ride to Strava.</ck-hint>
   </ck-switch>
 </div>
 <pre class="code"><code>{{ samples.hint }}</code></pre>
@@ -153,11 +153,11 @@
     <ck-switch [(value)]="developerTools">Developer tools</ck-switch>
     <ck-switch [(value)]="audio">
       Audio cues
-      <ck-switch-hint>Beeps before every interval.</ck-switch-hint>
+      <ck-hint>Beeps before every interval.</ck-hint>
     </ck-switch>
     <ck-switch [(value)]="upload">
       Auto-upload
-      <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+      <ck-hint>Uploads every finished ride to Strava.</ck-hint>
     </ck-switch>
   </div>
 </div>
@@ -195,10 +195,10 @@
     </tbody>
   </table>
 </div>
-<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the switch hint">
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the hint">
   <table class="table">
     <caption>
-      Inputs of ck-switch-hint
+      Inputs of ck-hint
     </caption>
     <thead>
       <tr>
@@ -253,7 +253,8 @@
   The row gets the classes <code>ck-switch</code>, <code>ck-switch--&#123;size&#125;</code>,
   <code>ck-switch--label-start</code> or <code>ck-switch--label-end</code> and, while it applies,
   <code>ck-switch--disabled</code>. The value is also available as <code>(valueChange)</code>, which
-  fires once per user change and never for a programmatic write.
+  reports every write to the value: a user change, and a write from a form (<code>setValue</code>,
+  <code>reset</code>) too; a <code>[value]</code> binding from the parent does not emit.
 </p>
 
 <h2 id="keyboard">Keyboard</h2>
@@ -291,7 +292,7 @@
   <li>
     It follows the WAI-ARIA switch pattern: a native checkbox with <code>role="switch"</code>, so
     the checked state is native and a screen reader says "on" or "off". The text names it and a
-    <code>ck-switch-hint</code> describes it; the name does not repeat the hint.
+    <code>ck-hint</code> describes it; the name does not repeat the hint.
   </li>
   <li>
     The state is never colour alone: the thumb sits at the start of the track when off and at the

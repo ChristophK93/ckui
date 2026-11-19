@@ -15,6 +15,12 @@ export const routes: Routes = [
     title: 'Button · ckui',
   },
   {
+    path: 'components/checkbox',
+    loadComponent: () =>
+      import('./pages/components/checkbox/checkbox-page').then((module) => module.CheckboxPage),
+    title: 'Checkbox · ckui',
+  },
+  {
     path: 'components/field',
     loadComponent: () =>
       import('./pages/components/field/field-page').then((module) => module.FieldPage),
@@ -49,6 +55,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/components/progress/progress-page').then((module) => module.ProgressPage),
     title: 'Progress · ckui',
+  },
+  {
+    path: 'components/slider',
+    loadComponent: () =>
+      import('./pages/components/slider/slider-page').then((module) => module.SliderPage),
+    title: 'Slider · ckui',
   },
   {
     path: 'components/stepper',

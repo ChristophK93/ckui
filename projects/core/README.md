@@ -80,6 +80,70 @@ Global element styles: your own unlayered rules such as `a { color: … }` or
 `a:hover { text-decoration: … }` beat the layered button, by design. Scope them with
 `a:not(.ck-button)`, or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
+## Checkbox
+
+```ts
+import { CK_CHECKBOX_IMPORTS } from '@ckui/core/checkbox';
+```
+
+```html
+<ck-checkbox [(value)]="saveAsTemplate">
+  Save as template
+  <ck-hint>Shows up under "Mine".</ck-hint>
+</ck-checkbox>
+
+<ck-checkbox-group [(value)]="zones" required>
+  <label>Zones</label>
+  <ck-checkbox option="endurance">Endurance</ck-checkbox>
+  <ck-checkbox option="vo2">VO2max</ck-checkbox>
+  <ck-hint>Pick at least one.</ck-hint>
+  <ck-error>Pick at least one zone.</ck-error>
+</ck-checkbox-group>
+```
+
+`ck-checkbox` is one yes or no choice (`CkCheckbox`, a form control for Reactive Forms, `ngModel` and Signal Forms);
+`ck-checkbox-group` (`CkCheckboxGroup`) holds the array of the options that are checked. `CK_CHECKBOX_IMPORTS` is
+`[CkCheckbox, CkCheckboxGroup, CkHint, CkError]`. The value of a checkbox is a `boolean`, unchecked by default; `null`
+from a form counts as unchecked. Inputs of `ck-checkbox`: `size` (`sm`, `md`, `lg`, `xl`, default the group's size, else
+from `provideCkui`), `disabled`, `labelPosition` (`end`, the default, puts the box first; `start` puts the text first),
+`indeterminate` (a model: the mixed state, shown as a dash and set on the native input; a click clears it and checks the
+box), `option` (inside a group) and `aria-label` / `aria-labelledby` / `aria-describedby` (inputs that move onto the
+input element; bind them as `[aria-label]`). `(valueChange)` reports every write to the value: a user
+change, and a write from a form (`setValue`, `reset`) too; a `[value]` binding from the parent does not emit. The
+control is touched when focus leaves it.
+
+The row is a `<label>` around one native `<input type="checkbox">`, so the checked state, Space and a click on the text,
+the hint or the box all work natively. The projected text names the checkbox; a `<ck-hint>` describes it. A checkbox
+without visible text needs an `aria-label` or `aria-labelledby`; development builds warn otherwise. The state is shown
+by a tick or a dash, never by colour alone. A standalone checkbox can hold a `<ck-error>` (for
+`Validators.requiredTrue`): it stays hidden until the control is invalid and touched, or its form was submitted; while
+it shows, the input is `aria-invalid` and the error is part of `aria-describedby`.
+
+In a group, each checkbox takes an `option` instead of a value, compared with `Object.is`. A user change writes a new
+array in the order of the checkboxes in the page, whatever order they were clicked in; values no checkbox has as its
+option stay at the end (development builds warn). `null`, `undefined` or a non-array from a form counts as an empty
+array. The group is `role="group"`, named by its first `<label>` child (or `aria-label` / `aria-labelledby`), and its
+direct `ck-hint` and `ck-error` children describe it. The group is touched when focus leaves the whole group, not when
+it moves between checkboxes; while its error shows, every checkbox is `aria-invalid` (a group cannot carry it).
+`disabled` and `size` on the group are the defaults for its checkboxes. `required` only draws the marker on the label:
+validation comes from your form, and `Validators.required` fails an empty array while `Validators.minLength(1)` skips it
+(in Signal Forms use `required()` or `minLength(path, 1)`).
+
+The row is at least the control height of its size (44px or more on a coarse pointer, 60px at `xl`); the box is
+1.125rem at `sm` and `md`, 1.25rem at `lg` and 1.5rem at `xl`. Component tokens: `--ck-checkbox-bg` (unchecked fill,
+default `--ck-color-control`), `--ck-checkbox-border-color` (default `--ck-color-border`; keep it 3:1 from the surface),
+`--ck-checkbox-checked-bg` (default `--ck-color-primary`), `--ck-checkbox-checked-fg` (the tick, default
+`--ck-color-on-primary`), `--ck-checkbox-radius` (default `--ck-radius-sm`) and `--ck-checkbox-group-gap` (default
+`--ck-space-1`). In forced colors the box border is `CanvasText`, a checked or mixed box is `Highlight` with a
+`HighlightText` mark and a disabled one `GrayText`; motion stops under `prefers-reduced-motion`.
+`<fieldset disabled>` blocks and styles checkboxes like `disabled`.
+
+Linting: angular-eslint's `label-has-associated-control` flags the `<label>` that names a group. Turn the rule off for
+templates that use `ck-checkbox-group`, or name the group with `aria-label`.
+
+Global element styles: an unlayered `input { … }` or `label { … }` beats the layered parts. Keep them off the checkbox
+(`input:not(.ck-checkbox__input)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
 ## Chip
 
 ```ts
@@ -145,9 +209,9 @@ import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 </ck-field>
 ```
 
-`ck-field` wraps one native `<input>` or `<textarea>` marked with `ckInput` and draws the box, a
-floating `<label>`, a hint, an error and prefix and suffix content. It works with Reactive Forms,
-`ngModel` and Signal Forms (`[formField]`); there is no value accessor, the control stays native, so
+`ck-field` wraps one control, a native `<input>` or `<textarea>` marked with `ckInput` or a `ck-stepper`, and draws
+the box, a floating `<label>`, a hint, an error and prefix and suffix content. It works with Reactive Forms,
+`ngModel` and Signal Forms (`[formField]`); `ckInput` has no value accessor, the control stays native, so
 `type`, `inputmode`, `enterkeyhint`, `autocomplete` and every other attribute stay on it. Inputs of
 `ck-field`: `size` (default from `provideCkui`), `labelFloat` (`'auto' | 'always'`) and `invalid`
 (`undefined` follows the control, `true` or `false` forces the state). Inputs of `textarea[ckInput]`:
@@ -158,7 +222,7 @@ The field links `<label for>` and the control `id`, merges the hint and error id
 for a required control, and puts the errors in one polite live region. A `<ck-error>` stays hidden
 until the control is invalid and touched, or its form was submitted. The label floats while the
 control is focused, has a value, a placeholder or an autofilled value, is a native date or time
-control, or the field has a prefix. Under a coarse pointer the control is 44px high and its text is
+control or a `ck-stepper` (the label stays floated there), or the field has a prefix. Under a coarse pointer the control is 44px high and its text is
 at least 16px. Component tokens: `--ck-field-radius`, `--ck-field-bg`, `--ck-field-border-color`.
 
 Linting: angular-eslint's `label-has-associated-control` flags `<ck-field><label>…</label><input ckInput>`
@@ -278,6 +342,56 @@ half-width fill. In forced colors the track gets an outline and the fill is `Hig
 `--ck-progress-track`, `--ck-progress-fill`, `--ck-progress-thickness` and `--ck-progress-radius`; keep the
 fill at 3:1 against the track.
 
+## Slider
+
+```ts
+import { CkSlider } from '@ckui/core/slider';
+```
+
+```html
+<ck-slider
+  aria-label="Grade"
+  unit="%"
+  showValue
+  [min]="-10"
+  [max]="20"
+  [step]="0.5"
+  [(value)]="grade"
+  (valueCommit)="bike.setGrade($event)"
+/>
+```
+
+`ck-slider` picks one number in a range (`CkSlider`, a form control for Reactive Forms, `ngModel` and Signal Forms).
+The value is a `number` or `null`. Inputs: `min` (0), `max` (100), `step` (1, counted from `min`; it also sets the
+fraction digits), `largeStep` (Page Up/Down, default 10 steps, at most the whole range), `unit` (`%` attaches to the
+number, any other unit follows after a space), `valueText` (a function that writes the value text instead),
+`showValue` (draws the value text next to the track, hidden from assistive technology), `size` and `disabled`.
+
+The thumb is a custom element with `role="slider"` and the only tab stop. Name it with `aria-label` or
+`aria-labelledby` on `ck-slider` (they are inputs and move onto the thumb, like `aria-describedby`; bind them as
+`[aria-label]`); a wrapping `<label>` cannot name it, and development builds warn without a name. Arrow keys step
+(Left and Right swap in right-to-left text), Page Up/Down move by `largeStep`, Home/End jump to `min`/`max`. A press
+on the track or the thumb moves the value to the pointer and captures it, so a drag may leave the control; on a touch
+screen the value moves with the first move or on lift, so a vertical swipe still scrolls the page.
+
+The value is written while the thumb moves. `(valueCommit)` fires once when a change by the user ends, with the new
+value: at pointer release, and for the keyboard when the key is released (a held key is one commit), or when focus
+leaves while a key is down. It does not fire when the value ends where it started, and never for a value written by
+the form. A value from the form outside the range or off the step is shown clamped and snapped and not written back;
+`null` shows the thumb at `min` with an empty fill. A `min` above `max` counts as `max = min`, and a `step` that is
+0, negative or not a number counts as 1; development builds warn about both.
+
+The control is as high as the control height of its size (44px or more on a coarse pointer, 60px at `xl`), all of it
+the hit area of the track; the thumb is drawn at 1 to 1.75rem and has a hit area of at least 24px, 44px on a coarse
+pointer. Component tokens: `--ck-slider-track`, `--ck-slider-fill`, `--ck-slider-thumb-bg`, `--ck-slider-thumb-border`
+(the 2px ring that keeps the thumb apart from the fill; keep it 3:1 against both) and `--ck-slider-thickness`. In
+forced colors the rail has a `CanvasText` border, the fill is `Highlight` and the thumb is `Canvas` with a
+`ButtonText` border; under reduced motion the pressed thumb does not scale.
+
+Global element styles: an unlayered `* { border: 0 }` beats the layered rail and thumb and removes their borders. Keep
+it off the slider (`:not(.ck-slider__rail, .ck-slider__thumb)`) or put resets in a layer declared before ckui:
+`@layer reset, ckui;`.
+
 ## Stepper
 
 ```ts
@@ -310,7 +424,22 @@ step, and text that is no number goes back to the last value. An empty field is 
 or button press starts at `min`, else at 0. A held button repeats after 400 ms, every 80 ms, and by five steps after
 two seconds; it stops on release, on leaving the button and at a limit. A `min` above `max` pins the value to `min`,
 and a `step` that is 0, negative or not a number counts as 1; development builds warn about both. `(valueChange)`
-fires once per user change and never for a programmatic write.
+reports every write to the value: each step of a held button, and a write from a form (`setValue`, `reset`) too;
+a `[value]` binding from the parent does not emit.
+
+Inside a `ck-field` the stepper is the field's control: the field draws the box, the floating label (always
+floated), the hint and the error, names the input with the `<label>` and adds the hint and error ids and
+`aria-invalid` / `aria-required` to it. The stepper then draws no border or background of its own, takes the
+field's `size` unless it sets one, and its buttons sit at the edges of the box.
+
+```html
+<ck-field>
+  <label>FTP</label>
+  <ck-stepper formControlName="ftp" [min]="50" [max]="600" [step]="5" unit="W" />
+  <ck-hint>Your functional threshold power.</ck-hint>
+  <ck-error>Between 50 and 600 W.</ck-error>
+</ck-field>
+```
 
 The buttons are squares of the control height (44px or more on a coarse pointer, 60px at `xl`). Component tokens:
 `--ck-stepper-bg`, `--ck-stepper-border-color`, `--ck-stepper-radius` and `--ck-stepper-value-width` (default: as
@@ -329,22 +458,23 @@ import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
 ```html
 <ck-switch [(value)]="autoUpload">
   Auto-upload
-  <ck-switch-hint>Uploads every finished ride to Strava.</ck-switch-hint>
+  <ck-hint>Uploads every finished ride to Strava.</ck-hint>
 </ck-switch>
 <ck-switch aria-label="Audio cues" labelPosition="end" [formControl]="audio" />
 ```
 
 `ck-switch` is an on/off switch with a label (`CkSwitch`, a form control for Reactive Forms, `ngModel` and Signal
-Forms; `CK_SWITCH_IMPORTS` is `[CkSwitch, CkSwitchHint]`). The value is a `boolean`, off by default; `null` from a
+Forms; `CK_SWITCH_IMPORTS` is `[CkSwitch, CkHint]`). The value is a `boolean`, off by default; `null` from a
 form counts as off. Inputs: `size` (`sm`, `md`, `lg`, `xl`, default from `provideCkui`), `disabled`, `labelPosition`
 (`start`, the default, puts the text first and the switch at the end of the row; `end` puts the switch first) and
 `aria-label` / `aria-labelledby` / `aria-describedby` (inputs that move onto the input element; bind them as
-`[aria-label]`). `(valueChange)` fires once per user change and never for a programmatic write; the control is
-touched when focus leaves it.
+`[aria-label]`). `(valueChange)` reports every write to the value: a user change, and a write
+from a form (`setValue`, `reset`) too; a `[value]` binding from the parent does not emit. The control is touched when
+focus leaves it.
 
 The row is a `<label>` around one native `<input type="checkbox" role="switch">`, so the checked state, Space and a
 click on the text, the hint or the switch all work natively. The projected text names the switch; a
-`<ck-switch-hint>` is its description (it takes an `id`, else it gets one) and is part of the row, so a click on it
+`<ck-hint>` (from `@ckui/core/form`, also part of `CK_FIELD_IMPORTS`) is its description (it takes an `id` input, else it gets one) and is part of the row, so a click on it
 toggles too. A switch without visible text needs an `aria-label` or `aria-labelledby`; development builds warn
 otherwise. The state is shown by the thumb's position, never by colour alone, and the thumb moves to the other side
 in right-to-left text. `<fieldset disabled>` blocks and styles the switch like `disabled`.
@@ -382,8 +512,8 @@ form control and not navigation between pages (`CkTabs`, `CkTabList`, `CkTab`, `
 `CK_TABS_IMPORTS` is all five). Inputs of `ck-tabs`: `value` (two-way; `null` shows the first enabled tab),
 `activation` (`auto`, the default, selects a tab as soon as the arrow keys focus it; `manual` waits for Enter or
 Space), `size` (`sm`, `md`, `lg`, `xl`, default from `provideCkui`) and `fullWidth` (the tabs share the row
-equally). `ck-tab` takes a required `value`, `disabled` and `id`; `ck-tab-panel` takes an optional `value` and
-`id`. `(valueChange)` fires when the user picks a tab.
+equally). `ck-tab` takes a required `value`, `disabled` and `id`; `ck-tab-panel` takes an optional `value`, `id` and
+`tabStop`. `(valueChange)` fires when the user picks a tab.
 
 A panel with a `value` belongs to the tab of that value and is hidden (`hidden` attribute, content kept) unless
 that tab is selected; a development build warns about a panel whose value matches no tab. A panel without a
@@ -399,7 +529,10 @@ and must not be `null`.
 
 The row follows the WAI-ARIA tabs pattern: `role="tablist"` (it needs an `aria-label` or `aria-labelledby`;
 development builds warn without one), `role="tab"` with `aria-selected`, `aria-controls` and a roving `tabindex`
-(one tab stop, on the selected tab), and panels with `role="tabpanel"`, `aria-labelledby` and `tabindex="0"`.
+(one tab stop, on the selected tab), and panels with `role="tabpanel"`, `aria-labelledby` and `tabindex="0"`. The panel is a tab stop so its content can be reached; when the content starts
+with a focusable element (a list of buttons or links) set `[tabStop]="false"` and the panel has no `tabindex`, so Tab goes
+from the selected tab straight to that element. There is no automatic detection. A static `tabindex` other than `0` on the
+element is kept as written.
 Keys: `ArrowRight` / `ArrowLeft` move between enabled tabs and wrap (swapped in right-to-left text), `Home` and
 `End` jump, and `Enter` or `Space` select the focused tab; with `activation="auto"` the arrow keys, `Home` and
 `End` select too. A disabled tab is skipped by the arrow keys (`tabindex="-1"`, never the tab stop). When the tabs do not fit, the row scrolls

@@ -1,5 +1,21 @@
 # @ckui/core
 
+## 0.1.0-next.4
+
+### Minor Changes
+
+- Add `CkCheckbox` and `CkCheckboxGroup` (`@ckui/core/checkbox`): a checkbox with a label, hint, mixed state and its own error, and a group that edits an array value in page order. Native checkbox input underneath, four sizes and the form APIs.
+- Add `CkSlider` (`@ckui/core/slider`): a slider for one number in a range, with a custom thumb that has the slider role, a hit area of at least the target size, `valueCommit` for the end of a change, four sizes, an optional shown value and the form APIs.
+- Add `@ckui/core/form` with `CkHint` and `CkError`, shared by the field and the switch (both are still exported from `@ckui/core/field`). `ck-hint` and `ck-error` now follow a bound or changed `id`.
+
+  **Breaking:** `CkSwitchHint` and `<ck-switch-hint>` are removed; use `<ck-hint>` (it is part of `CK_SWITCH_IMPORTS`).
+- `ck-stepper` can be the control of a `ck-field` (label, hint, error): the field draws the box and the always-floated label, names the input, merges its hint and error ids and sets `aria-invalid` and `aria-required`; the stepper takes the field's size and its buttons sit at the box edges. `(valueChange)` of the stepper also reports a write from a form (`setValue`, `reset`).
+- Add the `tabStop` input to `CkTabPanel`: `[tabStop]="false"` takes the panel out of the tab order (no `tabindex`) for content that starts with a focusable element, so Tab goes from the selected tab straight to it. The default stays `tabindex="0"`.
+
+### Patch Changes
+
+- `ckButton` no longer mistakes a `disabled`, `aria-disabled` or `tabindex` it wrote during a server render for the consumer's own value, and gives the consumer's value back after hydration.
+
 ## 0.1.0-next.3
 
 ### Minor Changes

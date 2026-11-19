@@ -165,6 +165,11 @@ class ContentHost {}
 })
 class TemplateHost {}
 
+@Component({ imports: [CkButton], template: '<button ckButton>x</button>' })
+class ClaimHost {
+  readonly disabled = signal(false);
+}
+
 describe('CkButton', () => {
   function renderTemplate(template: string): HTMLElement {
     TestBed.overrideComponent(TemplateHost, { set: { template } });
@@ -769,6 +774,53 @@ describe('CkButton', () => {
       fixture.detectChanges();
       await userEvent.keyboard('{Enter}');
       expect(host.submits()).toBe(1);
+    });
+  });
+
+  describe('pre-rendered markup', () => {
+    function claim(template: string) {
+      TestBed.overrideComponent(ClaimHost, { set: { template } });
+      const { fixture, root } = mount(ClaimHost);
+      const button = root.querySelector('button')!;
+      return { fixture, host: fixture.componentInstance, button };
+    }
+
+    it('removes a disabled attribute the library wrote earlier once disabled is false', () => {
+      const { fixture, host, button } = claim(
+        '<button ckButton disabled="" data-ck-claim-disabled="none" [disabled]="disabled()">x</button>',
+      );
+      expect(button.hasAttribute('disabled')).toBe(false);
+      expect(button.hasAttribute('data-ck-claim-disabled')).toBe(false);
+      host.disabled.set(true);
+      fixture.detectChanges();
+      expect(button.disabled).toBe(true);
+      host.disabled.set(false);
+      fixture.detectChanges();
+      expect(button.hasAttribute('disabled')).toBe(false);
+    });
+
+    it('gives back the consumer value that the marker recorded', () => {
+      const { fixture, host, button } = claim(
+        '<button ckButton disabled="" data-ck-claim-disabled="value:mine" [disabled]="disabled()">x</button>',
+      );
+      host.disabled.set(true);
+      fixture.detectChanges();
+      host.disabled.set(false);
+      fixture.detectChanges();
+      expect(button.getAttribute('disabled')).toBe('mine');
+    });
+
+    it('keeps the consumer own static disabled through a true to false round trip', () => {
+      const { fixture, host, button } = claim(
+        '<button ckButton disabled [disabled]="disabled()">x</button>',
+      );
+      expect(button.hasAttribute('disabled')).toBe(true);
+      host.disabled.set(true);
+      fixture.detectChanges();
+      host.disabled.set(false);
+      fixture.detectChanges();
+      expect(button.hasAttribute('disabled')).toBe(true);
+      expect(button.hasAttribute('data-ck-claim-disabled')).toBe(false);
     });
   });
 

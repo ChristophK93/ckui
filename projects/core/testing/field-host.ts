@@ -7,9 +7,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { FormField, email, form, required, submit } from '@angular/forms/signals';
+import { FormField, email, form, max, min, required, submit } from '@angular/forms/signals';
+import { CkSize } from '@ckui/core';
 import { CkButton } from '@ckui/core/button';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
+import { CkStepper } from '@ckui/core/stepper';
 
 /** The tokens the shipped stylesheet declares, as far as the field's layout needs them. */
 export const TOKENS = [
@@ -48,15 +50,39 @@ export const TOKENS = [
   '--ck-focus-ring-width:2px',
   '--ck-color-surface-hover:rgba(0, 0, 0, 0.06)',
   '--ck-color-border-subtle:rgb(220, 220, 225)',
+  '--ck-font-weight-bold:700',
+  '--ck-color-surface-active:rgba(0, 0, 0, 0.1)',
+  '--ck-focus-ring-offset:2px',
+  '--ck-focus-ring:2px solid rgb(0, 0, 255)',
+].join(';');
+
+/** The tokens with dark colours, as `themes.css` sets them. */
+export const DARK_TOKENS = [
+  TOKENS,
+  '--ck-color-scheme:dark',
+  '--ck-color-bg:rgb(20, 20, 24)',
+  '--ck-color-surface:rgb(30, 30, 36)',
+  '--ck-color-control:rgb(50, 50, 60)',
+  '--ck-color-control-border:rgb(150, 150, 165)',
+  '--ck-color-border:rgb(150, 150, 165)',
+  '--ck-color-surface-hover:rgba(255, 255, 255, 0.08)',
+  '--ck-color-surface-active:rgba(255, 255, 255, 0.14)',
+  '--ck-color-fg:rgb(245, 245, 250)',
+  '--ck-color-fg-muted:rgb(180, 180, 195)',
+  '--ck-color-fg-disabled:rgb(120, 120, 135)',
+  '--ck-color-danger-fg:rgb(255, 150, 150)',
+  '--ck-color-focus-ring:rgb(120, 160, 255)',
+  '--ck-focus-ring:2px solid rgb(120, 160, 255)',
 ].join(';');
 
 /** One host for every field spec; each test swaps in its own template. */
 @Component({
-  imports: [CK_FIELD_IMPORTS, CkButton, ReactiveFormsModule, FormsModule, FormField],
+  imports: [CK_FIELD_IMPORTS, CkButton, CkStepper, ReactiveFormsModule, FormsModule, FormField],
   // Every test overrides this; it only has to use each import once.
   template: `
     <button ckButton>Unused</button>
     <input [formField]="signalForm.email" />
+    <ck-stepper aria-label="Unused" />
   `,
 })
 export class FieldHost {
@@ -67,6 +93,22 @@ export class FieldHost {
     }),
     note: new FormControl('', { nonNullable: true }),
   });
+  readonly ftpForm = new FormGroup({
+    ftp: new FormControl<number | null>(250, [
+      Validators.required,
+      Validators.min(50),
+      Validators.max(600),
+    ]),
+  });
+  readonly modelFtp = signal<number | null>(250);
+  readonly signalFtp = signal<{ ftp: number | null }>({ ftp: 250 });
+  readonly signalFtpForm = form(this.signalFtp, (path) => {
+    required(path.ftp);
+    min(path.ftp, 50);
+    max(path.ftp, 600);
+  });
+  readonly size = signal<CkSize | undefined>(undefined);
+  readonly stepperSizeValue = signal<CkSize | undefined>(undefined);
   readonly submits = signal(0);
 
   readonly modelEmail = signal('');
@@ -84,10 +126,16 @@ export class FieldHost {
   readonly floatMode = signal<'auto' | 'always'>('auto');
   readonly describedBy = signal<string | null>(null);
   readonly inputId = signal<string | null>(null);
+  readonly hintId = signal('hint-a');
+  readonly errorId = signal('error-a');
   readonly ariaInvalid = signal<string | null>(null);
   readonly showPrefix = signal(true);
   readonly rows = signal<number | undefined>(undefined);
   readonly on = signal(true);
+
+  submitSignalFtp(): void {
+    void submit(this.signalFtpForm, { action: async () => undefined });
+  }
 
   submitSignalForm(): void {
     void submit(this.signalForm, { action: async () => undefined });
@@ -97,6 +145,7 @@ export class FieldHost {
 export function mount(
   template: string,
   prepare?: (host: FieldHost) => void,
+  tokens: string = TOKENS,
 ): {
   fixture: ComponentFixture<FieldHost>;
   host: FieldHost;
@@ -105,7 +154,7 @@ export function mount(
   TestBed.overrideComponent(FieldHost, { set: { template } });
   const fixture = TestBed.createComponent(FieldHost);
   const root = fixture.nativeElement as HTMLElement;
-  root.setAttribute('style', TOKENS);
+  root.setAttribute('style', tokens);
   document.body.appendChild(root);
   prepare?.(fixture.componentInstance);
   fixture.detectChanges();

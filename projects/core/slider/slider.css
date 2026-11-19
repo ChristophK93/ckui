@@ -1,0 +1,210 @@
+@layer ckui {
+  .ck-slider {
+    --_ck-slider-hit: max(var(--_ck-slider-thumb), var(--ck-target-min, 1.5rem));
+    --_ck-slider-thickness: var(--ck-slider-thickness, var(--ck-space-2));
+    display: flex;
+    align-items: center;
+    gap: var(--ck-space-3);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    block-size: var(--_ck-slider-height);
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-slider-font-size);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-tight);
+    vertical-align: middle;
+  }
+
+  .ck-slider--sm {
+    --_ck-slider-height: var(--ck-control-height-sm);
+    --_ck-slider-font-size: var(--ck-control-font-size-sm);
+    --_ck-slider-thumb: 1rem;
+  }
+
+  .ck-slider--md {
+    --_ck-slider-height: var(--ck-control-height-md);
+    --_ck-slider-font-size: var(--ck-control-font-size-md);
+    --_ck-slider-thumb: 1.25rem;
+  }
+
+  .ck-slider--lg {
+    --_ck-slider-height: var(--ck-control-height-lg);
+    --_ck-slider-font-size: var(--ck-control-font-size-lg);
+    --_ck-slider-thumb: 1.5rem;
+  }
+
+  .ck-slider--xl {
+    --_ck-slider-height: var(--ck-control-height-xl);
+    --_ck-slider-font-size: var(--ck-control-font-size-xl);
+    --_ck-slider-thumb: 1.75rem;
+  }
+
+  /*
+   * The whole control height is the hit area. The rail is inset by half the hit area of the thumb,
+   * so the thumb and its hit area stay inside the track at both ends. A vertical swipe still
+   * scrolls the page. Nothing is placed with margin or padding, so a global reset cannot move it.
+   */
+  .ck-slider__track {
+    position: relative;
+    flex: 1 1 0;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    block-size: 100%;
+    cursor: pointer;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-slider__rail {
+    position: absolute;
+    inset-block-start: calc(50% - var(--_ck-slider-thickness) / 2);
+    inset-inline: calc(var(--_ck-slider-hit) / 2);
+    box-sizing: border-box;
+    block-size: var(--_ck-slider-thickness);
+    border: 1px solid var(--ck-color-control-border);
+    border-radius: var(--ck-radius-full);
+    background: var(--ck-slider-track, var(--ck-color-control));
+  }
+
+  .ck-slider__fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    border-radius: inherit;
+    background: var(--ck-slider-fill, var(--ck-color-primary));
+  }
+
+  /* Centred on its position, which is a percentage of the inner rail. */
+  .ck-slider__thumb {
+    position: absolute;
+    inset-block-start: calc(50% - var(--_ck-slider-thumb) / 2);
+    inset-inline-start: calc(var(--_ck-slider-position, 0%) - var(--_ck-slider-thumb) / 2);
+    box-sizing: border-box;
+    inline-size: var(--_ck-slider-thumb);
+    block-size: var(--_ck-slider-thumb);
+    border: 2px solid var(--ck-slider-thumb-border, var(--ck-color-bg));
+    border-radius: var(--ck-radius-full);
+    background: var(--ck-slider-thumb-bg, var(--ck-color-fg));
+    outline: none;
+    transition: transform var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  /* The hit area of the thumb: at least the minimum target size, also for a small thumb. */
+  .ck-slider__thumb::after {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(50% - var(--_ck-slider-hit) / 2);
+    inset-inline-start: calc(50% - var(--_ck-slider-hit) / 2);
+    inline-size: var(--_ck-slider-hit);
+    block-size: var(--_ck-slider-hit);
+  }
+
+  .ck-slider--pressing .ck-slider__thumb {
+    transform: scale(1.1);
+  }
+
+  .ck-slider__thumb:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  /*
+   * As wide as the widest of the current text and the texts of both limits, which sit invisibly
+   * in the same grid cell, so the track does not move while the value changes. A long text is
+   * cut at half the control.
+   */
+  .ck-slider__value {
+    display: grid;
+    flex: 0 1 auto;
+    grid-template-columns: minmax(0, auto);
+    max-inline-size: 50%;
+    font-weight: var(--ck-font-weight-bold);
+    white-space: nowrap;
+  }
+
+  .ck-slider__value-text,
+  .ck-slider__value-size {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-align: end;
+    text-overflow: ellipsis;
+  }
+
+  .ck-slider__value-size {
+    visibility: hidden;
+  }
+
+  /* Also inside a <fieldset disabled>, which a custom element has no :disabled state for. */
+  .ck-slider--disabled,
+  fieldset:disabled .ck-slider {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-slider--disabled .ck-slider__track,
+  fieldset:disabled .ck-slider__track {
+    cursor: not-allowed;
+  }
+
+  .ck-slider--disabled .ck-slider__fill,
+  fieldset:disabled .ck-slider__fill,
+  .ck-slider--disabled .ck-slider__thumb,
+  fieldset:disabled .ck-slider__thumb {
+    background: var(--ck-color-fg-disabled);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-slider__thumb {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-slider__rail {
+      border-color: CanvasText;
+      background: Canvas;
+    }
+
+    .ck-slider__fill {
+      background: Highlight;
+    }
+
+    .ck-slider__thumb {
+      border-color: ButtonText;
+      background: Canvas;
+    }
+
+    .ck-slider__thumb:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    .ck-slider--disabled,
+    fieldset:disabled .ck-slider {
+      color: GrayText;
+    }
+
+    .ck-slider--disabled .ck-slider__rail,
+    fieldset:disabled .ck-slider__rail,
+    .ck-slider--disabled .ck-slider__thumb,
+    fieldset:disabled .ck-slider__thumb {
+      border-color: GrayText;
+    }
+
+    .ck-slider--disabled .ck-slider__fill,
+    fieldset:disabled .ck-slider__fill {
+      background: GrayText;
+    }
+
+    .ck-slider--disabled .ck-slider__thumb,
+    fieldset:disabled .ck-slider__thumb {
+      background: Canvas;
+    }
+  }
+}

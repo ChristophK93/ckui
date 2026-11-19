@@ -16,7 +16,7 @@ import {
   untracked,
 } from '@angular/core';
 import { CK_CONFIG, CK_LABELS, CkSize } from '@ckui/core';
-import { CkAnnouncer, hasAccessibleName } from '@ckui/core/internal';
+import { AttributeClaim, CkAnnouncer, hasAccessibleName } from '@ckui/core/internal';
 
 declare const ngDevMode: unknown;
 
@@ -63,8 +63,8 @@ export class CkButton {
     () => `ck-button--${this.variant()} ck-button--${this.size() ?? this.config.size}`,
   );
 
-  /** The consumer's own value of every attribute this component currently overrides. */
-  private readonly overridden = new Map<string, string | null>();
+  /** One claim per attribute this component overrides; it gives the consumer's value back. */
+  private readonly claims = new Map<string, AttributeClaim>();
   private previousLoading: boolean | undefined;
 
   constructor() {
@@ -128,19 +128,11 @@ export class CkButton {
 
   /** Sets the attribute, or gives the consumer's own value back when `value` is null. */
   private override(name: string, value: string | null): void {
-    if (value !== null) {
-      if (!this.overridden.has(name)) {
-        this.overridden.set(name, this.element.getAttribute(name));
-      }
-      this.renderer.setAttribute(this.element, name, value);
-    } else if (this.overridden.has(name)) {
-      const previous = this.overridden.get(name) ?? null;
-      this.overridden.delete(name);
-      if (previous === null) {
-        this.renderer.removeAttribute(this.element, name);
-      } else {
-        this.renderer.setAttribute(this.element, name, previous);
-      }
+    let claim = this.claims.get(name);
+    if (claim === undefined) {
+      claim = new AttributeClaim(this.element, name, this.renderer);
+      this.claims.set(name, claim);
     }
+    claim.apply(value);
   }
 }

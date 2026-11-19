@@ -66,6 +66,36 @@
 </div>
 <pre class="code"><code>{{ samples.panels }}</code></pre>
 
+<h3 id="tab-stop">A panel that starts with buttons</h3>
+<p>
+  A panel is a tab stop (<code>tabindex="0"</code>) by default, so a keyboard user can reach and
+  scroll its content. The WAI-ARIA pattern asks for that only while the content does not start with
+  a focusable element. When it does, as in a list of buttons or links, Tab would stop on the panel
+  and then on the first button. Set <code>[tabStop]="false"</code> and the panel has no
+  <code>tabindex</code> at all: Tab goes from the selected tab straight to the first button. There
+  is no automatic detection. Leave the default for text, a chart or anything else that is not
+  focusable itself.
+</p>
+<div class="demo demo-column">
+  <ck-tabs [(value)]="listSource">
+    <ck-tab-list aria-label="Workout list source">
+      <ck-tab value="predefined">Predefined</ck-tab>
+      <ck-tab value="mine">Mine</ck-tab>
+      <ck-tab value="shared">Shared</ck-tab>
+    </ck-tab-list>
+    <ck-tab-panel [tabStop]="false">
+      <ul class="workouts">
+        @for (workout of workouts(); track workout) {
+          <li>
+            <button type="button">{{ workout }}</button>
+          </li>
+        }
+      </ul>
+    </ck-tab-panel>
+  </ck-tabs>
+</div>
+<pre class="code"><code>{{ samples.tabStop }}</code></pre>
+
 <h3 id="lazy">Lazy content</h3>
 <p>
   A panel's content normally stays in the DOM while it is hidden, so what the user typed is still
@@ -341,7 +371,8 @@
     tab, <code>role="tabpanel"</code> with <code>aria-labelledby</code> and
     <code>tabindex="0"</code> on the panel. The row is one tab stop (a roving tabindex on the
     selected tab) and the arrow keys move between tabs. A shared panel is labelled by whichever tab
-    is selected.
+    is selected. Turn the panel's tab stop off with <code>[tabStop]="false"</code> when its content
+    starts with a focusable element.
   </li>
   <li>
     The row needs a name (<code>aria-label</code> or <code>aria-labelledby</code>). A tab is named

@@ -57,6 +57,29 @@ export const SAMPLES = {
   <ck-tab-panel value="account">Name, e-mail and password.</ck-tab-panel>
 </ck-tabs>`,
   ),
+  tabStop: component(
+    'WorkoutList',
+    'app-workout-list',
+    `<ck-tabs [(value)]="source">
+  <ck-tab-list aria-label="Workout source">
+    <ck-tab value="predefined">Predefined</ck-tab>
+    <ck-tab value="mine">Mine</ck-tab>
+    <ck-tab value="shared">Shared</ck-tab>
+  </ck-tab-list>
+  <!-- the content starts with buttons, so Tab goes from the tab straight to the first one -->
+  <ck-tab-panel [tabStop]="false">
+    <ul>
+      @for (workout of workouts(); track workout) {
+        <li><button type="button">{{ workout }}</button></li>
+      }
+    </ul>
+  </ck-tab-panel>
+</ck-tabs>`,
+    {
+      signals: true,
+      body: "  protected readonly source = signal<string | null>(null);\n  protected readonly workouts = signal(['Full body', 'Upper body', 'Core']);",
+    },
+  ),
   lazy: component(
     'LazyPanels',
     'app-lazy-panels',

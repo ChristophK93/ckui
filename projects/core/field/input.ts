@@ -15,9 +15,9 @@ import {
   untracked,
 } from '@angular/core';
 import { CK_CONFIG, CkSize } from '@ckui/core';
-import { hasAccessibleName } from '@ckui/core/internal';
+import { CK_CONTROL_STATE, CK_FIELD_CONTEXT, hasAccessibleName } from '@ckui/core/internal';
 import { loadFieldStyles } from './styles';
-import { CK_CONTROL_STATE, CK_FIELD_CONTEXT, CkInputControl } from './control-state';
+import { CkInputControl } from './control-state';
 
 declare const ngDevMode: unknown;
 

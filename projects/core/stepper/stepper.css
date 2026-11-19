@@ -150,6 +150,32 @@
     cursor: default;
   }
 
+  /*
+   * The control of a ck-field: the field's box is the surface, ring and border, so the stepper
+   * draws none of its own. It bleeds over the box's padding and border, so the buttons sit at the
+   * box edges and keep the full control height as hit area; the value stays centred between them.
+   */
+  .ck-field .ck-stepper {
+    --_ck-stepper-radius: var(--ck-field-radius, var(--ck-control-radius));
+    display: flex;
+    flex: 1 1 auto;
+    inline-size: auto;
+    max-inline-size: none;
+    margin-block: -1px;
+    margin-inline: calc(-1 * var(--_ck-pad-x) - 1px);
+    box-shadow: none;
+    background: transparent;
+    outline: none;
+  }
+
+  .ck-field .ck-stepper__field {
+    flex: 1 1 auto;
+  }
+
+  .ck-field .ck-stepper:has(.ck-stepper__input:focus-visible) {
+    outline: none;
+  }
+
   @media (forced-colors: active) {
     .ck-stepper {
       box-shadow: none;
@@ -177,6 +203,12 @@
     .ck-stepper--disabled,
     .ck-stepper:has(.ck-stepper__input:disabled) {
       outline-color: GrayText;
+    }
+
+    .ck-field .ck-stepper,
+    .ck-field .ck-stepper:has(.ck-stepper__input:focus-visible),
+    .ck-field .ck-stepper:has(.ck-stepper__input:disabled) {
+      outline: none;
     }
   }
 }

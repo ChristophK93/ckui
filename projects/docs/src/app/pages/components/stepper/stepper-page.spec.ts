@@ -85,6 +85,7 @@ describe('StepperPage', () => {
       'states',
       'labels',
       'ftp',
+      'field',
     ]);
     // `min` and `max` are also attribute names in the templates, so they count as used when called.
     const needs: [string, string, RegExp?][] = [
@@ -94,10 +95,13 @@ describe('StepperPage', () => {
       ['FormControl', '@angular/forms'],
       ['ReactiveFormsModule', '@angular/forms'],
       ['FormsModule', '@angular/forms'],
+      ['FormGroup', '@angular/forms'],
+      ['Validators', '@angular/forms'],
+      ['CK_FIELD_IMPORTS', '@ckui/core/field'],
       ['FormField', '@angular/forms/signals'],
-      ['form', '@angular/forms/signals'],
-      ['min', '@angular/forms/signals', /\bmin\(/],
-      ['max', '@angular/forms/signals', /\bmax\(/],
+      ['form', '@angular/forms/signals', /\bform\(/],
+      ['min', '@angular/forms/signals', /(?<!\.)\bmin\(/],
+      ['max', '@angular/forms/signals', /(?<!\.)\bmax\(/],
     ];
     for (const [name, sample] of typescript) {
       const importLines = sample.split('\n').filter((line) => line.startsWith('import '));
@@ -134,7 +138,8 @@ describe('StepperPage', () => {
       expect(outside, name).not.toMatch(/\binject\(/);
       expect(sample, name).not.toMatch(/^\s*(const|let) \w+ = (inject|await)/m);
       expect(sample, name).toMatch(/imports: \[[^\]]*CkStepper[^\]]*\]/);
-      expect(sample, name).toMatch(/aria-label(ledby)?=/);
+      // In a field the label names the input.
+      expect(sample, name).toMatch(name === 'field' ? /<label>/ : /aria-label(ledby)?=/);
       // Every template name is declared, so the sample compiles as copied.
       for (const [, used] of Array.from(
         body.matchAll(/\[\(?(?:value|ngModel)\)?\]="([A-Za-z_]\w*)(?:\(\))?"/g),
@@ -155,6 +160,9 @@ describe('StepperPage', () => {
     expect(SAMPLES.sizes).toContain('size="xl"');
     expect(SAMPLES.labels).toContain('decrementLabel="FTP minus 5"');
     expect(SAMPLES.ftp).toContain('aria-labelledby="ftp-label"');
+    expect(SAMPLES.field).toContain('formControlName="ftp"');
+    expect(SAMPLES.field).toContain('<ck-hint>');
+    expect(SAMPLES.field).toContain('<ck-error>');
     expect(SAMPLES.tokens).toContain('--ck-stepper-value-width');
     for (const name of ['reset', 'tokens'] as const) {
       expect(SAMPLES[name], name).toContain('{');
@@ -198,7 +206,9 @@ describe('StepperPage', () => {
     for (const input of inputs) {
       const labelledby = input.getAttribute('aria-labelledby');
       const name =
-        input.getAttribute('aria-label') ?? element.querySelector(`#${labelledby}`)?.textContent;
+        input.getAttribute('aria-label') ??
+        (labelledby ? element.querySelector(`#${labelledby}`)?.textContent : null) ??
+        input.labels?.[0]?.textContent;
       expect(name?.trim(), input.outerHTML).toBeTruthy();
     }
   });
@@ -322,6 +332,56 @@ describe('StepperPage', () => {
     });
   });
 
+  describe('in a field', () => {
+    const demo = (element: HTMLElement): HTMLElement => demoAfter(element, 'in-field');
+
+    it('names the input with the field label and shows the hint', async () => {
+      const element = await render();
+      const field = demo(element);
+      const input = inputIn(field.querySelector<HTMLElement>('ck-stepper')!);
+      expect(input.labels?.[0]?.textContent).toContain('FTP');
+      expect(input.getAttribute('aria-required')).toBe('true');
+      const hint = field.querySelector('ck-hint')!;
+      expect(input.getAttribute('aria-describedby')).toBe(hint.id);
+      expect(field.querySelector('ck-error')!.hasAttribute('hidden')).toBe(true);
+    });
+
+    it('shows the error under the box after clearing the value and leaving, not before', async () => {
+      const element = await render();
+      const field = demo(element);
+      const input = inputIn(field.querySelector<HTMLElement>('ck-stepper')!);
+      const error = field.querySelector('ck-error')!;
+      await userEvent.click(input);
+      await userEvent.clear(input);
+      await settle();
+      expect(error.hasAttribute('hidden')).toBe(true);
+      await userEvent.tab();
+      await settle();
+      expect(error.hasAttribute('hidden')).toBe(false);
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+      expect(input.getAttribute('aria-describedby')).toContain(error.id);
+      expect(field.querySelector('.ck-field__box')!.getBoundingClientRect().bottom).toBeLessThan(
+        error.getBoundingClientRect().top,
+      );
+    });
+
+    it('saves a valid value on submit and shows the error for an empty one', async () => {
+      const element = await render();
+      const field = demo(element);
+      const stepper = field.querySelector<HTMLElement>('ck-stepper')!;
+      const saved = field.querySelector('output')!;
+      await userEvent.click(buttonIn(stepper, 'increment'));
+      await userEvent.click(field.querySelector<HTMLButtonElement>('button[type=submit]')!);
+      await settle();
+      expect(saved.textContent).toBe('255');
+      await userEvent.clear(inputIn(stepper));
+      await userEvent.click(field.querySelector<HTMLButtonElement>('button[type=submit]')!);
+      await settle();
+      expect(saved.textContent).toBe('255');
+      expect(field.querySelector('ck-error')!.hasAttribute('hidden')).toBe(false);
+    });
+  });
+
   describe('global resets', () => {
     function applyReset(css: string): void {
       const style = document.createElement('style');
@@ -386,6 +446,15 @@ describe('StepperPage', () => {
       const stepper = stepperNamed(element, 'Resistance level');
       inputIn(stepper).focus();
       await userEvent.keyboard('{End}');
+      await settle();
+      await settleAnimations();
+      await expectNoAxeViolations(element);
+      const fieldInput = inputIn(
+        demoAfter(element, 'in-field').querySelector<HTMLElement>('ck-stepper')!,
+      );
+      await userEvent.click(fieldInput);
+      await userEvent.clear(fieldInput);
+      await userEvent.tab();
       await settle();
       await settleAnimations();
       await expectNoAxeViolations(element);

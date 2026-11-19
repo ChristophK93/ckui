@@ -1,0 +1,432 @@
+<h1>Slider</h1>
+<p>
+  <code>ck-slider</code> picks one number in a range by dragging a thumb, tapping the track or using
+  the arrow keys. It works with Reactive Forms, <code>ngModel</code> and Signal Forms. Import
+  <code>CkSlider</code> from <code>&#64;ckui/core/slider</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  The value is a <code>number</code> or <code>null</code> and works two-way with
+  <code>[(value)]</code>, from 0 to 100 in steps of 1 unless you set <code>min</code>,
+  <code>max</code> and <code>step</code>. The thumb has the slider role, so it needs a name: give
+  <code>ck-slider</code> an <code>aria-label</code> or <code>aria-labelledby</code>. They move onto
+  the thumb, and so does <code>aria-describedby</code> for a hint or an error. A wrapping
+  <code>&lt;label&gt;</code> cannot name it. <code>showValue</code> draws the value next to the
+  track.
+</p>
+<div class="demo">
+  <ck-slider aria-label="Resistance level" showValue [min]="1" [max]="24" [(value)]="level" />
+  <p class="status">
+    Level: <output>{{ level() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="commit">Live value and commit</h3>
+<p>
+  The value is written while the thumb moves: every pointer move and every key step. That keeps a
+  form, a chart or a label in step, but it is too often for work such as sending a target to a
+  device. <code>(valueCommit)</code> fires <strong>once</strong> when a change by the user ends,
+  with the new value: on release after a drag or a tap on the track, and for the keyboard when the
+  key is released, so a held arrow key is one commit and not one per repeat. It also fires when
+  focus leaves while a key is still down. It does not fire when the value ends where it started, and
+  never for a value that the form or <code>[value]</code> writes. A touch that the browser takes for
+  a vertical scroll is cancelled: the value goes back and nothing is committed.
+</p>
+<p>
+  <code>(valueChange)</code>, in contrast, reports every write to the value, one from a form
+  included.
+</p>
+<div class="demo demo-column">
+  <ck-slider
+    aria-label="Target power"
+    unit="W"
+    showValue
+    [min]="0"
+    [max]="500"
+    [step]="5"
+    [(value)]="watts"
+    (valueCommit)="record($event)"
+  />
+  <p class="status">
+    Live: <output>{{ watts() ?? 'none' }}</output>
+  </p>
+  <p class="status">
+    Committed (last five):
+    <output>{{ committed().length ? committed().join(', ') : 'none yet' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="clearLog()">Clear the log</button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.commit }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same control three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) moves the thumb and never counts as a change by the user: only a pointer or a
+  key does, and the form is dirty only then. With Signal Forms the limits are set in the schema
+  (<code>min(path.grade, -10)</code>), and the field passes them to the slider; binding
+  <code>[min]</code> next to <code>[formField]</code> is an error.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-slider
+    aria-label="Grade, Reactive Forms"
+    unit="%"
+    showValue
+    [min]="-10"
+    [max]="20"
+    [formControl]="reactiveGrade"
+  />
+  <p class="status">
+    Value: <output>{{ reactiveGrade.value ?? 'none' }}</output
+    >, dirty: <output>{{ reactiveGrade.dirty ? 'yes' : 'no' }}</output
+    >, touched: <output>{{ reactiveGrade.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveGrade.setValue(12)">
+      Set 12 in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveGrade.reset()">Reset</button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveGrade.disabled ? reactiveGrade.enable() : reactiveGrade.disable()"
+    >
+      {{ reactiveGrade.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-slider
+    aria-label="Grade, ngModel"
+    unit="%"
+    showValue
+    [min]="-10"
+    [max]="20"
+    [(ngModel)]="templateGrade"
+  />
+  <p class="status">
+    Value: <output>{{ templateGrade ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-slider aria-label="Grade, Signal Forms" unit="%" showValue [formField]="signalForm.grade" />
+  <p class="status">
+    Value: <output>{{ signalForm.grade().value() ?? 'none' }}</output
+    >, touched: <output>{{ signalForm.grade().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless you set it. The height is the control height of
+  the size, so the slider lines up with a button or an input of the same size, and all of it is the
+  hit area of the track. Under a coarse pointer <code>sm</code> and <code>md</code> are 44px;
+  <code>xl</code> is 60px, for one-thumb use on a bike. The thumb is drawn at 1, 1.25, 1.5 and
+  1.75rem, with a hit area of at least 44px on a coarse pointer whatever its size.
+</p>
+<div class="demo demo-column">
+  <ck-slider aria-label="Small" size="sm" [value]="40" />
+  <ck-slider aria-label="Medium" size="md" [value]="40" />
+  <ck-slider aria-label="Large" size="lg" [value]="40" />
+  <ck-slider aria-label="Extra large" size="xl" [value]="40" />
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="unit">Unit and decimals</h3>
+<p>
+  <code>unit</code> follows the value in its text, so a screen reader says "4.5%". A step with
+  decimals, such as <code>0.5</code>, shows that many digits and counts without drift: 0.1 + 0.2 is
+  0.3, never 0.30000000000000004. Steps are counted from <code>min</code>. Numbers are formatted
+  with the locale of the app (<code>LOCALE_ID</code>).
+</p>
+<div class="demo demo-column">
+  <ck-slider
+    aria-label="Grade"
+    unit="%"
+    showValue
+    [min]="-10"
+    [max]="20"
+    [step]="0.5"
+    [(value)]="grade"
+  />
+  <p class="status">
+    Grade: <output>{{ grade() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.unit }}</code></pre>
+
+<h3 id="value-text">Value text</h3>
+<p>
+  <code>valueText</code> writes the text yourself, for a value that is better said in words. It is
+  used for <code>aria-valuetext</code> and for <code>showValue</code>, and is called with the shown
+  value.
+</p>
+<div class="demo">
+  <ck-slider
+    aria-label="Resistance"
+    showValue
+    [min]="1"
+    [max]="24"
+    [valueText]="describeLevel"
+    [(value)]="resistance"
+  />
+</div>
+<pre class="code"><code>{{ samples.text }}</code></pre>
+
+<h3 id="outside">Values from outside the range</h3>
+<p>
+  A value from a form that is above <code>max</code>, below <code>min</code> or off the step is
+  <strong>shown</strong> clamped to the range and snapped to the step, and is
+  <strong>not written back</strong>: the form stays pristine and holds what it was given. Only a
+  pointer or a key writes. No value shows the thumb at <code>min</code> with an empty fill; a screen
+  reader hears <code>min</code>. A <code>min</code> above <code>max</code> is a mistake that counts
+  as <code>max = min</code>.
+</p>
+<div class="demo demo-column">
+  <ck-slider aria-label="Cadence, shown at the limit" showValue [value]="150" />
+  <ck-slider aria-label="Grade, shown on the step" showValue [step]="0.5" [value]="33.3" />
+  <ck-slider aria-label="Grade, not set" showValue [min]="-10" [max]="20" [value]="null" />
+</div>
+<pre class="code"><code>{{ samples.outside }}</code></pre>
+
+<h3 id="states">Disabled</h3>
+<p>
+  A disabled slider leaves the tab order and ignores the pointer and the keys. A slider inside a
+  <code>&lt;fieldset disabled&gt;</code> does the same and looks disabled; it is marked
+  <code>aria-disabled</code> when the page loads and again when it takes focus, because a
+  <code>fieldset</code> has no way to tell a custom element that it changed.
+</p>
+<div class="demo demo-column">
+  <ck-slider aria-label="Disabled" disabled [value]="40" />
+  <fieldset class="plain" disabled>
+    <ck-slider aria-label="In a disabled fieldset" [value]="40" />
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="grade-row">The settings row</h3>
+<p>
+  A settings row with the label on the left and the slider on the right. The label names the thumb
+  through <code>aria-labelledby</code>.
+</p>
+<div class="demo demo-column">
+  <div class="row">
+    <span id="grade-label" class="row-label">Grade</span>
+    <ck-slider
+      aria-labelledby="grade-label"
+      unit="%"
+      showValue
+      size="lg"
+      [min]="-10"
+      [max]="20"
+      [step]="0.5"
+      [(value)]="rowGrade"
+    />
+  </div>
+</div>
+<pre class="code"><code>{{ samples.row }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the slider">
+  <table class="table">
+    <caption>
+      Inputs of ck-slider
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the slider">
+  <table class="table">
+    <caption>
+      Parts of a slider
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The host gets the classes <code>ck-slider</code>, <code>ck-slider--&#123;size&#125;</code> and,
+  while they apply, <code>ck-slider--disabled</code> and <code>ck-slider--pressing</code>. The
+  output <code>(valueCommit)</code> carries the new <code>number</code>; "Live value and commit"
+  above says when it fires.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a slider">
+  <table class="table">
+    <caption>
+      Keys in a slider
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The thumb follows the WAI-ARIA slider pattern: <code>role="slider"</code> with
+    <code>aria-valuenow</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>,
+    <code>aria-valuetext</code> (the value with its unit, or what <code>valueText</code> returns)
+    and <code>aria-orientation="horizontal"</code>. It is a custom element rather than
+    <code>input type="range"</code>, so it looks and behaves the same in every browser and its hit
+    area is not tied to what is drawn. It needs a name; development builds warn without one. With no
+    value <code>aria-valuenow</code> is <code>min</code>.
+  </li>
+  <li>
+    The pointer works on the track and the thumb, with the pointer captured so a drag can leave the
+    control. A press focuses the thumb, so the keys work right after. Only the primary button of the
+    primary pointer counts. On a touch screen the value moves with the first horizontal move or when
+    the finger lifts, so a vertical swipe that starts on the track still scrolls the page (<code
+      >touch-action: pan-y</code
+    >).
+  </li>
+  <li>
+    The whole height of the control is the hit area of the track: 32 to 60px, and at least 44px on a
+    coarse pointer. The thumb has its own hit area of at least 24px, 44px on a coarse pointer, also
+    where it is drawn at 16px, and the track is inset so that hit area never leaves the control.
+  </li>
+  <li>
+    In right-to-left text the track runs from the right: <code>min</code> is at the inline start,
+    Left and Right swap, and a press is measured from the right. The direction comes from the
+    <code>dir</code> attribute.
+  </li>
+  <li>
+    The focus ring is drawn around the thumb for keyboard focus. In forced-colors mode the rail has
+    a <code>CanvasText</code> border, the fill is <code>Highlight</code>, the thumb is
+    <code>Canvas</code> with a <code>ButtonText</code> border, a disabled slider is
+    <code>GrayText</code> and the ring is <code>Highlight</code>. Under reduced motion the thumb
+    does not scale while it is pressed.
+  </li>
+  <li>
+    A change is not announced beyond what the slider already reports. When another part of the page
+    depends on the value, say what changed yourself.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The parts are plain <code>span</code>s, and the rail and
+    the thumb each draw their ring with a border. An unlayered reset such as
+    <code>* &#123; border: 0 &#125;</code> beats the layered control and removes both. The thumb and
+    the rail are placed without margin or padding, so a reset of those does not move them. A global
+    <code>:focus-visible &#123; outline: … &#125;</code> draws over the focus ring as well. Keep
+    those rules off the slider (<code>:not(.ck-slider__thumb)</code>) or put resets in a layer
+    declared before ckui. The first rule below really breaks the slider; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-slider">
+  <table class="table">
+    <caption>
+      Component tokens of ck-slider
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The slider also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

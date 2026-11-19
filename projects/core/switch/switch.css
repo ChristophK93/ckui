@@ -150,7 +150,7 @@
     flex: none;
   }
 
-  .ck-switch-hint {
+  .ck-switch__body .ck-hint {
     display: block;
     margin-block-start: var(--ck-space-1);
     color: var(--ck-color-fg-muted);
@@ -170,7 +170,7 @@
     cursor: not-allowed;
   }
 
-  .ck-switch:has(.ck-switch__input:disabled) .ck-switch-hint {
+  .ck-switch:has(.ck-switch__input:disabled) .ck-hint {
     color: var(--ck-color-fg-disabled);
   }
 
@@ -222,9 +222,9 @@
     }
 
     .ck-switch--disabled,
-    .ck-switch--disabled .ck-switch-hint,
+    .ck-switch--disabled .ck-hint,
     .ck-switch:has(.ck-switch__input:disabled),
-    .ck-switch:has(.ck-switch__input:disabled) .ck-switch-hint {
+    .ck-switch:has(.ck-switch__input:disabled) .ck-hint {
       color: GrayText;
     }
 

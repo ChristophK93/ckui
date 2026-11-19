@@ -63,6 +63,75 @@ describe('CkTabs keyboard', () => {
     });
   });
 
+  describe('panel tab stop', () => {
+    const LIST = '<button id="first">One</button><button id="second">Two</button>';
+
+    it('goes from the selected tab to the first button when the panel is no tab stop', async () => {
+      const { fixture, host, root } = mount(
+        `${BEFORE}${GROUP('', `<ck-tab-panel [tabStop]="false">${LIST}</ck-tab-panel>`)}${AFTER}`,
+      );
+      host.value.set('b');
+      await settle(fixture);
+      query(root, '#before').focus();
+      await userEvent.tab();
+      expect(focusedLabel()).toBe('Beta');
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, '#first'));
+      await userEvent.tab({ shift: true });
+      expect(focusedLabel()).toBe('Beta');
+    });
+
+    it('goes from the selected tab to the panel by default, then to the first button', async () => {
+      const { fixture, root } = mount(
+        `${BEFORE}${GROUP('', `<ck-tab-panel>${LIST}</ck-tab-panel>`)}${AFTER}`,
+      );
+      await settle(fixture);
+      query(root, '#before').focus();
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, 'ck-tab-panel'));
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, '#first'));
+    });
+
+    it('skips the panels of a per-value group, the hidden one anyway', async () => {
+      const { fixture, host, root } = mount(
+        `${BEFORE}<ck-tabs [value]="value()"><ck-tab-list aria-label="Source">
+           <ck-tab value="a">Alpha</ck-tab><ck-tab value="b">Beta</ck-tab>
+         </ck-tab-list>
+         <ck-tab-panel value="a" [tabStop]="false"><button id="in-a">A</button></ck-tab-panel>
+         <ck-tab-panel value="b" [tabStop]="false"><button id="in-b">B</button></ck-tab-panel>
+         </ck-tabs>${AFTER}`,
+      );
+      host.value.set('b');
+      await settle(fixture);
+      query(root, '#before').focus();
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, '#in-b'));
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, '#after'));
+    });
+
+    it('follows the input when it changes', async () => {
+      const { fixture, host, root } = mount(
+        `${BEFORE}${GROUP('', `<ck-tab-panel [tabStop]="tabStop()">${LIST}</ck-tab-panel>`)}`,
+      );
+      host.tabStop.set(false);
+      await settle(fixture);
+      query(root, '#before').focus();
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, '#first'));
+      host.tabStop.set(true);
+      await settle(fixture);
+      query(root, '#before').focus();
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(query(root, 'ck-tab-panel'));
+    });
+  });
+
   describe('automatic activation', () => {
     it('moves focus and selection with the arrow keys, wrapping at both ends', async () => {
       const { fixture, host, root } = mount(GROUP());

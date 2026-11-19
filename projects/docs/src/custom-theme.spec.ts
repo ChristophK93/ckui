@@ -2,12 +2,14 @@ import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CK_BADGE_IMPORTS } from '@ckui/core/badge';
 import { CkButton } from '@ckui/core/button';
+import { CK_CHECKBOX_IMPORTS } from '@ckui/core/checkbox';
 import { CK_CHIP_IMPORTS } from '@ckui/core/chip';
 import { CK_DIALOG_IMPORTS, CkDialog } from '@ckui/core/dialog';
 import { CK_DRAWER_IMPORTS, CkDrawer } from '@ckui/core/drawer';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CkProgress } from '@ckui/core/progress';
 import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
+import { CkSlider } from '@ckui/core/slider';
 import { CkStepper } from '@ckui/core/stepper';
 import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
 import { CK_TABS_IMPORTS } from '@ckui/core/tabs';
@@ -18,6 +20,7 @@ import { CUSTOM_THEME_CSS } from './app/pages/theming/theming-samples';
 import { resetTestTheme, setTestTheme, settleAnimations } from './app/testing/theme-env';
 
 const FOCUS_YELLOW = 'rgb(255, 204, 0)';
+const DANGER = 'rgb(255, 90, 78)';
 const FIELD_FILL = 'rgb(22, 22, 24)';
 
 @Component({
@@ -27,8 +30,10 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
     CK_SEGMENTED_IMPORTS,
     CK_BADGE_IMPORTS,
     CkProgress,
+    CkSlider,
     CkStepper,
     CK_SWITCH_IMPORTS,
+    CK_CHECKBOX_IMPORTS,
     CK_CHIP_IMPORTS,
     CK_TABS_IMPORTS,
   ],
@@ -48,6 +53,10 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
         <label for="themed-floated">Floated</label>
         <input ckInput id="themed-floated" value="Value" />
       </ck-field>
+      <ck-field id="stepper-field" [invalid]="true">
+        <label>Power</label>
+        <ck-stepper id="stepper-in-field" [value]="250" />
+      </ck-field>
       <input id="standalone" ckInput aria-label="Standalone" />
       <ck-segmented id="segmented" aria-label="View" value="week">
         <ck-segment value="day">Day</ck-segment>
@@ -59,12 +68,31 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
       <ck-badge id="badge-warning" tone="warning">Low battery</ck-badge>
       <ck-badge id="badge-danger" tone="danger" dot>Upload failed</ck-badge>
       <ck-progress id="progress" aria-label="Workout" [value]="40" />
+      <ck-slider
+        id="slider"
+        aria-label="Grade"
+        unit="%"
+        showValue
+        [min]="-10"
+        [max]="20"
+        [value]="5"
+      />
       <ck-stepper id="stepper" aria-label="FTP" unit="W" [min]="50" [max]="600" [value]="250" />
       <ck-switch id="switch-on" [value]="true">
         Auto-upload
-        <ck-switch-hint>Uploads every finished ride.</ck-switch-hint>
+        <ck-hint>Uploads every finished ride.</ck-hint>
       </ck-switch>
       <ck-switch id="switch-off">Audio cues</ck-switch>
+      <ck-checkbox id="checkbox-on" [value]="true">
+        Save as template
+        <ck-hint>Shows up under "Mine".</ck-hint>
+      </ck-checkbox>
+      <ck-checkbox id="checkbox-off">Audio cues</ck-checkbox>
+      <ck-checkbox id="checkbox-mixed" [indeterminate]="true">All rides</ck-checkbox>
+      <ck-checkbox-group id="checkbox-group" aria-label="Zones">
+        <ck-checkbox option="endurance">Endurance</ck-checkbox>
+        <ck-checkbox option="vo2">VO2max</ck-checkbox>
+      </ck-checkbox-group>
       <ck-chip-group id="chips" aria-label="Category">
         <button ckChip id="chip-off">Threshold</button>
         <button ckChip id="chip-on" [selected]="true">Endurance</button>
@@ -535,7 +563,7 @@ describe('custom theme', () => {
 
       it('writes the label white, the hint muted at 4.5:1, in the custom font', () => {
         const label = getComputedStyle(query('#switch-on .ck-switch'));
-        const hint = getComputedStyle(query('#switch-on ck-switch-hint'));
+        const hint = getComputedStyle(query('#switch-on ck-hint'));
         expect(label.color).toBe('rgb(255, 255, 255)');
         expect(label.fontFamily).toMatch(/^"Fira Sans"/);
         expect(hint.color).toBe('rgb(185, 185, 190)');
@@ -564,6 +592,95 @@ describe('custom theme', () => {
         await settleAnimations();
         expect(track('switch-on').backgroundColor).toBe('rgb(1, 2, 3)');
         expect(thumb('switch-on').backgroundColor).toBe('rgb(4, 5, 6)');
+      });
+    });
+
+    describe('checkbox', () => {
+      const box = (id: string) => getComputedStyle(query(`#${id} .ck-checkbox__box`));
+      const mark = (id: string, kind: string) =>
+        getComputedStyle(query(`#${id} .ck-checkbox__mark--${kind} svg`));
+      const SURFACE = 'rgb(11, 11, 12)';
+
+      it('paints the unchecked box with the control colour and the checked and mixed box with the white primary', () => {
+        expect(box('checkbox-off').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(box('checkbox-on').backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(box('checkbox-mixed').backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(box('checkbox-on').borderTopColor).toBe('rgb(255, 255, 255)');
+      });
+
+      it('keeps the unchecked border 3:1 from the page, because the sample line colour is too quiet for it', () => {
+        expect(box('checkbox-off').borderTopColor).toBe('rgb(138, 138, 146)');
+        expect(contrastRatio(box('checkbox-off').borderTopColor, SURFACE)).toBeGreaterThanOrEqual(
+          3,
+        );
+      });
+
+      it('keeps the checked fill 3:1 from the unchecked fill and border, and the mark 3:1 from the fill', () => {
+        const fill = box('checkbox-on').backgroundColor;
+        expect(contrastRatio(fill, box('checkbox-off').backgroundColor)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(fill, box('checkbox-off').borderTopColor)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(fill, SURFACE)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(box('checkbox-on').color, fill)).toBeGreaterThanOrEqual(3);
+        expect(mark('checkbox-on', 'check').stroke).toBe('rgb(11, 11, 12)');
+        expect(mark('checkbox-mixed', 'minus').stroke).toBe('rgb(11, 11, 12)');
+      });
+
+      it('shows the state with a tick or a dash as well as the colour', () => {
+        const display = (id: string, kind: string) =>
+          getComputedStyle(query(`#${id} .ck-checkbox__mark--${kind}`)).display;
+        expect([display('checkbox-on', 'check'), display('checkbox-on', 'minus')]).toEqual([
+          'block',
+          'none',
+        ]);
+        expect([display('checkbox-mixed', 'check'), display('checkbox-mixed', 'minus')]).toEqual([
+          'none',
+          'block',
+        ]);
+        expect([display('checkbox-off', 'check'), display('checkbox-off', 'minus')]).toEqual([
+          'none',
+          'none',
+        ]);
+      });
+
+      it('uses the sample radius, 18px boxes and a 2px border', () => {
+        expect(box('checkbox-off').borderTopLeftRadius).toBe('4px');
+        expect(box('checkbox-off').borderTopWidth).toBe('2px');
+        expect(query('#checkbox-off .ck-checkbox__box').getBoundingClientRect().width).toBe(18);
+      });
+
+      it('writes the label white, the hint muted at 4.5:1, in the custom font', () => {
+        const label = getComputedStyle(query('#checkbox-on .ck-checkbox'));
+        const hint = getComputedStyle(query('#checkbox-on ck-hint'));
+        expect(label.color).toBe('rgb(255, 255, 255)');
+        expect(label.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(hint.color).toBe('rgb(185, 185, 190)');
+        expect(contrastRatio(hint.color, SURFACE)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('draws the 3px yellow ring around the box on keyboard focus', async () => {
+        await keyboardFocus(query<HTMLInputElement>('#checkbox-off .ck-checkbox__input'));
+        const ring = box('checkbox-off');
+        expect(ring.outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring.outlineWidth).toBe('3px');
+        expect(ring.outlineOffset).toBe('3px');
+      });
+
+      it('is 60px high at size xl', () => {
+        query('#checkbox-off .ck-checkbox').classList.replace('ck-checkbox--md', 'ck-checkbox--xl');
+        expect(
+          query('#checkbox-off .ck-checkbox').getBoundingClientRect().height,
+        ).toBeGreaterThanOrEqual(60);
+      });
+
+      it('restyles with its own tokens, over the theme', async () => {
+        const element = query('#checkbox-on');
+        element.style.setProperty('--ck-checkbox-checked-bg', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-checkbox-checked-fg', 'rgb(4, 5, 6)');
+        element.style.setProperty('--ck-checkbox-radius', '9px');
+        await settleAnimations();
+        expect(box('checkbox-on').backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(box('checkbox-on').color).toBe('rgb(4, 5, 6)');
+        expect(box('checkbox-on').borderTopLeftRadius).toBe('9px');
       });
     });
 
@@ -694,6 +811,85 @@ describe('custom theme', () => {
       });
     });
 
+    describe('slider', () => {
+      const rail = () => getComputedStyle(query('#slider .ck-slider__rail'));
+      const fill = () => getComputedStyle(query('#slider .ck-slider__fill'));
+      const thumb = () => getComputedStyle(query('#slider .ck-slider__thumb'));
+
+      it('paints the rail with the control colour, the fill white and the thumb white', () => {
+        expect(rail().backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(fill().backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(thumb().backgroundColor).toBe('rgb(255, 255, 255)');
+      });
+
+      it('keeps the transparent rail border and rounds the rail fully', () => {
+        expect(rail().borderTopColor).toBe('rgba(0, 0, 0, 0)');
+        expect(rail().borderTopLeftRadius).toBe('9999px');
+        expect(thumb().borderTopLeftRadius).toBe('9999px');
+      });
+
+      it('keeps the fill and the thumb 3:1 from the rail, and the ring 3:1 from the thumb and the fill', () => {
+        expect(
+          contrastRatio(fill().backgroundColor, rail().backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(thumb().backgroundColor, rail().backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        // The thumb and the fill are both white here, so the ring is what sets them apart.
+        expect(thumb().borderTopColor).toBe('rgb(11, 11, 12)');
+        expect(thumb().borderTopWidth).toBe('2px');
+        expect(
+          contrastRatio(thumb().borderTopColor, thumb().backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(thumb().borderTopColor, fill().backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('writes the shown value white and bold in the custom font, at 4.5:1 on the page', () => {
+        const value = getComputedStyle(query('#slider .ck-slider__value'));
+        expect(value.color).toBe('rgb(255, 255, 255)');
+        expect(value.fontWeight).toBe('700');
+        expect(value.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(value.fontVariantNumeric).toBe('tabular-nums');
+        expect(
+          contrastRatio(value.color, resolveToken(query('.area'), '--ck-color-bg')),
+        ).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('is 60px high with a 1.75rem thumb at size xl', () => {
+        query('#slider').classList.replace('ck-slider--md', 'ck-slider--xl');
+        expect(query('#slider').getBoundingClientRect().height).toBe(60);
+        expect(query('#slider .ck-slider__thumb').getBoundingClientRect().width).toBe(28);
+      });
+
+      it('draws the 3px yellow ring around the thumb on keyboard focus', async () => {
+        const element = query('#slider .ck-slider__thumb');
+        expect(thumb().outlineStyle).toBe('none');
+        await keyboardFocus(element);
+        expect(thumb().outlineColor).toBe(FOCUS_YELLOW);
+        expect(thumb().outlineWidth).toBe('3px');
+        expect(thumb().outlineOffset).toBe('3px');
+        expect(
+          contrastRatio(thumb().outlineColor, resolveToken(query('.area'), '--ck-color-bg')),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('restyles with its own tokens, over the theme', () => {
+        const element = query('#slider');
+        element.style.setProperty('--ck-slider-track', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-slider-fill', 'rgb(4, 5, 6)');
+        element.style.setProperty('--ck-slider-thumb-bg', 'rgb(7, 8, 9)');
+        element.style.setProperty('--ck-slider-thumb-border', 'rgb(10, 11, 12)');
+        element.style.setProperty('--ck-slider-thickness', '14px');
+        expect(rail().backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(fill().backgroundColor).toBe('rgb(4, 5, 6)');
+        expect(thumb().backgroundColor).toBe('rgb(7, 8, 9)');
+        expect(thumb().borderTopColor).toBe('rgb(10, 11, 12)');
+        expect(rail().height).toBe('14px');
+      });
+    });
+
     describe('stepper', () => {
       const host = () => getComputedStyle(query('#stepper'));
       const input = () => getComputedStyle(query('#stepper .ck-stepper__input'));
@@ -748,6 +944,19 @@ describe('custom theme', () => {
         expect(
           contrastRatio(host().outlineColor, resolveToken(query('.area'), '--ck-color-bg')),
         ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('inside a field draws no ring of its own: the field box takes the yellow ring and the danger border', async () => {
+        const field = query<HTMLInputElement>('#stepper-in-field .ck-stepper__input');
+        const inner = getComputedStyle(query('#stepper-in-field'));
+        const box = () => getComputedStyle(query('#stepper-field .ck-field__box'));
+        expect(inner.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+        expect(inner.boxShadow).toBe('none');
+        expect(box().borderTopColor).toBe(DANGER);
+        await keyboardFocus(field);
+        expect(getComputedStyle(query('#stepper-in-field')).outlineStyle).toBe('none');
+        expect(box().boxShadow).toContain('2px');
+        expect(box().boxShadow).toContain(DANGER);
       });
 
       it('restyles with its own tokens, over the theme', () => {

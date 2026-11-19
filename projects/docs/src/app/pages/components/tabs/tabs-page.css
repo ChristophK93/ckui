@@ -134,6 +134,12 @@ ck-tab:focus-visible {
   font-family: var(--ck-font-mono);
 }
 
+.workouts {
+  margin: 0;
+  padding: var(--ck-space-3) 0;
+  list-style: none;
+}
+
 .field {
   display: block;
   padding-block: var(--ck-space-3);
