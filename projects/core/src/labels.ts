@@ -2,6 +2,8 @@ import { InjectionToken, Signal, signal } from '@angular/core';
 
 /** Built-in strings. Each package adds its keys; consumers pass a `Partial`. */
 export interface CkLabels {
+  /** The last row of a menu on a phone; it closes the menu. */
+  cancel: string;
   close: string;
   decrement: string;
   dismiss: string;
@@ -9,9 +11,16 @@ export interface CkLabels {
   loading: string;
   noResults: string;
   notifications: string;
+  /** Result count after filtering a list, for the plural categories other than `one`; `{count}` is replaced by the number. */
+  resultCount: string;
+  /** Result count where `Intl.PluralRules` for the locale says `one` (1 in English); `{count}` is replaced by the number. */
+  resultCountOne: string;
+  /** The name of a search field, after the name of what it searches ('Country Search'). */
+  search: string;
 }
 
 export const CK_DEFAULT_LABELS: Readonly<CkLabels> = Object.freeze({
+  cancel: 'Cancel',
   close: 'Close',
   decrement: 'Decrease',
   dismiss: 'Dismiss',
@@ -19,6 +28,9 @@ export const CK_DEFAULT_LABELS: Readonly<CkLabels> = Object.freeze({
   loading: 'Loading',
   noResults: 'No results',
   notifications: 'Notifications',
+  resultCount: '{count} results',
+  resultCountOne: '{count} result',
+  search: 'Search',
 });
 
 /** Merges overrides onto the defaults. Blank and non-string values fall back; unknown keys are ignored. */

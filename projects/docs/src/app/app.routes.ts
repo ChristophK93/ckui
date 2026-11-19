@@ -33,6 +33,12 @@ export const routes: Routes = [
     title: 'Segmented · ckui',
   },
   {
+    path: 'components/select',
+    loadComponent: () =>
+      import('./pages/components/select/select-page').then((module) => module.SelectPage),
+    title: 'Select · ckui',
+  },
+  {
     path: 'components/toast',
     loadComponent: () =>
       import('./pages/components/toast/toast-page').then((module) => module.ToastPage),
@@ -49,6 +55,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/components/badge/badge-page').then((module) => module.BadgePage),
     title: 'Badge · ckui',
+  },
+  {
+    path: 'components/menu',
+    loadComponent: () =>
+      import('./pages/components/menu/menu-page').then((module) => module.MenuPage),
+    title: 'Menu · ckui',
   },
   {
     path: 'components/progress',

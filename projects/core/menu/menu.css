@@ -1,0 +1,198 @@
+@layer ckui {
+  .ck-menu-panel {
+    --_ck-menu-font-size: var(--ck-control-font-size-md);
+    --_ck-menu-pad-x: var(--ck-control-padding-inline-md);
+    --_ck-menu-row: var(--ck-target-min);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-block-size: 0;
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: var(--ck-font-sans);
+    font-size: var(--_ck-menu-font-size);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+    line-height: var(--ck-line-height-normal);
+  }
+
+  .ck-menu-panel--popover {
+    overflow: hidden;
+    inline-size: max-content;
+    max-inline-size: min(30rem, calc(100vw - 2 * var(--ck-space-2)));
+    min-inline-size: var(--ck-menu-min-width, 12rem);
+    border: 1px solid var(--ck-color-border-subtle);
+    border-radius: var(--ck-menu-radius, var(--ck-radius-md));
+    background: var(--ck-menu-bg, var(--ck-color-surface-raised));
+    box-shadow: var(--ck-menu-shadow, var(--ck-shadow-md));
+  }
+
+  /* Phone rows are as tall as the control: 44px under a coarse pointer. */
+  .ck-menu-panel--sheet {
+    --_ck-menu-row: max(var(--ck-target-min), var(--ck-control-height-md));
+    padding-block-end: env(safe-area-inset-bottom, 0px);
+  }
+
+  .ck-menu-overlay.ck-overlay--sheet {
+    border-start-start-radius: var(--ck-radius-xl);
+    border-start-end-radius: var(--ck-radius-xl);
+    background: var(--ck-menu-bg, var(--ck-color-surface-raised));
+    box-shadow: var(--ck-menu-shadow, var(--ck-shadow-lg));
+    outline: none;
+  }
+
+  .ck-menu-panel__title {
+    padding-block: 0 var(--ck-space-2);
+    padding-inline: var(--_ck-menu-pad-x);
+    font-size: var(--ck-font-size-lg);
+    font-weight: var(--ck-font-weight-semibold);
+    line-height: var(--ck-line-height-tight);
+    overflow-wrap: break-word;
+  }
+
+  .ck-menu {
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    min-block-size: 0;
+    max-block-size: var(--ck-menu-max-height, 20rem);
+    padding-block: var(--ck-space-1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    outline: none;
+  }
+
+  .ck-menu-panel--sheet .ck-menu {
+    max-block-size: none;
+  }
+
+  .ck-menu-item,
+  .ck-menu-panel__cancel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--ck-space-2);
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--_ck-menu-row);
+    margin: 0;
+    padding-block: var(--ck-space-1);
+    padding-inline: var(--_ck-menu-pad-x);
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--ck-color-fg);
+    font: inherit;
+    font-size: var(--_ck-menu-font-size);
+    line-height: var(--ck-line-height-tight);
+    text-align: start;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-menu-item__label {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .ck-menu-item__icon {
+    flex: none;
+    inline-size: 1.25em;
+    block-size: 1.25em;
+  }
+
+  .ck-menu-item--danger {
+    color: var(--ck-menu-item-fg-danger, var(--ck-color-danger-fg));
+  }
+
+  .ck-menu-item--disabled {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) {
+    .ck-menu-item:not(.ck-menu-item--disabled):hover,
+    .ck-menu-panel__cancel:hover {
+      background-image: linear-gradient(
+        var(--ck-color-surface-hover),
+        var(--ck-color-surface-hover)
+      );
+    }
+  }
+
+  /* The focused item has a fill and a bar at the inline start, so it never relies on colour alone. */
+  .ck-menu-item:focus-visible,
+  .ck-menu-panel__cancel:focus-visible {
+    background-image: linear-gradient(
+      var(--ck-menu-item-bg-active, var(--ck-color-surface-hover)),
+      var(--ck-menu-item-bg-active, var(--ck-color-surface-hover))
+    );
+    outline: none;
+  }
+
+  .ck-menu-item:focus-visible::before,
+  .ck-menu-panel__cancel:focus-visible::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--ck-space-1);
+    background: var(--ck-color-focus-ring);
+  }
+
+  .ck-menu-divider {
+    display: block;
+    block-size: 0;
+    margin-block: var(--ck-space-1);
+    border-block-start: 1px solid var(--ck-color-border-subtle);
+  }
+
+  /* On a phone the Cancel row stands apart from the items. */
+  .ck-menu-panel__footer {
+    margin-block-start: var(--ck-space-2);
+    padding-block-start: var(--ck-space-2);
+    border-block-start: 1px solid var(--ck-color-border-subtle);
+  }
+
+  .ck-menu-panel__cancel {
+    justify-content: center;
+    font-weight: var(--ck-font-weight-semibold);
+    text-align: center;
+  }
+
+  @media (forced-colors: active) {
+    .ck-menu-panel--popover {
+      border-color: CanvasText;
+    }
+
+    .ck-menu-divider,
+    .ck-menu-panel__footer {
+      border-color: CanvasText;
+    }
+
+    .ck-menu-item,
+    .ck-menu-item--danger,
+    .ck-menu-panel__cancel {
+      color: CanvasText;
+    }
+
+    .ck-menu-item:focus-visible,
+    .ck-menu-panel__cancel:focus-visible {
+      background-color: Highlight;
+      background-image: none;
+      color: HighlightText;
+    }
+
+    .ck-menu-item:focus-visible::before,
+    .ck-menu-panel__cancel:focus-visible::before {
+      background: HighlightText;
+    }
+
+    .ck-menu-item--disabled {
+      color: GrayText;
+    }
+  }
+}

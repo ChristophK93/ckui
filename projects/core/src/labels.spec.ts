@@ -11,6 +11,7 @@ function labelsWith(options: Parameters<typeof provideCkui>[0]): Signal<CkLabels
 describe('CK_LABELS', () => {
   it('defaults to the English labels without provideCkui', () => {
     expect(TestBed.inject(CK_LABELS)()).toEqual({
+      cancel: 'Cancel',
       close: 'Close',
       decrement: 'Decrease',
       dismiss: 'Dismiss',
@@ -18,8 +19,25 @@ describe('CK_LABELS', () => {
       loading: 'Loading',
       noResults: 'No results',
       notifications: 'Notifications',
+      resultCount: '{count} results',
+      resultCountOne: '{count} result',
+      search: 'Search',
     });
     expect(TestBed.inject(CK_LABELS)()).toEqual(CK_DEFAULT_LABELS);
+  });
+
+  it('has a result count with a {count} placeholder and a search label', () => {
+    expect(CK_DEFAULT_LABELS.resultCount).toContain('{count}');
+    expect(CK_DEFAULT_LABELS.resultCountOne).toBe('{count} result');
+    expect(CK_DEFAULT_LABELS.search).not.toBe('');
+    const labels = labelsWith({ labels: { resultCount: '{count} Treffer', search: 'Suche' } });
+    expect(labels().resultCount).toBe('{count} Treffer');
+    expect(labels().search).toBe('Suche');
+  });
+
+  it('has a cancel label that can be replaced', () => {
+    expect(CK_DEFAULT_LABELS.cancel).toBe('Cancel');
+    expect(labelsWith({ labels: { cancel: 'Abbrechen' } })().cancel).toBe('Abbrechen');
   });
 
   it('keeps the defaults frozen', () => {
@@ -34,11 +52,15 @@ describe('CK_LABELS', () => {
   it('falls back to the default for blank and non-string values', () => {
     const labels = labelsWith({
       labels: {
+        cancel: ' ',
         close: '',
         loading: '   ',
         noResults: 5 as unknown as string,
         dismiss: ' ',
         notifications: '',
+        resultCount: '  ',
+        resultCountOne: 3 as unknown as string,
+        search: 7 as unknown as string,
       },
     });
     expect(labels()).toEqual(CK_DEFAULT_LABELS);

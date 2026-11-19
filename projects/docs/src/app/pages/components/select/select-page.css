@@ -1,0 +1,142 @@
+.code {
+  margin-block: var(--ck-space-2) var(--ck-space-4);
+  padding: var(--ck-space-3) var(--ck-space-4);
+  border: 1px solid var(--ck-color-border);
+  border-radius: var(--ck-radius-md);
+  background: var(--ck-color-surface);
+  color: var(--ck-color-fg);
+  font-family: var(--ck-font-mono);
+  font-size: var(--ck-font-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+code,
+kbd {
+  font-family: var(--ck-font-mono);
+  font-size: 0.95em;
+}
+
+.code code {
+  font-size: inherit;
+}
+
+li {
+  margin-block-end: var(--ck-space-2);
+}
+
+h2,
+h3,
+h4 {
+  scroll-margin-block-start: var(--ck-space-4);
+}
+
+h4 {
+  margin-block: var(--ck-space-4) var(--ck-space-2);
+  font-size: var(--ck-font-size-md);
+}
+
+.demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ck-space-3);
+  margin-block: var(--ck-space-2);
+  padding: var(--ck-space-4);
+  border: 1px solid var(--ck-color-border-subtle);
+  border-radius: var(--ck-radius-md);
+  background: var(--ck-color-bg);
+}
+
+.demo-column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.demo-column > * {
+  max-inline-size: 100%;
+}
+
+.narrow {
+  inline-size: min(100%, 24rem);
+}
+
+.status {
+  margin: 0;
+  color: var(--ck-color-fg-muted);
+  font-size: var(--ck-font-size-sm);
+}
+
+.status output {
+  color: var(--ck-color-fg);
+  font-family: var(--ck-font-mono);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ck-space-2);
+  inline-size: 100%;
+}
+
+.table {
+  inline-size: 100%;
+  margin-block: var(--ck-space-2) var(--ck-space-4);
+  border-collapse: collapse;
+  font-size: var(--ck-font-size-sm);
+}
+
+.table caption {
+  margin-block-end: var(--ck-space-1);
+  color: var(--ck-color-fg-muted);
+  text-align: start;
+}
+
+.table th,
+.table td {
+  padding: var(--ck-space-2) var(--ck-space-3);
+  border-block-end: 1px solid var(--ck-color-border-subtle);
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+.table tbody th[scope='row'] {
+  white-space: nowrap;
+}
+
+.table thead th {
+  border-block-end-color: var(--ck-color-border);
+}
+
+.table-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+
+/* A fieldset only groups here: no frame of its own. */
+.plain {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* The workout rows of the rich example: a name, with the numbers under it. */
+.name {
+  display: block;
+}
+
+.meta {
+  display: block;
+  color: var(--ck-color-fg-muted);
+  font-size: var(--ck-font-size-sm);
+}
+
+.demo ck-field,
+.demo ck-select {
+  inline-size: min(100%, 22rem);
+}

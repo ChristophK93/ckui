@@ -1003,7 +1003,7 @@ describe('CkField', () => {
       const { fixture } = mount('<ck-field><label>Name</label></ck-field>');
       await settle(fixture);
       expect(warn.mock.calls.map((call) => String(call[0])).join('\n')).toContain(
-        'exactly one control (ckInput or ck-stepper), found 0',
+        'exactly one control (ckInput, ck-stepper or ck-select), found 0',
       );
     });
 
@@ -1014,7 +1014,7 @@ describe('CkField', () => {
       );
       await settle(fixture);
       expect(warn.mock.calls.map((call) => String(call[0])).join('\n')).toContain(
-        'exactly one control (ckInput or ck-stepper), found 2',
+        'exactly one control (ckInput, ck-stepper or ck-select), found 2',
       );
     });
 

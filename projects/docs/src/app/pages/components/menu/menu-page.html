@@ -1,0 +1,486 @@
+<h1>Menu</h1>
+<p>
+  <code>ck-menu</code> is a list of actions behind a button, the WAI-ARIA menu button. A native
+  <code>&lt;button&gt;</code> with <code>[ckMenuTrigger]</code> opens it under itself, and on a
+  phone it becomes a bottom sheet with a Cancel row. Import <code>CK_MENU_IMPORTS</code> from
+  <code>&#64;ckui/core/menu</code>: it holds <code>CkMenuTrigger</code>, <code>CkMenu</code>,
+  <code>CkMenuItem</code>, <code>CkMenuItemIcon</code> and <code>CkMenuDivider</code>. Items are
+  actions only: no submenus, no checkable items and no right-click menu.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="row-actions">Row actions</h3>
+<p>
+  The usual place: the end of a list row, as an icon-only button. The button needs a name, and that
+  name also titles the sheet on a phone. The menu is the content of an
+  <code>&lt;ng-template&gt;</code> that the button gets; each item is a native button with its own
+  <code>(click)</code>. A <code>[ckMenuItemIcon]</code> leads an item,
+  <code>tone="danger"</code> marks the destructive one and <code>ck-menu-divider</code> sets it
+  apart.
+</p>
+<div class="demo demo-column">
+  <ul class="rows">
+    @for (workout of workouts; track workout.id) {
+      <li class="row">
+        <span class="name">
+          {{ workout.name }}
+          <span class="meta">{{ workout.meta }}</span>
+        </span>
+        <button
+          ckButton
+          variant="ghost"
+          iconOnly
+          [ckMenuTrigger]="rowMenu"
+          [attr.aria-label]="'Actions for ' + workout.name"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+        <ng-template #rowMenu>
+          <ck-menu>
+            <button ckMenuItem (click)="choose(workout, 'Start')">
+              <svg
+                ckMenuItemIcon
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M7 5v14l12-7z" />
+              </svg>
+              Start
+            </button>
+            <button ckMenuItem (click)="choose(workout, 'Edit')">
+              <svg
+                ckMenuItemIcon
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
+              </svg>
+              Edit
+            </button>
+            <button ckMenuItem (click)="choose(workout, 'Copy')">
+              <svg
+                ckMenuItemIcon
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="9" y="9" width="11" height="11" rx="2" />
+                <path d="M5 15V6a2 2 0 012-2h9" />
+              </svg>
+              Copy
+            </button>
+            <ck-menu-divider />
+            <button ckMenuItem tone="danger" (click)="choose(workout, 'Delete')">
+              <svg
+                ckMenuItemIcon
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+              </svg>
+              Delete
+            </button>
+          </ck-menu>
+        </ng-template>
+      </li>
+    }
+  </ul>
+  <p class="status">
+    Last action: <output>{{ last() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="disabled">A disabled item</h3>
+<p>
+  A disabled item is dimmed and read as dimmed, and the arrow keys still stop on it, so a keyboard
+  or screen reader user finds out that the action exists. Enter, Space and a click do nothing, and
+  the menu stays open. Use the <code>disabled</code> input, never the native attribute.
+</p>
+<div class="demo demo-column">
+  <button ckButton [ckMenuTrigger]="exportMenu">Export</button>
+  <ng-template #exportMenu>
+    <ck-menu>
+      <button ckMenuItem (click)="exported.set('PDF')">As PDF</button>
+      <button ckMenuItem (click)="exported.set('CSV')">As CSV</button>
+      <button ckMenuItem disabled (click)="exported.set('FIT')">As FIT file (needs a plan)</button>
+    </ck-menu>
+  </ng-template>
+  <p class="status">
+    Exported: <output>{{ exported() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.disabled }}</code></pre>
+
+<h3 id="confirm">An item that opens a dialog</h3>
+<p>
+  Activating an item closes the menu first and then runs your <code>(click)</code>. A handler that
+  opens a <code>CkDialog</code> therefore opens it on a page without a menu, and when the dialog
+  closes focus goes back to the button that opened the menu.
+</p>
+<div class="demo demo-column">
+  <button ckButton [ckMenuTrigger]="confirmMenu">Actions for Sweet Spot</button>
+  <ng-template #confirmMenu>
+    <ck-menu>
+      <button ckMenuItem (click)="choose(workouts[1], 'Edit')">Edit</button>
+      <button ckMenuItem tone="danger" (click)="remove(workouts[1])">Delete</button>
+    </ck-menu>
+  </ng-template>
+  <p class="status">
+    Answer: <output>{{ deleted() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.confirm }}</code></pre>
+
+<h3 id="events">Events and control</h3>
+<p>
+  <code>(menuOpened)</code> and <code>(menuClosed)</code> report each round, and
+  <code>#trigger="ckMenuTrigger"</code> gives you <code>open()</code>, <code>close()</code> and the
+  <code>isOpen</code> signal.
+</p>
+<div class="demo">
+  <button
+    ckButton
+    #trigger="ckMenuTrigger"
+    [ckMenuTrigger]="sortMenu"
+    (menuOpened)="opened.set(opened() + 1)"
+    (menuClosed)="closed.set(closed() + 1)"
+  >
+    Sort by
+  </button>
+  <button ckButton (click)="trigger.isOpen() ? trigger.close() : trigger.open('last')">
+    Toggle from outside
+  </button>
+  <ng-template #sortMenu>
+    <ck-menu>
+      <button ckMenuItem>Name</button>
+      <button ckMenuItem>Date</button>
+      <button ckMenuItem>Duration</button>
+    </ck-menu>
+  </ng-template>
+  <p class="status">
+    Opened <output>{{ opened() }}</output> times, closed <output>{{ closed() }}</output> times.
+  </p>
+</div>
+<pre class="code"><code>{{ samples.events }}</code></pre>
+
+<h3 id="phone">On a phone</h3>
+<p>
+  When the menu opens on a narrow viewport with a coarse pointer (the viewport is read at that
+  moment), it is a bottom sheet instead of a popover: a dialog named after the button, with the name
+  as its visible title, then the items as full-width rows of at least 44px, then a gap and a divider
+  and a <b>Cancel</b> row. Cancel is a plain button after the menu, not an item, so the arrow keys
+  stay within the items; Tab reaches it. It closes the sheet and focus returns to the button, as do
+  Escape, a swipe down and a tap beside the sheet. The label comes from the
+  <code>cancel</code> label of <code>provideCkui()</code>. A narrow window with a mouse keeps the
+  popover.
+</p>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Members of the menu button">
+  <table class="table">
+    <caption>
+      Members of ckMenuTrigger
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Member</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of triggerMembers; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            @if (row.defaultValue !== '') {
+              <code>{{ row.defaultValue }}</code>
+            }
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the menu">
+  <table class="table">
+    <caption>
+      Inputs of ck-menu
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of menuInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the menu item">
+  <table class="table">
+    <caption>
+      Inputs of ckMenuItem
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of itemInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the menu">
+  <table class="table">
+    <caption>
+      Parts
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>The keys follow the menu button pattern of the WAI-ARIA Authoring Practices.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys on the menu button">
+  <table class="table">
+    <caption>
+      Keys on the menu button
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of triggerKeys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in the open menu">
+  <table class="table">
+    <caption>
+      Keys in the open menu
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of menuKeys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The button keeps being a native <code>&lt;button&gt;</code> and gets
+    <code>aria-haspopup="menu"</code>, <code>aria-expanded</code> and, while the menu is open,
+    <code>aria-controls</code>. Values you set yourself on those attributes are given back as soon
+    as the library no longer needs them (<code>aria-controls</code> when the menu closes, all of
+    them when the button is destroyed). The menu is <code>role="menu"</code> with
+    <code>aria-orientation="vertical"</code>, named by the button (<code>aria-labelledby</code>); a
+    button without an id gets one for as long as the menu is open, and an id you set is never
+    replaced.
+  </li>
+  <li>
+    Items are <code>role="menuitem"</code> with a roving <code>tabindex</code>: focus is on the
+    item, one item is the tab stop, and Tab never walks through the list. A disabled item is
+    <code>aria-disabled="true"</code> and stays in the order, as the APG advises.
+  </li>
+  <li>
+    The focused item has a fill and a bar at the inline start, never colour alone; the bar shows for
+    keyboard focus. In forced-colors mode the focused item is <code>Highlight</code> on
+    <code>HighlightText</code>, other items and the danger item are <code>CanvasText</code>,
+    disabled items are <code>GrayText</code> and the popover has a <code>CanvasText</code> border. A
+    danger item is therefore only told apart by its colour outside forced colors: let its text or
+    its icon say what it does ("Delete").
+  </li>
+  <li>Nothing moves under reduced motion: the menu appears and disappears without an animation.</li>
+  <li>
+    The popover is not modal: no focus trap, no inert page. It closes on Escape, an outside press,
+    focus moving elsewhere, Tab and the button leaving view. On a phone it is modal like a dialog. A
+    menu in a dialog closes alone on the first Escape.
+  </li>
+  <li>
+    Long labels wrap. The popover is at least 12rem wide, at most 30rem, and scrolls when the page
+    is too short.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The items and the Cancel row are plain
+    <code>&lt;button&gt;</code> elements styled by classes in a layer. An unlayered reset such as
+    <code>button &#123; padding: 0; border: 0 &#125;</code> beats them: the rows lose their padding
+    and their height. Keep those rules off the menu or put resets in a layer declared before ckui.
+    The first rule below really breaks the menu; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. The menu is drawn
+  in the overlay container, outside the button, so its tokens have to be set on <code>:root</code>
+  or a theme selector, not on a wrapper around the button.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-menu">
+  <table class="table">
+    <caption>
+      Component tokens of ck-menu
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The menu also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

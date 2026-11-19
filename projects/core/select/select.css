@@ -1,0 +1,171 @@
+@layer ckui {
+  .ck-select {
+    display: block;
+    min-inline-size: 0;
+    color-scheme: var(--ck-color-scheme);
+    font-variant-numeric: var(--ck-font-variant-numeric);
+  }
+
+  .ck-select--sm {
+    --_ck-select-height: var(--ck-control-height-sm);
+    --_ck-select-pad-x: var(--ck-control-padding-inline-sm);
+    --_ck-select-font-size: var(--ck-control-font-size-sm);
+  }
+
+  .ck-select--md {
+    --_ck-select-height: var(--ck-control-height-md);
+    --_ck-select-pad-x: var(--ck-control-padding-inline-md);
+    --_ck-select-font-size: var(--ck-control-font-size-md);
+  }
+
+  .ck-select--lg {
+    --_ck-select-height: var(--ck-control-height-lg);
+    --_ck-select-pad-x: var(--ck-control-padding-inline-lg);
+    --_ck-select-font-size: var(--ck-control-font-size-lg);
+  }
+
+  .ck-select--xl {
+    --_ck-select-height: var(--ck-control-height-xl);
+    --_ck-select-pad-x: var(--ck-control-padding-inline-xl);
+    --_ck-select-font-size: var(--ck-control-font-size-xl);
+  }
+
+  .ck-select__trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--ck-space-2);
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--_ck-select-height);
+    margin: 0;
+    padding-block: 0;
+    padding-inline: var(--_ck-select-pad-x);
+    border: 1px solid var(--ck-select-border-color, var(--ck-color-control-border));
+    border-radius: var(--ck-select-radius, var(--ck-control-radius));
+    background-color: var(--ck-select-bg, var(--ck-color-control));
+    color: var(--ck-color-fg);
+    font: inherit;
+    font-size: var(--_ck-select-font-size);
+    line-height: var(--ck-line-height-tight);
+    text-align: start;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Plain block, so the ellipsis works and the text runs of consumer markup keep their spaces. */
+  .ck-select__value {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ck-select__placeholder {
+    color: var(--ck-color-fg-muted);
+  }
+
+  .ck-select__chevron {
+    flex: none;
+    color: var(--ck-color-fg-muted);
+    transition: transform var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  .ck-select--open .ck-select__chevron {
+    transform: rotate(180deg);
+  }
+
+  @media (hover: hover) {
+    .ck-select__trigger:not(:disabled):hover {
+      background-image: linear-gradient(
+        var(--ck-color-surface-hover),
+        var(--ck-color-surface-hover)
+      );
+    }
+  }
+
+  .ck-select__trigger:focus-visible {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  .ck-select__trigger[aria-invalid='true'] {
+    border-color: var(--ck-color-danger);
+  }
+
+  .ck-select__trigger:disabled {
+    border-color: var(--ck-color-border-subtle);
+    background-image: linear-gradient(var(--ck-color-surface-hover), var(--ck-color-surface-hover));
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-select__trigger:disabled :is(.ck-select__placeholder, .ck-select__chevron) {
+    color: inherit;
+  }
+
+  /*
+   * The control of a ck-field: the field's box is the surface, ring and border, so the trigger
+   * draws none of its own. It bleeds over the box's padding and border, so the whole box opens the
+   * list and the text starts where the field's label sits.
+   */
+  .ck-field .ck-select {
+    flex: 1 1 auto;
+    margin-block: -1px;
+    margin-inline: calc(-1 * var(--_ck-pad-x) - 1px);
+  }
+
+  .ck-field .ck-select__trigger {
+    block-size: var(--_ck-height);
+    padding-inline: calc(var(--_ck-pad-x) + 1px);
+    border: 0;
+    border-radius: var(--ck-field-radius, var(--ck-control-radius));
+    background: transparent;
+    font-size: var(--_ck-font);
+    outline: none;
+  }
+
+  .ck-field .ck-select__trigger:disabled {
+    background-image: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-select__chevron {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-select__trigger {
+      border-color: ButtonText;
+      color: ButtonText;
+    }
+
+    .ck-select__trigger:focus-visible {
+      outline: 2px solid Highlight;
+    }
+
+    .ck-select__placeholder,
+    .ck-select__chevron {
+      color: ButtonText;
+    }
+
+    .ck-select__trigger[aria-invalid='true'] {
+      border-color: Mark;
+    }
+
+    .ck-select__trigger:disabled,
+    .ck-select__trigger:disabled :is(.ck-select__placeholder, .ck-select__chevron) {
+      border-color: GrayText;
+      color: GrayText;
+    }
+
+    .ck-field .ck-select__trigger,
+    .ck-field .ck-select__trigger:focus-visible {
+      border: 0;
+      outline: none;
+    }
+  }
+}

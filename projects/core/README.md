@@ -209,7 +209,7 @@ import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 </ck-field>
 ```
 
-`ck-field` wraps one control, a native `<input>` or `<textarea>` marked with `ckInput` or a `ck-stepper`, and draws
+`ck-field` wraps one control, a native `<input>` or `<textarea>` marked with `ckInput`, a `ck-stepper` or a `ck-select`, and draws
 the box, a floating `<label>`, a hint, an error and prefix and suffix content. It works with Reactive Forms,
 `ngModel` and Signal Forms (`[formField]`); `ckInput` has no value accessor, the control stays native, so
 `type`, `inputmode`, `enterkeyhint`, `autocomplete` and every other attribute stay on it. Inputs of
@@ -272,6 +272,122 @@ container, and goes back to content widths as soon as there is room, also when o
 Global element styles: a global `:focus-visible { outline: … }` beats the layered control and draws a
 second ring on the segment itself. Keep it off the segments (`:focus-visible:not(.ck-segment)`) or put
 resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Select
+
+```ts
+import { CK_SELECT_IMPORTS } from '@ckui/core/select';
+```
+
+```html
+<ck-field>
+  <label>Target</label>
+  <ck-select formControlName="kind" placeholder="Pick one">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+    <ck-option value="level">Level</ck-option>
+    <ck-option value="free" disabled>Free</ck-option>
+  </ck-select>
+  <ck-hint>How the interval's target is measured.</ck-hint>
+</ck-field>
+```
+
+`ck-select` is a single-choice dropdown (`CkSelect`, `CkOption`, `CkOptgroup`, `CkSelectValue`; a form control for
+Reactive Forms, `ngModel` and Signal Forms). It is the WAI-ARIA select-only combobox: a native
+`<button role="combobox">` that opens a `role="listbox"` under it, so a field's `<label for>` names it, `disabled` and
+`<fieldset disabled>` work, and focus stays on the button while the arrow keys move a highlight
+(`aria-activedescendant`). Inputs of `ck-select`: `value` (`T | null`; a value no option has shows the placeholder and
+is kept), `placeholder`, `compareWith` (default `Object.is`, never called with `null`), `filter`, `filterWith`, `size`
+(the field's, else the one from `provideCkui`) and `disabled`. Inputs of `ck-option`: `value` (required), `disabled` and
+`id`. `ck-optgroup` takes `label` and `disabled`. Name the select with `aria-label` or `aria-labelledby` on `ck-select`
+(they are inputs and move onto the button, like `aria-describedby`; bind them as `[aria-label]`), a wrapping `<label>`,
+or a `ck-field`; development builds warn without a name.
+
+Keys: closed, `ArrowDown`, `Enter`, `Space` and `Alt+ArrowDown` open on the selected option, `ArrowUp` opens on the selected
+or last, `Home` and `End` on the first and last, and typing letters selects the matching option without opening. Open,
+`ArrowDown` / `ArrowUp` move without wrapping, `Home` / `End`, `PageUp` / `PageDown` move by 10, typing jumps ahead (letters
+typed within 500 ms make one search, the same letter again cycles), `Enter` / `Space` / `Alt+ArrowUp` select and close,
+`Escape` closes without a change, and `Tab` selects the highlighted option and moves on. Disabled options are skipped.
+
+What is inside `ck-option` is its row in the list; the button shows its text (a space between neighbouring elements,
+`aria-hidden` parts left out). `<ng-template ckSelectValue let-option>` draws the selected option on the button instead:
+`option.value` and `option.text`. Long text wraps in the list and is cut with an ellipsis on the button. The options are
+projected into the open list, so the closed select still reads the text of the selected one.
+
+`filter` puts a search field at the top of the list (`role="combobox"`, `aria-autocomplete="list"`, named after the select
+and "Search"). Focus moves into it; typing hides the options that do not contain the text, ignoring case and accents, and
+groups without a match; no match shows a "No results" row. `filterWith(option, query)` replaces the match. The result count is
+announced politely 500 ms after typing stops, never when the list opens. In the field `Home` and `End` move the caret;
+`ArrowUp`, `ArrowDown`, `PageUp`, `PageDown`, `Enter`, `Escape` and `Tab` work as in the list. The text clears when the list
+closes. New labels: `search`, `resultCount` (`'{count} results'`) and `resultCountOne` (`'{count} result'`, used where `Intl.PluralRules` for the locale says `one`).
+
+Where there is room the list is a popover under the button (it flips above, stays inside the viewport and is at least
+as wide as the button); on a narrow viewport with a coarse pointer, when it opens, it is a bottom sheet titled with the
+select's name, with full-width rows of at least 44px (60px at `xl`) and a check mark on the selected one. Inside a `ck-field`
+the select is the field's control: the field draws the box, the floating label (it floats while a value, a placeholder or
+focus is there), the hint and the error, and the select draws no border or fill of its own. The control is touched when
+focus has left the button and the list together.
+
+Component tokens: `--ck-select-bg`, `--ck-select-border-color` and `--ck-select-radius` (the standalone button; falling back
+to the control tokens), `--ck-listbox-bg`, `--ck-listbox-radius`, `--ck-listbox-shadow`, `--ck-listbox-max-height` (20rem),
+`--ck-option-bg-active`, `--ck-option-bg-selected` and `--ck-option-fg-selected`. The list is drawn in the overlay container,
+outside the select, so set the list and option tokens on `:root` or a theme selector, not on a wrapper. The highlighted
+option has a fill and a bar at the inline start, the selected one a check mark, so neither relies on colour alone; in
+forced colors the highlight is `Highlight` on `HighlightText`.
+
+Global element styles: an unlayered `button { border: … }` or `ck-option { padding: … }` beats the layered parts. Keep them off
+the select (`button:not(.ck-select__trigger)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
+## Menu
+
+```ts
+import { CK_MENU_IMPORTS } from '@ckui/core/menu';
+```
+
+```html
+<button ckButton variant="ghost" [ckMenuTrigger]="rowMenu" aria-label="Actions for Sweet Spot">
+  …
+</button>
+<ng-template #rowMenu>
+  <ck-menu>
+    <button ckMenuItem (click)="start()">Start</button>
+    <button ckMenuItem (click)="edit()">Edit</button>
+    <ck-menu-divider />
+    <button ckMenuItem tone="danger" (click)="remove()">Delete</button>
+  </ck-menu>
+</ng-template>
+```
+
+`ck-menu` is a list of actions behind a button, the WAI-ARIA menu button (`CkMenuTrigger`, `CkMenu`, `CkMenuItem`,
+`CkMenuItemIcon`, `CkMenuDivider`). `[ckMenuTrigger]` goes on a native `<button>` (development builds warn about any other
+element and about a button without a name) and works together with `ckButton`. It sets `aria-haspopup="menu"`,
+`aria-expanded` and, while open, `aria-controls`; values you set yourself on those attributes are given back, and an id you
+set is never replaced (a button without one gets an id while the menu is open). It opens on a click, `Enter`, `Space`,
+`ArrowDown` (first item) and `ArrowUp` (last item); a second click closes it. `(menuOpened)` and `(menuClosed)` report each
+round, and `#t="ckMenuTrigger"` gives `open()`, `close()` and the `isOpen` signal. Items are `button[ckMenuItem]`
+(`role="menuitem"`) with the inputs `disabled` (focusable but inert, `aria-disabled`, never the native attribute) and
+`tone` (`'default'` or `'danger'`); a leading `[ckMenuItemIcon]` is hidden from assistive technology.
+
+Keys: `ArrowDown` / `ArrowUp` move and wrap (disabled items included), `Home` / `End`, typing jumps ahead (letters typed
+within 500 ms make one search, the same letter again cycles), `Enter` / `Space` activate, `Escape` closes and returns focus
+to the button, and `Tab` / `Shift+Tab` close the menu and move on from the button. Activating an item closes the menu and
+returns focus to the button first, then your `(click)` runs, so a handler that opens a `CkDialog` finds a quiet page and the
+dialog gives focus back to the button.
+
+Where there is room the menu is a popover under the button (at least 12rem wide, not matched to the button; it flips above and
+stays inside the viewport); on a narrow viewport with a coarse pointer, when it opens, it is a bottom sheet titled with the
+button's name, with full-width rows of at least 44px and a **Cancel** row after a divider. Cancel is a plain button after the
+menu, not an item, and Tab reaches it; its text is the new label `cancel` (`'Cancel'`). Swipe, backdrop and `Escape` close too.
+
+Component tokens: `--ck-menu-bg`, `--ck-menu-radius`, `--ck-menu-shadow`, `--ck-menu-min-width` (12rem),
+`--ck-menu-max-height` (20rem), `--ck-menu-item-bg-active` and `--ck-menu-item-fg-danger` (falls back to
+`--ck-color-danger-fg`, 4.5:1 in both themes). The menu is drawn in the overlay container, outside the button, so set them on
+`:root` or a theme selector, not on a wrapper. The focused item has a fill and a bar at the inline start; in forced colors it is
+`Highlight` on `HighlightText` and a danger item is `CanvasText`, so let its text or icon say what it does. Nothing animates
+under reduced motion.
+
+Global element styles: an unlayered `button { padding: … }` beats the layered rows. Keep them off the menu
+(`button:not(.ck-menu-item):not(.ck-menu-panel__cancel)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
 ## Badge
 

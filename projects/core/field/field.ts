@@ -133,7 +133,7 @@ export class CkField implements CkFieldContext, CkMessagesContext {
         const count = this.controls().length;
         if (count !== 1) {
           console.warn(
-            `[ckui] ck-field needs exactly one control (ckInput or ck-stepper), found ${count}.`,
+            `[ckui] ck-field needs exactly one control (ckInput, ck-stepper or ck-select), found ${count}.`,
             this.main()?.nativeElement.closest('ck-field'),
           );
         }

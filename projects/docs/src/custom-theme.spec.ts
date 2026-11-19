@@ -7,8 +7,10 @@ import { CK_CHIP_IMPORTS } from '@ckui/core/chip';
 import { CK_DIALOG_IMPORTS, CkDialog } from '@ckui/core/dialog';
 import { CK_DRAWER_IMPORTS, CkDrawer } from '@ckui/core/drawer';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
+import { CK_MENU_IMPORTS } from '@ckui/core/menu';
 import { CkProgress } from '@ckui/core/progress';
 import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
+import { CK_SELECT_IMPORTS } from '@ckui/core/select';
 import { CkSlider } from '@ckui/core/slider';
 import { CkStepper } from '@ckui/core/stepper';
 import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
@@ -36,6 +38,8 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
     CK_CHECKBOX_IMPORTS,
     CK_CHIP_IMPORTS,
     CK_TABS_IMPORTS,
+    CK_SELECT_IMPORTS,
+    CK_MENU_IMPORTS,
   ],
   template: `
     <button id="before" type="button">Before</button>
@@ -97,6 +101,29 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
         <button ckChip id="chip-off">Threshold</button>
         <button ckChip id="chip-on" [selected]="true">Endurance</button>
       </ck-chip-group>
+      <ck-select id="select" aria-label="Target" placeholder="Pick one" value="watt">
+        <ck-option value="ftp">% FTP</ck-option>
+        <ck-option value="watt">Watts</ck-option>
+        <ck-option value="level" disabled>Level</ck-option>
+      </ck-select>
+      <ck-select id="select-empty" aria-label="Empty target" placeholder="Pick one">
+        <ck-option value="ftp">% FTP</ck-option>
+      </ck-select>
+      <ck-field id="select-field">
+        <label>Kind</label>
+        <ck-select id="select-in-field" value="ftp">
+          <ck-option value="ftp">% FTP</ck-option>
+        </ck-select>
+      </ck-field>
+      <button id="menu-trigger" type="button" ckButton [ckMenuTrigger]="actions">Actions</button>
+      <ng-template #actions>
+        <ck-menu>
+          <button ckMenuItem id="menu-start">Start</button>
+          <button ckMenuItem id="menu-copy" disabled>Copy</button>
+          <ck-menu-divider />
+          <button ckMenuItem id="menu-delete" tone="danger">Delete</button>
+        </ck-menu>
+      </ng-template>
       <ck-tabs id="tabs" value="mine">
         <ck-tab-list aria-label="Source">
           <ck-tab id="tab-off" value="predefined">Predefined</ck-tab>
@@ -1217,6 +1244,251 @@ describe('custom theme', () => {
           root.removeProperty('--ck-drawer-padding');
           root.removeProperty('--ck-dialog-bg');
         }
+      });
+    });
+
+    describe('select', () => {
+      const trigger = () => getComputedStyle(query('#select .ck-select__trigger'));
+      const area = () => query('.area');
+
+      async function openSelect(selector = '#select'): Promise<HTMLElement> {
+        const button = query<HTMLButtonElement>(`${selector} .ck-select__trigger`);
+        button.focus();
+        button.click();
+        const appRef = TestBed.inject(ApplicationRef);
+        await appRef.whenStable();
+        appRef.tick();
+        await appRef.whenStable();
+        await settleAnimations();
+        return document.querySelector<HTMLElement>('.ck-select-popup')!;
+      }
+
+      afterEach(() => {
+        document.documentElement.removeAttribute('style');
+      });
+
+      it('keeps the border of a standalone select 3:1 from the page, because the sample sets it', () => {
+        expect(trigger().borderTopColor).toBe('rgb(138, 138, 146)');
+        expect(trigger().borderTopWidth).toBe('1px');
+        for (const surface of ['bg', 'surface']) {
+          expect(
+            contrastRatio(trigger().borderTopColor, resolveToken(area(), `--ck-color-${surface}`)),
+          ).toBeGreaterThanOrEqual(3);
+        }
+      });
+
+      it('fills it with the control colour, rounds it to 10px and writes the value in the custom font', () => {
+        expect(trigger().backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(trigger().borderTopLeftRadius).toBe('10px');
+        expect(trigger().fontFamily).toMatch(/^"Fira Sans"/);
+        expect(trigger().fontVariantNumeric).toBe('tabular-nums');
+        expect(trigger().color).toBe('rgb(255, 255, 255)');
+        expect(contrastRatio(trigger().color, trigger().backgroundColor)).toBeGreaterThanOrEqual(
+          4.5,
+        );
+      });
+
+      it('keeps the placeholder 4.5:1 on the fill', () => {
+        const placeholder = getComputedStyle(query('#select-empty .ck-select__placeholder'));
+        expect(placeholder.color).toBe('rgb(185, 185, 190)');
+        expect(
+          contrastRatio(
+            placeholder.color,
+            getComputedStyle(query('#select-empty .ck-select__trigger')).backgroundColor,
+          ),
+        ).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('draws the 3px yellow ring around a standalone select on keyboard focus, 3:1 from the page', async () => {
+        const element = query('#select .ck-select__trigger');
+        expect(trigger().outlineStyle).toBe('none');
+        await keyboardFocus(element);
+        expect(trigger().outlineColor).toBe(FOCUS_YELLOW);
+        expect(trigger().outlineWidth).toBe('3px');
+        expect(trigger().outlineOffset).toBe('3px');
+        expect(
+          contrastRatio(trigger().outlineColor, resolveToken(area(), '--ck-color-bg')),
+        ).toBeGreaterThanOrEqual(3);
+      });
+
+      it('draws no border or fill of its own in a field, whose box turns into the yellow ring', async () => {
+        const inner = getComputedStyle(query('#select-in-field .ck-select__trigger'));
+        expect(inner.borderTopWidth).toBe('0px');
+        expect(inner.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+        const box = getComputedStyle(query('#select-field .ck-field__box'));
+        expect(box.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(box.borderTopLeftRadius).toBe('10px');
+        await keyboardFocus(query('#select-in-field .ck-select__trigger'));
+        expect(getComputedStyle(query('#select-field .ck-field__box')).borderTopColor).toBe(
+          FOCUS_YELLOW,
+        );
+        expect(getComputedStyle(query('#select-in-field .ck-select__trigger')).outlineStyle).toBe(
+          'none',
+        );
+      });
+
+      it('is 60px high at size xl', () => {
+        query('#select').classList.replace('ck-select--md', 'ck-select--xl');
+        expect(query('#select .ck-select__trigger').getBoundingClientRect().height).toBe(60);
+      });
+
+      it('fills the list with the raised colour, white text, the sample shadow, 10px corners and the custom font', async () => {
+        const popup = getComputedStyle(await openSelect());
+        expect(popup.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(popup.color).toBe('rgb(255, 255, 255)');
+        expect(popup.boxShadow).toContain('rgba(0, 0, 0, 0.6)');
+        expect(popup.borderTopLeftRadius).toBe('10px');
+        expect(popup.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(contrastRatio(popup.color, popup.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('shows the selected option with a check, white text 4.5:1 on its fill and the check 3:1 from the unselected rows', async () => {
+        const popup = await openSelect();
+        const rows = Array.from(popup.querySelectorAll<HTMLElement>('ck-option'));
+        const selected = getComputedStyle(rows[1]);
+        const unselected = getComputedStyle(rows[0]);
+        const check = getComputedStyle(rows[1].querySelector('.ck-option__check')!);
+        expect(selected.backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(selected.color).toBe('rgb(255, 255, 255)');
+        expect(selected.fontWeight).toBe('600');
+        expect(contrastRatio(selected.color, selected.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+        // The sample's selected fill is close to the list: the check mark is what must stand out.
+        expect(contrastRatio(check.color, selected.backgroundColor)).toBeGreaterThanOrEqual(3);
+        expect(
+          contrastRatio(check.color, getComputedStyle(popup).backgroundColor),
+        ).toBeGreaterThanOrEqual(3);
+        expect(rows[0].querySelector('.ck-option__check')).toBeNull();
+        expect(unselected.fontWeight).not.toBe('600');
+      });
+
+      it('marks the highlighted option with a yellow bar 3:1 from the list and keeps its text 4.5:1', async () => {
+        const popup = await openSelect();
+        query<HTMLButtonElement>('#select .ck-select__trigger').dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }),
+        );
+        const appRef = TestBed.inject(ApplicationRef);
+        await appRef.whenStable();
+        appRef.tick();
+        const active = popup.querySelector<HTMLElement>('ck-option.ck-option--active')!;
+        expect(active.textContent!.trim()).toBe('% FTP');
+        const bar = getComputedStyle(active, '::before');
+        expect(bar.backgroundColor).toBe(FOCUS_YELLOW);
+        const surface = getComputedStyle(popup).backgroundColor;
+        expect(contrastRatio(bar.backgroundColor, surface)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(getComputedStyle(active).color, surface)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('greys out a disabled option, which is the intentionally quiet text of the theme', async () => {
+        await openSelect();
+        const disabled = getComputedStyle(
+          document.querySelectorAll<HTMLElement>('.ck-select-listbox ck-option')[2],
+        );
+        expect(disabled.color).toBe('rgb(110, 110, 117)');
+        expect(disabled.cursor).toBe('not-allowed');
+      });
+
+      it('restyles the trigger and the list with its own tokens, over the theme', async () => {
+        const element = query('#select');
+        element.style.setProperty('--ck-select-bg', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-select-border-color', 'rgb(4, 5, 6)');
+        element.style.setProperty('--ck-select-radius', '3px');
+        expect(trigger().backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(trigger().borderTopColor).toBe('rgb(4, 5, 6)');
+        expect(trigger().borderTopLeftRadius).toBe('3px');
+        const root = document.documentElement.style;
+        root.setProperty('--ck-listbox-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-listbox-radius', '2px');
+        root.setProperty('--ck-listbox-max-height', '5rem');
+        root.setProperty('--ck-option-bg-selected', 'rgb(40, 50, 60)');
+        root.setProperty('--ck-option-fg-selected', 'rgb(70, 80, 90)');
+        const popup = await openSelect();
+        expect(getComputedStyle(popup).backgroundColor).toBe('rgb(10, 20, 30)');
+        expect(getComputedStyle(popup).borderTopLeftRadius).toBe('2px');
+        expect(getComputedStyle(popup.querySelector('.ck-select-listbox')!).maxHeight).toBe('80px');
+        const selected = getComputedStyle(popup.querySelectorAll('ck-option')[1]);
+        expect(selected.backgroundColor).toBe('rgb(40, 50, 60)');
+        expect(selected.color).toBe('rgb(70, 80, 90)');
+      });
+    });
+
+    describe('menu', () => {
+      const inMenu = (selector: string) => document.querySelector<HTMLElement>(selector)!;
+
+      async function openMenu(): Promise<HTMLElement> {
+        await keyboardFocus(query('#menu-trigger'));
+        await userEvent.keyboard('{Enter}');
+        const appRef = TestBed.inject(ApplicationRef);
+        await appRef.whenStable();
+        appRef.tick();
+        await appRef.whenStable();
+        await settleAnimations();
+        return document.querySelector<HTMLElement>('.ck-menu-panel')!;
+      }
+
+      afterEach(async () => {
+        await userEvent.keyboard('{Escape}');
+        document.documentElement.removeAttribute('style');
+      });
+
+      it('fills the popover with the raised colour, white text, the sample shadow, 10px corners and the custom font', async () => {
+        const popover = getComputedStyle(await openMenu());
+        expect(popover.backgroundColor).toBe('rgb(22, 22, 24)');
+        expect(popover.color).toBe('rgb(255, 255, 255)');
+        expect(popover.boxShadow).toContain('rgba(0, 0, 0, 0.6)');
+        expect(popover.borderTopLeftRadius).toBe('10px');
+        expect(popover.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(contrastRatio(popover.color, popover.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('draws danger text 4.5:1 on the menu and the item the user can read as dimmed', async () => {
+        const popover = await openMenu();
+        const surface = getComputedStyle(popover).backgroundColor;
+        const danger = getComputedStyle(inMenu('#menu-delete'));
+        expect(danger.color).toBe('rgb(255, 106, 95)');
+        expect(contrastRatio(danger.color, surface)).toBeGreaterThanOrEqual(4.5);
+        const disabled = getComputedStyle(inMenu('#menu-copy'));
+        expect(disabled.color).toBe('rgb(110, 110, 117)');
+        expect(disabled.cursor).toBe('not-allowed');
+        expect(inMenu('#menu-copy').getAttribute('aria-disabled')).toBe('true');
+      });
+
+      it('marks the focused item with a yellow bar 3:1 from the menu and keeps its text 4.5:1', async () => {
+        const popover = await openMenu();
+        const surface = getComputedStyle(popover).backgroundColor;
+        const focused = inMenu('#menu-start');
+        expect(document.activeElement).toBe(focused);
+        const bar = getComputedStyle(focused, '::before');
+        expect(bar.backgroundColor).toBe(FOCUS_YELLOW);
+        expect(contrastRatio(bar.backgroundColor, surface)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(getComputedStyle(focused).color, surface)).toBeGreaterThanOrEqual(4.5);
+        expect(getComputedStyle(focused).backgroundImage).toContain('linear-gradient');
+        await userEvent.keyboard('{ArrowDown}');
+        expect(document.activeElement).toBe(inMenu('#menu-copy'));
+        expect(getComputedStyle(inMenu('#menu-start'), '::before').content).toBe('none');
+      });
+
+      it('draws the divider in the subtle border colour of the theme', async () => {
+        await openMenu();
+        const divider = getComputedStyle(inMenu('ck-menu-divider'));
+        expect(divider.borderTopWidth).toBe('1px');
+        expect(divider.borderTopColor).toBe('rgb(47, 47, 51)');
+      });
+
+      it('restyles the menu with its own tokens, over the theme', async () => {
+        const root = document.documentElement.style;
+        root.setProperty('--ck-menu-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-menu-radius', '2px');
+        root.setProperty('--ck-menu-min-width', '320px');
+        root.setProperty('--ck-menu-item-fg-danger', 'rgb(70, 80, 90)');
+        root.setProperty('--ck-menu-item-bg-active', 'rgb(40, 50, 60)');
+        const popover = await openMenu();
+        expect(getComputedStyle(popover).backgroundColor).toBe('rgb(10, 20, 30)');
+        expect(getComputedStyle(popover).borderTopLeftRadius).toBe('2px');
+        expect(popover.getBoundingClientRect().width).toBeGreaterThanOrEqual(320);
+        expect(getComputedStyle(inMenu('#menu-delete')).color).toBe('rgb(70, 80, 90)');
+        expect(getComputedStyle(inMenu('#menu-start')).backgroundImage).toContain(
+          'rgb(40, 50, 60)',
+        );
       });
     });
   });

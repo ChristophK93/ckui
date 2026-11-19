@@ -1,0 +1,628 @@
+<h1>Select</h1>
+<p>
+  <code>ck-select</code> picks one option from a list. It is a button that shows the selected option
+  and opens a list under it, the WAI-ARIA "select-only combobox", and on a phone the list is a
+  bottom sheet. It works with Reactive Forms, <code>ngModel</code> and Signal Forms, and sits in a
+  <code>ck-field</code> like a text input. Import <code>CK_SELECT_IMPORTS</code> from
+  <code>&#64;ckui/core/select</code>: it holds <code>CkSelect</code>, <code>CkOption</code>,
+  <code>CkOptgroup</code> and <code>CkSelectValue</code>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">In a field</h3>
+<p>
+  The usual place: a <code>ck-field</code> draws the box, the floating label, the hint and the
+  error, and the select is its control. The label names the button, the placeholder lifts the label,
+  and the field's size applies unless the select has its own. The options are the content of
+  <code>ck-select</code>; <code>ck-option</code> takes a <code>value</code> and can be
+  <code>disabled</code>.
+</p>
+<div class="demo demo-column">
+  <ck-field>
+    <label>Target</label>
+    <ck-select placeholder="Pick one" [(value)]="kind">
+      <ck-option value="ftp">% FTP</ck-option>
+      <ck-option value="watt">Watts</ck-option>
+      <ck-option value="level">Level</ck-option>
+      <ck-option value="free" disabled>Free</ck-option>
+    </ck-select>
+    <ck-hint>How the interval's target is measured.</ck-hint>
+  </ck-field>
+  <p class="status">
+    Target: <output>{{ kind() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="standalone">On its own</h3>
+<p>
+  Without a field the button has its own border and fill. It needs a name: give
+  <code>ck-select</code> an <code>aria-label</code> or <code>aria-labelledby</code>, which move onto
+  the button, or wrap it in a <code>&lt;label&gt;</code>. Development builds warn without one. The
+  name also titles the sheet on a phone. The button is as wide as its container and the list is at
+  least as wide as the button.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Target" placeholder="Pick one" [(value)]="standalone">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+    <ck-option value="level">Level</ck-option>
+    <ck-option value="free" disabled>Free</ck-option>
+  </ck-select>
+  <p class="status">
+    Target: <output>{{ standalone() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.standalone }}</code></pre>
+
+<h3 id="groups">Groups</h3>
+<p>
+  <code>ck-optgroup</code> titles a set of options and can be disabled as a whole. While the filter
+  is on, a group without a match hides.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Workout" placeholder="Pick a workout" [(value)]="workout">
+    <ck-optgroup label="Endurance">
+      <ck-option value="zone2">Zone 2</ck-option>
+      <ck-option value="long">Long ride</ck-option>
+    </ck-optgroup>
+    <ck-optgroup label="Intervals">
+      <ck-option value="sweet-spot">Sweet spot</ck-option>
+      <ck-option value="vo2">VO2 max</ck-option>
+      <ck-option value="sprints" disabled>Sprints</ck-option>
+    </ck-optgroup>
+    <ck-optgroup label="Rest" disabled>
+      <ck-option value="recovery">Recovery</ck-option>
+    </ck-optgroup>
+  </ck-select>
+  <p class="status">
+    Workout: <output>{{ workout() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.groups }}</code></pre>
+
+<h3 id="rich">Rich options</h3>
+<p>
+  What is inside <code>ck-option</code> is the row of the list, so it can hold a second line or a
+  badge. On the button the option shows as its text, with a space between neighbouring elements
+  (<code>&lt;b&gt;A&lt;/b&gt;&lt;i&gt;B&lt;/i&gt;</code> reads "A B") and without
+  <code>aria-hidden</code> parts. To draw it differently there, add an
+  <code>&lt;ng-template ckSelectValue let-option&gt;</code>: <code>option.value</code> and
+  <code>option.text</code> are those of the selected option, and the template only shows while one
+  is selected.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Session" placeholder="Pick a session" [(value)]="session">
+    <ng-template ckSelectValue let-option>
+      <strong>{{ option.text }}</strong>
+    </ng-template>
+    @for (item of sessions; track item.id) {
+      <ck-option [value]="item.id">
+        <span class="name">{{ item.name }}</span>
+        <span class="meta">{{ item.minutes }} min · {{ item.watts }} W</span>
+      </ck-option>
+    }
+  </ck-select>
+  <p class="status">
+    Session: <output>{{ session() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.rich }}</code></pre>
+
+<h3 id="filter">Filter</h3>
+<p>
+  <code>filter</code> adds a search field at the top of the list, and focus moves into it when the
+  list opens. Typing keeps the options that contain the text, ignoring case and accents ("turk"
+  finds Türkiye); a group without a match hides, and no match at all shows a "No results" row. The
+  highlight jumps to the first match, and the keys of the open list work from the field. A polite
+  announcement gives the number of results half a second after you stop typing, never when the list
+  opens. The text clears when the list closes and focus returns to the button.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Country" filter placeholder="Pick a country" [(value)]="country">
+    @for (name of countries; track name) {
+      <ck-option [value]="name">{{ name }}</ck-option>
+    }
+  </ck-select>
+  <p class="status">
+    Country: <output>{{ country() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.filter }}</code></pre>
+<p>
+  <code>filterWith</code> replaces the match. It gets each option and the text as typed, and returns
+  whether the option stays; <code>option.text</code> is the option's text and
+  <code>option.value()</code> its value. The demo below also finds a country by its code: "de" finds
+  Germany. The built-in texts of the field, "Search", "{{ '{count}' }} results", "{{
+    '{count}'
+  }}
+  result" (for one result) and "No results", come from the labels of <code>provideCkui()</code>.
+</p>
+<div class="demo demo-column">
+  <ck-select
+    aria-label="Country by name or code"
+    filter
+    placeholder="Try de or tür"
+    [filterWith]="matchesCode"
+    [(value)]="code"
+  >
+    @for (entry of codes; track entry.code) {
+      <ck-option [value]="entry.code">{{ entry.name }}</ck-option>
+    }
+  </ck-select>
+  <p class="status">
+    Code: <output>{{ code() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.filterWith }}</code></pre>
+
+<h3 id="disabled">Disabled</h3>
+<p>
+  A disabled option stays in the list, greyed out; it cannot be picked and the keys skip it. A
+  disabled select, or one in a <code>&lt;fieldset disabled&gt;</code>, does not open and looks
+  disabled; a list that is open closes when its select becomes disabled.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Disabled" disabled [value]="'watt'">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+  </ck-select>
+  <fieldset class="plain" disabled>
+    <ck-select aria-label="In a disabled fieldset" [value]="'watt'">
+      <ck-option value="ftp">% FTP</ck-option>
+      <ck-option value="watt">Watts</ck-option>
+    </ck-select>
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.disabled }}</code></pre>
+
+<h3 id="objects">Object values</h3>
+<p>
+  An option's value can be an object. A value that comes from a server is a new object, so tell the
+  select how to recognise the option with <code>compareWith</code>; it is never called with
+  <code>null</code>. Without it, values are compared with <code>Object.is</code>.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Zone" placeholder="Pick a zone" [compareWith]="sameZone" [(value)]="zone">
+    @for (item of zones; track item.id) {
+      <ck-option [value]="item">{{ item.name }}</ck-option>
+    }
+  </ck-select>
+  <p class="status">
+    Zone: <output>{{ zone()?.name ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.objects }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same field three times, required, with an error. The error shows once focus has left the
+  select (not while it moves into the search field or the sheet) or the form is submitted. A
+  programmatic write moves the selection and is never a change by the user.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo demo-column">
+  <ck-field>
+    <label>Target, Reactive Forms</label>
+    <ck-select placeholder="Pick one" [formControl]="reactiveKind">
+      <ck-option value="ftp">% FTP</ck-option>
+      <ck-option value="watt">Watts</ck-option>
+      <ck-option value="level">Level</ck-option>
+      <ck-option value="free" disabled>Free</ck-option>
+    </ck-select>
+    <ck-error>Choose how the target is measured.</ck-error>
+  </ck-field>
+  <p class="status">
+    Value: <output>{{ reactiveKind.value ?? 'none' }}</output
+    >, dirty: <output>{{ reactiveKind.dirty ? 'yes' : 'no' }}</output
+    >, touched: <output>{{ reactiveKind.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveKind.setValue('level')">
+      Set Level in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveKind.reset()">Reset</button>
+    <button ckButton type="button" size="sm" (click)="touchAll()">Mark as touched</button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveKind.disabled ? reactiveKind.enable() : reactiveKind.disable()"
+    >
+      {{ reactiveKind.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo demo-column">
+  <ck-field>
+    <label>Target, ngModel</label>
+    <ck-select placeholder="Pick one" required [(ngModel)]="templateKind">
+      <ck-option value="ftp">% FTP</ck-option>
+      <ck-option value="watt">Watts</ck-option>
+      <ck-option value="level">Level</ck-option>
+      <ck-option value="free" disabled>Free</ck-option>
+    </ck-select>
+    <ck-error>Choose how the target is measured.</ck-error>
+  </ck-field>
+  <p class="status">
+    Value: <output>{{ templateKind ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo demo-column">
+  <ck-field>
+    <label>Target, Signal Forms</label>
+    <ck-select placeholder="Pick one" [formField]="signalForm.kind">
+      <ck-option value="ftp">% FTP</ck-option>
+      <ck-option value="watt">Watts</ck-option>
+      <ck-option value="level">Level</ck-option>
+      <ck-option value="free" disabled>Free</ck-option>
+    </ck-select>
+    <ck-error>Choose how the target is measured.</ck-error>
+  </ck-field>
+  <p class="status">
+    Value: <output>{{ signalForm.kind().value() ?? 'none' }}</output
+    >, touched: <output>{{ signalForm.kind().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows the field, else <code>provideCkui()</code>, unless you set it. The button has the
+  control height of the size, so it lines up with a button or an input of the same size. Under a
+  coarse pointer <code>sm</code> and <code>md</code> are 44px; <code>xl</code> is 60px.
+</p>
+<div class="demo demo-column">
+  <ck-select aria-label="Small" size="sm" [value]="'watt'">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+  </ck-select>
+  <ck-select aria-label="Medium" size="md" [value]="'watt'">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+  </ck-select>
+  <ck-select aria-label="Large" size="lg" [value]="'watt'">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+  </ck-select>
+  <ck-select aria-label="Extra large" size="xl" [value]="'watt'">
+    <ck-option value="ftp">% FTP</ck-option>
+    <ck-option value="watt">Watts</ck-option>
+  </ck-select>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="phone">On a phone</h3>
+<p>
+  When the list opens on a narrow viewport with a coarse pointer (the viewport is read at that
+  moment), it is a bottom sheet instead of a popover: a dialog named after the select, with the name
+  as its visible title, then the search field if there is one (a sheet with a filter is as tall as
+  the screen allows and keeps that height while you type, so the field stays above the keyboard),
+  then the options as full-width rows of at least 44px (60px at <code>xl</code>), each with a check
+  mark when selected. Focus moves into the list, or into the search field; the same keys work;
+  picking an option, Escape, a swipe down or a tap beside the sheet closes it, and focus returns to
+  the button. A narrow window with a mouse keeps the popover.
+</p>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the select">
+  <table class="table">
+    <caption>
+      Inputs of ck-select
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the option">
+  <table class="table">
+    <caption>
+      Inputs of ck-option
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of optionInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the group">
+  <table class="table">
+    <caption>
+      Inputs of ck-optgroup
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of groupInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the select">
+  <table class="table">
+    <caption>
+      Parts of a select
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The host gets the classes <code>ck-select</code>, <code>ck-select--&#123;size&#125;</code> and,
+  while they apply, <code>ck-select--open</code> and <code>ck-select--disabled</code>. An option
+  gets <code>ck-option--active</code>, <code>ck-option--selected</code> and
+  <code>ck-option--disabled</code>. The selection is the form value: there is no output besides
+  <code>(valueChange)</code> of the two-way <code>value</code>, which also reports writes from a
+  form.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  The keys follow the select-only combobox of the WAI-ARIA Authoring Practices. Disabled options are
+  skipped everywhere.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys on the closed select">
+  <table class="table">
+    <caption>
+      Keys on the closed select
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of closedKeys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in the open list">
+  <table class="table">
+    <caption>
+      Keys in the open list
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of openKeys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in the search field">
+  <table class="table">
+    <caption>
+      Keys in the search field
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of searchKeys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    The button is a native <code>&lt;button type="button"&gt;</code> with
+    <code>role="combobox"</code>, <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code>,
+    and while the list is open <code>aria-controls</code> and, as long as the button holds the
+    focus, <code>aria-activedescendant</code>. Being a button it can be labelled by a
+    <code>&lt;label for&gt;</code> (a <code>ck-field</code> does that), disabled natively and
+    disabled by a <code>&lt;fieldset&gt;</code>. The list is <code>role="listbox"</code> with
+    <code>role="option"</code> children (<code>aria-selected</code>, <code>aria-disabled</code>) and
+    <code>role="group"</code> groups named by their title.
+  </li>
+  <li>
+    Focus stays on the button while the popover is open: pressing an option or the padding of the
+    list does not blur it, and the arrow keys move a highlight whose id is in
+    <code>aria-activedescendant</code>. With a filter, focus moves into the search field, which has
+    <code>role="combobox"</code>, <code>aria-autocomplete="list"</code> and the highlight in
+    <code>aria-activedescendant</code>; it is named after the select, with "Search". In the sheet
+    the list itself takes focus and does the same.
+  </li>
+  <li>
+    The highlighted option has a fill and a bar at the inline start, never colour alone; the
+    selected one has a check mark, a heavier weight and its own fill. In forced-colors mode the
+    highlight is <code>Highlight</code> on <code>HighlightText</code>, the check mark is
+    <code>CanvasText</code>, disabled options are <code>GrayText</code> and the list has a
+    <code>CanvasText</code> border.
+  </li>
+  <li>
+    The result count of a filter is announced politely, half a second after typing stops. A value
+    that no option has shows the placeholder, and a screen reader hears the placeholder, not a stale
+    value.
+  </li>
+  <li>
+    Under reduced motion the chevron does not turn. Long option text wraps in the list; the button
+    cuts it with an ellipsis.
+  </li>
+  <li>
+    The list is a popover with no focus trap or inert background, closed by Escape, a press outside
+    it, focus moving elsewhere and the button leaving view; each closes it without a change. The
+    sheet is modal, like a dialog.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The button and the options are plain elements styled by
+    classes in a layer. An unlayered reset such as <code>button &#123; border: 0 &#125;</code> or
+    <code>ck-option &#123; padding: 0 &#125;</code> beats them: the button loses its border and fill
+    and the rows their padding. Keep those rules off the select
+    (<code>button:not(.ck-select__trigger)</code>) or put resets in a layer declared before ckui.
+    The first rule below really breaks the select; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. The list is drawn
+  in the overlay container, outside the select, so the tokens of the list and of the options have to
+  be set on <code>:root</code> or a theme selector, not on a wrapper around the select.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-select">
+  <table class="table">
+    <caption>
+      Component tokens of ck-select
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The select also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

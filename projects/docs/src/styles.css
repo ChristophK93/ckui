@@ -2,7 +2,8 @@ body {
   margin: 0;
 }
 
-:focus-visible {
+/* A field's box is the ring of its control and a menu item shows its focus as a fill and a bar, so the site ring stays off both. */
+:focus-visible:not(:where(.ck-field__main *, .ck-menu-item, .ck-menu-panel__cancel)) {
   outline: var(--ck-focus-ring);
   outline-offset: var(--ck-focus-ring-offset);
 }

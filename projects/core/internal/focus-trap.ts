@@ -6,8 +6,10 @@ export interface CkFocusTrap {
   /**
    * Remembers the focused element, then focuses `initialFocus()` if it returns an element that takes
    * focus, else the first tabbable one inside. Resolves `false` if nothing could be focused.
+   * With `moveFocus` false it only remembers the focused element (for the restore) and resolves
+   * `true` without moving focus.
    */
-  activate(initialFocus?: () => HTMLElement | null): Promise<boolean>;
+  activate(initialFocus?: () => HTMLElement | null, moveFocus?: boolean): Promise<boolean>;
   /** Destroys the trap and gives focus back if the remembered element is still connected. Safe to call repeatedly. */
   release(): void;
 }
@@ -25,11 +27,14 @@ export class CkFocusTrapFactory {
     let released = false;
 
     return {
-      activate: (initialFocus) => {
+      activate: (initialFocus, moveFocus = true) => {
         if (released) {
           return Promise.resolve(false);
         }
         previous ??= document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        if (!moveFocus) {
+          return Promise.resolve(true);
+        }
         // The CDK's own deferred variant would still focus after a release in between.
         return new Promise<boolean>((resolve) => {
           afterNextRender(

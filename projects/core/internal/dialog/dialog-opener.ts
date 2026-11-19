@@ -25,7 +25,7 @@ const TABBABLE_CANDIDATES =
 export interface CkDialogOpenOptions<D> {
   /** Names the opener in dev warnings. */
   readonly kind: 'CkDialog' | 'CkDrawer';
-  readonly mode: CkOverlayMode;
+  readonly mode: Exclude<CkOverlayMode, 'popover'>;
   readonly side?: 'start' | 'end';
   readonly data?: D;
   readonly role: 'dialog' | 'alertdialog';
@@ -147,7 +147,7 @@ export class CkDialogOpener {
     }
 
     const opened = handle;
-    context.mode.set(opened.mode);
+    context.mode.set(opened.mode === 'popover' ? 'modal' : opened.mode);
     labelling = effect(
       () => {
         this.setAttribute(opened.panel, 'aria-labelledby', context.titleId());

@@ -29,3 +29,5 @@ export { syncRequiredMarker } from './required-marker';
 export type { CkAriaWiring, CkControlState, CkFieldContext } from './field-control';
 export { CK_CONTROL_STATE, CK_FIELD_CONTEXT } from './field-control';
 export { RequiredProbe } from './required-validator';
+export { TYPEAHEAD_WINDOW, Typeahead, collapseText, normalizeText, readableText } from './text';
+export { hasCommandKey, isPrintableKey } from './keys';
