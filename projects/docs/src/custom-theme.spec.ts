@@ -1361,7 +1361,7 @@ describe('custom theme', () => {
         expect(unselected.fontWeight).not.toBe('600');
       });
 
-      it('marks the highlighted option with a yellow bar 3:1 from the list and keeps its text 4.5:1', async () => {
+      it('marks the highlighted option with a fill, no bar, and keeps its text 4.5:1', async () => {
         const popup = await openSelect();
         query<HTMLButtonElement>('#select .ck-select__trigger').dispatchEvent(
           new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }),
@@ -1371,10 +1371,9 @@ describe('custom theme', () => {
         appRef.tick();
         const active = popup.querySelector<HTMLElement>('ck-option.ck-option--active')!;
         expect(active.textContent!.trim()).toBe('% FTP');
-        const bar = getComputedStyle(active, '::before');
-        expect(bar.backgroundColor).toBe(FOCUS_YELLOW);
+        expect(getComputedStyle(active).backgroundImage).toContain('linear-gradient');
+        expect(getComputedStyle(active, '::before').content).toBe('none');
         const surface = getComputedStyle(popup).backgroundColor;
-        expect(contrastRatio(bar.backgroundColor, surface)).toBeGreaterThanOrEqual(3);
         expect(contrastRatio(getComputedStyle(active).color, surface)).toBeGreaterThanOrEqual(4.5);
       });
 

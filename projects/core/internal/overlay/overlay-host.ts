@@ -16,6 +16,7 @@ import { CkFocusTrap, CkFocusTrapFactory, CkInert, CkMedia } from '@ckui/core/in
 import { CkOverlayPane } from './overlay-pane';
 import { popoverPosition, tokenPixels } from './popover-position';
 import { attachSheetSwipe } from './sheet-swipe';
+import { VIEWPORT_HEIGHT, createViewportFollower } from './visual-viewport';
 
 export type CkOverlayMode = 'auto' | 'modal' | 'sheet' | 'side' | 'popover';
 export type CkOverlayDismissReason =
@@ -98,9 +99,9 @@ export interface CkOverlayHandle {
 }
 
 const DEFAULT_DURATION = 200;
-const SHEET_MAX_HEIGHT = 'calc(100dvh - env(safe-area-inset-top, 0px))';
+const SHEET_MAX_HEIGHT = `calc(${VIEWPORT_HEIGHT} - env(safe-area-inset-top, 0px))`;
 const MODAL_MARGIN = 'var(--ck-space-4, 1rem)';
-const SIDE_HEIGHT = '100dvh';
+const SIDE_HEIGHT = VIEWPORT_HEIGHT;
 
 type State = 'open' | 'closing' | 'closed';
 
@@ -184,6 +185,7 @@ export class CkOverlayHost {
   private readonly document = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly pendingTasks = inject(PendingTasks);
+  private readonly viewport = createViewportFollower(this.document.defaultView);
 
   /** Open overlays, topmost last. A closing overlay has already left it. */
   private readonly stack: Entry[] = [];
@@ -202,6 +204,7 @@ export class CkOverlayHost {
       this.entries.clear();
       this.stack.length = 0;
       this.listen(false);
+      this.viewport.destroy();
       if (this.scrollLocks > 0) {
         this.scrollLocks = 0;
         this.scrollStrategy?.disable();
@@ -264,7 +267,7 @@ export class CkOverlayHost {
         ? SIDE_HEIGHT
         : sheet
           ? SHEET_MAX_HEIGHT
-          : `calc(100dvh - 2 * ${MODAL_MARGIN})`,
+          : `calc(${VIEWPORT_HEIGHT} - 2 * ${MODAL_MARGIN})`,
       panelClass: [
         'ck-overlay',
         `ck-overlay--${mode}`,
@@ -290,6 +293,7 @@ export class CkOverlayHost {
     const backdrop = this.document.createElement('div');
     backdrop.className = 'ck-overlay-backdrop';
     host.prepend(backdrop);
+    const unfollowViewport = this.viewport.follow(host);
 
     // The opener is recorded before the background turns inert; inert would blur it.
     const opener =
@@ -397,6 +401,7 @@ export class CkOverlayHost {
       this.entries.delete(entry);
       overlayRef.dispose();
       backdrop.remove();
+      unfollowViewport();
       this.unlockScroll();
       if (this.entries.size === 0) {
         this.listen(false);

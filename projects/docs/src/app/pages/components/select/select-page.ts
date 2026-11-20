@@ -393,9 +393,8 @@ export class SelectPage {
     },
     {
       name: '--ck-option-bg-active',
-      fallback: 'var(--ck-color-surface-hover)',
-      description:
-        'Fill of the highlighted option. The highlight is also marked with a bar at the inline start, so colour is never the only sign.',
+      fallback: 'var(--ck-color-surface-active)',
+      description: 'Fill of the highlighted option, a step stronger than the hover fill.',
     },
     {
       name: '--ck-option-bg-selected',
@@ -411,7 +410,7 @@ export class SelectPage {
   ];
 
   protected readonly semanticTokens: readonly string[] = [
-    '--ck-color-control, --ck-color-control-border, --ck-color-surface-raised, --ck-color-surface-hover, --ck-color-border-subtle, --ck-color-primary-subtle, --ck-color-primary-fg, --ck-color-danger, --ck-color-fg, --ck-color-fg-muted, --ck-color-fg-disabled, --ck-color-scheme',
+    '--ck-color-control, --ck-color-control-border, --ck-color-surface-raised, --ck-color-surface-hover, --ck-color-surface-active, --ck-color-border-subtle, --ck-color-primary-subtle, --ck-color-primary-fg, --ck-color-danger, --ck-color-fg, --ck-color-fg-muted, --ck-color-fg-disabled, --ck-color-scheme',
     '--ck-focus-ring, --ck-focus-ring-offset, --ck-color-focus-ring, --ck-target-min, --ck-radius-md, --ck-radius-xl, --ck-space-1, --ck-space-2, --ck-shadow-md, --ck-shadow-lg',
     '--ck-control-height-*, --ck-control-padding-inline-*, --ck-control-font-size-*, --ck-control-radius, --ck-font-weight-semibold, --ck-font-variant-numeric, --ck-line-height-tight, --ck-duration-fast, --ck-ease-standard',
   ];

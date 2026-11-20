@@ -269,21 +269,25 @@ describe('CkSelect layout', () => {
       expect(style(selected.querySelector('.ck-option__check')!).color).toBe('rgb(200, 210, 220)');
     });
 
-    it('paints the highlight with a fill and a bar at the inline start, not by colour alone', async () => {
+    it('paints the highlight with a fill a step stronger than hover, and no bar', async () => {
+      const { fixture, trigger } = await opened(SELECT());
+      press(trigger, 'ArrowDown');
+      await settle(fixture);
+      const active = activeOption()!;
+      expect(optionsOf()[1]).toBe(active);
+      expect(style(active).backgroundImage).toContain('rgba(0, 0, 0, 0.1)');
+      expect(style(active, '::before').content).toBe('none');
+      expect(style(optionsOf()[0]).backgroundImage).toBe('none');
+    });
+
+    it('follows the highlight token', async () => {
       const { fixture, trigger } = await opened(SELECT(), undefined, {
         ...SELECT_LIGHT,
         '--ck-option-bg-active': 'rgb(250, 200, 100)',
       });
       press(trigger, 'ArrowDown');
       await settle(fixture);
-      const active = activeOption()!;
-      expect(style(active).backgroundImage).toContain('rgb(250, 200, 100)');
-      const bar = style(active, '::before');
-      expect(bar.content).not.toBe('none');
-      expect(bar.backgroundColor).toBe('rgb(0, 0, 255)');
-      expect(parseFloat(bar.width)).toBeGreaterThanOrEqual(3);
-      expect(optionsOf()[1]).toBe(active);
-      expect(style(optionsOf()[0], '::before').content).toBe('none');
+      expect(style(activeOption()!).backgroundImage).toContain('rgb(250, 200, 100)');
     });
 
     it('draws the check on the selected option and its text in the selected weight', async () => {
@@ -316,7 +320,7 @@ describe('CkSelect layout', () => {
   });
 
   describe('right-to-left', () => {
-    it('aligns the popover and the chevron to the inline end, and puts the bar at the start', async () => {
+    it('aligns the popover and the chevron to the inline end', async () => {
       const { fixture, trigger } = await opened(
         `<div dir="rtl" style="inline-size: 200px; margin-inline-start: 300px">${SELECT()}</div>`,
       );
@@ -325,10 +329,6 @@ describe('CkSelect layout', () => {
       expect(rect(popup()!).right).toBeCloseTo(rect(trigger).right, 0);
       const chevron = rect(trigger.querySelector('.ck-select__chevron')!);
       expect(chevron.left - rect(trigger).left).toBeLessThan(20);
-      const active = activeOption()!;
-      const bar = style(active, '::before');
-      expect(bar.insetInlineStart).toBe('0px');
-      expect(parseFloat(bar.right)).toBe(0);
     });
   });
 
@@ -375,15 +375,6 @@ describe('CkSelect layout', () => {
       await forced(SELECT());
       expect(style(optionsOf()[3]).color).toBe(resolveColor('GrayText'));
       expect(style(popup()!).borderTopColor).toBe(resolveColor('CanvasText'));
-    });
-
-    it('keeps the bar of the highlight visible against the Highlight fill', async () => {
-      const { fixture, trigger } = await forced(SELECT());
-      press(trigger, 'ArrowDown');
-      await settle(fixture);
-      expect(style(activeOption()!, '::before').backgroundColor).toBe(
-        resolveColor('HighlightText'),
-      );
     });
   });
 

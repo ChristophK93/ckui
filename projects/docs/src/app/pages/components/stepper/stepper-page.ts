@@ -136,6 +136,13 @@ export class StepperPage {
         'The value can be read and focused, but neither typed nor stepped. The buttons are disabled.',
     },
     {
+      name: 'fullWidth',
+      type: 'boolean',
+      defaultValue: 'false',
+      description:
+        'Fills the container: the minus button at the start, the plus button at the end, value and unit centred between. It can shrink inside a grid or flex cell. Inside a ck-field the stepper always fills the field.',
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       defaultValue: 'false',
@@ -265,6 +272,12 @@ export class StepperPage {
       fallback: 'the width of the formatted min and max',
       description:
         'Width of the value field. Without it the field is as wide as the longest of the formatted limits (else the value, at least three characters), so the control does not change width while the value does. Set it for a fixed width.',
+    },
+    {
+      name: '--ck-stepper-button-width',
+      fallback: 'the control height',
+      description:
+        'Width of each button. By default they are squares of the control height; a wider button keeps the full height as hit area.',
     },
   ];
 

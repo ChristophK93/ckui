@@ -38,13 +38,25 @@
     --_ck-stepper-font-size: var(--ck-control-font-size-xl);
   }
 
-  /* Square at the control height, so the hit area is at least 44px where the height is. */
+  .ck-stepper--full-width {
+    display: flex;
+    inline-size: 100%;
+    /* Can shrink inside a grid or flex cell. */
+    min-inline-size: 0;
+  }
+
+  /* The field takes the space; its centred content keeps value and unit together. */
+  .ck-stepper--full-width .ck-stepper__field {
+    flex: 1 1 auto;
+  }
+
+  /* Square at the control height by default, so the hit area is at least 44px where the height is. */
   .ck-stepper__button {
     display: grid;
     flex: none;
     place-items: center;
     box-sizing: border-box;
-    inline-size: var(--_ck-stepper-height);
+    inline-size: var(--ck-stepper-button-width, var(--_ck-stepper-height));
     block-size: 100%;
     margin: 0;
     padding: 0;

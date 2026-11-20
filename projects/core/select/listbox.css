@@ -188,21 +188,12 @@
     }
   }
 
-  /* The highlight has a fill and a bar at the inline start, so it never relies on colour alone. */
+  /* The highlight is a stronger fill than hover, so the keyboard row stands out under the pointer. */
   .ck-option--active {
     background-image: linear-gradient(
-      var(--ck-option-bg-active, var(--ck-color-surface-hover)),
-      var(--ck-option-bg-active, var(--ck-color-surface-hover))
+      var(--ck-option-bg-active, var(--ck-color-surface-active)),
+      var(--ck-option-bg-active, var(--ck-color-surface-active))
     );
-  }
-
-  .ck-option--active::before {
-    content: '';
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 0;
-    inline-size: var(--ck-space-1);
-    background: var(--ck-color-focus-ring);
   }
 
   .ck-option--disabled {
@@ -232,10 +223,6 @@
       background-color: Highlight;
       background-image: none;
       color: HighlightText;
-    }
-
-    .ck-option--active::before {
-      background: HighlightText;
     }
 
     .ck-option--active .ck-option__check {

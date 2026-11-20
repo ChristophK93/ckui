@@ -1,5 +1,12 @@
 # @ckui/core
 
+## 0.1.0-next.7
+
+### Patch Changes
+
+- `ck-stepper` gets a `fullWidth` input: it fills its container with the minus button at the start, the plus button at the end and the value and unit centred between, and it can shrink inside a grid or flex cell. The new `--ck-stepper-button-width` token sets the width of both buttons; by default they stay squares of the control height. Inside a `ck-field` the stepper fills the field as before, and the token applies there too.
+- Sheets, dialogs and side panels stay inside the visible part of the screen while a phone's soft keyboard is open: they follow the visual viewport instead of the layout viewport, so the search field of a filterable `ck-select` sheet no longer slides off the top when the keyboard appears, and the focused field is scrolled back into view. The highlighted `ck-option` no longer draws a bar at the inline start; it is a fill a step stronger than hover (`--ck-option-bg-active` now falls back to `--ck-color-surface-active`), and the selected option keeps its coloured fill and check mark.
+
 ## 0.1.0-next.6
 
 ### Patch Changes

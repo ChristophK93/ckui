@@ -103,6 +103,7 @@ function tokens(value: string | null): string[] {
     '[class]': 'modifierClasses()',
     '[class.ck-stepper--disabled]': 'isDisabled()',
     '[class.ck-stepper--readonly]': 'readonly()',
+    '[class.ck-stepper--full-width]': 'fullWidth()',
     '[style.--_ck-stepper-chars]': 'chars()',
     '(focusout)': 'onFocusOut($event)',
     '(click)': 'focusInput($event)',
@@ -196,6 +197,8 @@ export class CkStepper extends CkValueControl<number | null> {
   readonly size = input<CkSize | undefined>(undefined);
   /** The value can be read and focused, but not typed or stepped. */
   readonly readonly = input(false, { transform: booleanAttribute });
+  /** Fills the container: − at the start, + at the end, value and unit centred between. */
+  readonly fullWidth = input(false, { transform: booleanAttribute });
   /** Replaces the label of the minus button ("FTP minus 5"). */
   readonly decrementLabel = input('');
   /** Replaces the label of the plus button ("FTP plus 5"). */

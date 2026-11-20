@@ -28,6 +28,8 @@ export const SELECT_LIGHT: Record<string, string> = {
   '--ck-color-control-border': 'rgb(110, 110, 120)',
   '--ck-color-border': 'rgb(120, 120, 130)',
   '--ck-color-focus-ring': 'rgb(0, 0, 255)',
+  '--ck-color-surface-hover': 'rgba(0, 0, 0, 0.06)',
+  '--ck-color-surface-active': 'rgba(0, 0, 0, 0.1)',
   '--ck-color-primary-subtle': 'rgb(232, 232, 252)',
   '--ck-color-primary-fg': 'rgb(60, 50, 180)',
   '--ck-color-danger-fg': 'rgb(150, 0, 0)',

@@ -308,4 +308,85 @@ describe('CkStepper layout', () => {
       expect(getComputedStyle(query(root, 'ck-stepper')).outlineWidth).toBe('2px');
     });
   });
+
+  describe('fullWidth', () => {
+    const inBox = (attributes: string, style = 'inline-size: 300px') =>
+      `<div class="box" style="${style}"><ck-stepper aria-label="FTP" unit="W" [min]="50" [max]="600" ${attributes} [value]="250" /></div>`;
+
+    /** The value and the unit together, as the user reads them. */
+    const valueGroup = (root: HTMLElement) => {
+      const input = rect(inputOf(root));
+      const unit = rect(query(root, '.ck-stepper__unit'));
+      return { left: input.left, right: unit.right };
+    };
+
+    it('is as wide as its 300px container', async () => {
+      const { fixture, root } = mount(inBox('fullWidth'));
+      await settle(fixture);
+      expect(rect(query(root, 'ck-stepper')).width).toBe(300);
+    });
+
+    it('puts minus at the start, plus at the end and the value with its unit centred between', async () => {
+      const { fixture, root } = mount(inBox('fullWidth'));
+      await settle(fixture);
+      const box = rect(query(root, '.box'));
+      const minus = rect(minusOf(root));
+      const plus = rect(plusOf(root));
+      expect(minus.left).toBeCloseTo(box.left, 0);
+      expect(plus.right).toBeCloseTo(box.right, 0);
+      const group = valueGroup(root);
+      expect((group.left + group.right) / 2).toBeCloseTo((minus.right + plus.left) / 2, 0);
+    });
+
+    it('mirrors in right-to-left text', async () => {
+      const { fixture, root } = mount(inBox('fullWidth'));
+      root.setAttribute('dir', 'rtl');
+      await settle(fixture);
+      const box = rect(query(root, '.box'));
+      expect(rect(minusOf(root)).right).toBeCloseTo(box.right, 0);
+      expect(rect(plusOf(root)).left).toBeCloseTo(box.left, 0);
+    });
+
+    it('does not overflow a 120px grid cell', async () => {
+      const { fixture, root } = mount(
+        `<div class="grid" style="display: grid; grid-template-columns: 120px; inline-size: 120px">
+          <ck-stepper aria-label="FTP" unit="W" [min]="50" [max]="600" fullWidth [value]="250" />
+        </div>`,
+      );
+      await settle(fixture);
+      const grid = query(root, '.grid');
+      const cell = rect(grid);
+      const host = rect(query(root, 'ck-stepper'));
+      expect(host.width).toBe(120);
+      expect(host.right).toBeLessThanOrEqual(cell.left + 120 + 0.5);
+      expect(rect(plusOf(root)).right).toBeLessThanOrEqual(host.right + 0.5);
+      expect(grid.scrollWidth).toBeLessThanOrEqual(120);
+    });
+
+    it.each([
+      ['with', 'fullWidth'],
+      ['without', ''],
+    ])('makes both buttons as wide as --ck-stepper-button-width, %s fullWidth', async (_, flag) => {
+      const { fixture, root } = mount(inBox(`${flag} style="--ck-stepper-button-width: 80px"`));
+      await settle(fixture);
+      for (const button of [minusOf(root), plusOf(root)]) {
+        expect(rect(button).width).toBe(80);
+        expect(rect(button).height).toBe(40);
+      }
+    });
+
+    it('changes nothing without fullWidth', async () => {
+      const { fixture, root } = mount(
+        `${inBox('')}<ck-stepper class="free" aria-label="Free" unit="W" [min]="50" [max]="600" [value]="250" />`,
+      );
+      await settle(fixture);
+      const boxed = query(root, '.box ck-stepper');
+      const free = query(root, 'ck-stepper.free');
+      expect(getComputedStyle(boxed).display).toBe('inline-flex');
+      expect(boxed.classList.contains('ck-stepper--full-width')).toBe(false);
+      expect(rect(boxed).width).toBeLessThan(300);
+      expect(rect(boxed).width).toBe(rect(free).width);
+      expect(rect(minusOf(root)).width).toBe(40);
+    });
+  });
 });

@@ -459,6 +459,42 @@ describe('ck-stepper in a ck-field', () => {
       expect(value.left + value.width / 2).toBeCloseTo((minus.right + plus.left) / 2, 0);
     });
 
+    it.each([
+      ['with', 'fullWidth'],
+      ['without', ''],
+    ])(
+      'fills a field 300px wide %s fullWidth, the value centred between the buttons',
+      async (_, flag) => {
+        const { fixture, root } = mount(
+          `<ck-field style="inline-size: 300px">
+            <label>FTP</label>
+            <ck-stepper ${flag} [value]="250" unit="W" [min]="50" [max]="600" />
+          </ck-field>`,
+        );
+        await settle(fixture);
+        const { box, minus, plus, value } = parts(root);
+        expect(box.width).toBe(300);
+        expect(minus.left).toBeCloseTo(box.left, 0);
+        expect(plus.right).toBeCloseTo(box.right, 0);
+        expect(value.left + value.width / 2).toBeCloseTo((minus.right + plus.left) / 2, 0);
+      },
+    );
+
+    it('takes --ck-stepper-button-width inside the field too', async () => {
+      const { fixture, root } = mount(
+        `<ck-field style="inline-size: 300px">
+          <label>FTP</label>
+          <ck-stepper fullWidth style="--ck-stepper-button-width: 80px" [value]="250" />
+        </ck-field>`,
+      );
+      await settle(fixture);
+      const { box, minus, plus } = parts(root);
+      expect(minus.width).toBe(80);
+      expect(plus.width).toBe(80);
+      expect(minus.left).toBeCloseTo(box.left, 0);
+      expect(plus.right).toBeCloseTo(box.right, 0);
+    });
+
     it('mirrors the layout in right-to-left text', async () => {
       const { fixture, root } = mount(REACTIVE);
       root.setAttribute('dir', 'rtl');

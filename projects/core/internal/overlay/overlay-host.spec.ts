@@ -226,6 +226,83 @@ describe('CkOverlayHost', () => {
     });
   });
 
+  describe('soft keyboard', () => {
+    /** A visual viewport that a test can shrink and pan, as a soft keyboard does. */
+    class FakeViewport extends EventTarget {
+      offsetTop = 0;
+      height = window.innerHeight;
+
+      change(offsetTop: number, height: number): void {
+        this.offsetTop = offsetTop;
+        this.height = height;
+        this.dispatchEvent(new Event('resize'));
+      }
+    }
+
+    let viewport: FakeViewport;
+    let listeners: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      viewport = new FakeViewport();
+      listeners = vi.spyOn(viewport, 'removeEventListener');
+      Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+    });
+
+    afterEach(() => {
+      delete (window as { visualViewport?: unknown }).visualViewport;
+    });
+
+    it('keeps a full-height sheet inside the visual viewport the keyboard leaves', async () => {
+      const handle = await open({ mode: 'sheet', fullHeight: true });
+      viewport.change(120, 300);
+      const rect = handle.panel.getBoundingClientRect();
+      expect(Math.round(rect.top)).toBe(120);
+      expect(Math.round(rect.height)).toBe(300);
+      viewport.change(0, window.innerHeight);
+      expect(Math.round(handle.panel.getBoundingClientRect().height)).toBe(window.innerHeight);
+    });
+
+    it('caps a content-height sheet, a modal and a side panel at the visual viewport', async () => {
+      for (const mode of ['sheet', 'modal', 'side'] as const) {
+        const handle = host().open(Content, { mode });
+        await handle.opened;
+        (handle.panel.querySelector('.first') as HTMLElement).style.height = '5000px';
+        viewport.change(50, 250);
+        const rect = handle.panel.getBoundingClientRect();
+        expect(rect.top).toBeGreaterThanOrEqual(50);
+        expect(rect.bottom).toBeLessThanOrEqual(300.5);
+        await handle.close();
+        viewport.change(0, window.innerHeight);
+      }
+    });
+
+    it('scrolls the focused field back into view when the keyboard appears', async () => {
+      const handle = await open({ mode: 'sheet', fullHeight: true });
+      const field = handle.panel.querySelector<HTMLElement>('.first')!;
+      field.focus();
+      const scroll = vi.spyOn(field, 'scrollIntoView');
+      viewport.change(0, 300);
+      expect(scroll).toHaveBeenCalledWith({ block: 'nearest' });
+    });
+
+    it('stops following once the last overlay has closed, also on destroy', async () => {
+      const first = await open({ mode: 'sheet' });
+      const second = await open({ mode: 'modal' });
+      await first.close();
+      expect(listeners).not.toHaveBeenCalled();
+      await second.close();
+      expect(listeners).toHaveBeenCalledTimes(2);
+      const wrapper = query<HTMLElement>('.cdk-global-overlay-wrapper');
+      expect(wrapper).toBeNull();
+
+      const third = await open({ mode: 'sheet' });
+      const thirdWrapper = third.panel.parentElement!;
+      expect(thirdWrapper.style.height).not.toBe('');
+      TestBed.resetTestingModule();
+      expect(listeners).toHaveBeenCalledTimes(4);
+    });
+  });
+
   describe('side', () => {
     // Only the overlay container turns right-to-left: the page's own <html> is shared with other specs.
     const direction = (value: 'ltr' | 'rtl'): void =>

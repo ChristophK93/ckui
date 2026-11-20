@@ -332,8 +332,8 @@ Component tokens: `--ck-select-bg`, `--ck-select-border-color` and `--ck-select-
 to the control tokens), `--ck-listbox-bg`, `--ck-listbox-radius`, `--ck-listbox-shadow`, `--ck-listbox-max-height` (20rem),
 `--ck-option-bg-active`, `--ck-option-bg-selected` and `--ck-option-fg-selected`. The list is drawn in the overlay container,
 outside the select, so set the list and option tokens on `:root` or a theme selector, not on a wrapper. The highlighted
-option has a fill and a bar at the inline start, the selected one a check mark, so neither relies on colour alone; in
-forced colors the highlight is `Highlight` on `HighlightText`.
+option has a fill a step stronger than hover; the selected one has its own coloured fill, a heavier weight and a check
+mark, so it never relies on colour alone. In forced colors the highlight is `Highlight` on `HighlightText`.
 
 Global element styles: an unlayered `button { border: … }` or `ck-option { padding: … }` beats the layered parts. Keep them off
 the select (`button:not(.ck-select__trigger)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
@@ -527,8 +527,9 @@ import { CkStepper } from '@ckui/core/stepper';
 `ck-stepper` is a number field with a minus and a plus button (`CkStepper`, a form control for Reactive Forms,
 `ngModel` and Signal Forms). The value is a `number` or `null`. Inputs: `min`, `max`, `step` (default 1, counted
 from `min`; it also sets the fraction digits), `largeStep` (Page Up/Down, default 10 steps), `unit` (text after the
-value, read as part of the value text: "250 W"), `size`, `readonly`, `disabled`, `decrementLabel` and
-`incrementLabel` (per-instance names for the buttons; the defaults come from the labels token).
+value, read as part of the value text: "250 W"), `size`, `readonly`, `disabled`, `fullWidth` (fills the container:
+minus at the start, plus at the end, value and unit centred between; it can shrink inside a grid or flex cell),
+`decrementLabel` and `incrementLabel` (per-instance names for the buttons; the defaults come from the labels token).
 
 The value is a real text input with `role="spinbutton"` and the only tab stop; the buttons are outside the tab
 order. Name it with `aria-label` or `aria-labelledby` on `ck-stepper` (they are inputs and move onto the input
@@ -546,7 +547,8 @@ a `[value]` binding from the parent does not emit.
 Inside a `ck-field` the stepper is the field's control: the field draws the box, the floating label (always
 floated), the hint and the error, names the input with the `<label>` and adds the hint and error ids and
 `aria-invalid` / `aria-required` to it. The stepper then draws no border or background of its own, takes the
-field's `size` unless it sets one, and its buttons sit at the edges of the box.
+field's `size` unless it sets one, and its buttons sit at the edges of the box: it always fills the field, with or
+without `fullWidth`.
 
 ```html
 <ck-field>
@@ -558,8 +560,8 @@ field's `size` unless it sets one, and its buttons sit at the edges of the box.
 ```
 
 The buttons are squares of the control height (44px or more on a coarse pointer, 60px at `xl`). Component tokens:
-`--ck-stepper-bg`, `--ck-stepper-border-color`, `--ck-stepper-radius` and `--ck-stepper-value-width` (default: as
-wide as the formatted `min` and `max`).
+`--ck-stepper-bg`, `--ck-stepper-border-color`, `--ck-stepper-radius`, `--ck-stepper-value-width` (default: as
+wide as the formatted `min` and `max`) and `--ck-stepper-button-width` (default: the control height).
 
 Global element styles: an unlayered `button { border: … }` or `input { … }` beats the layered parts, and a global
 `:focus-visible { outline: … }` draws a second ring on the input. Keep them off the stepper
