@@ -1,4 +1,4 @@
-import { hasAccessibleName } from './accessible-name';
+import { hasAccessibleName, readAccessibleName } from './accessible-name';
 
 function make(html: string): HTMLElement {
   const host = document.createElement('div');
@@ -47,5 +47,53 @@ describe('hasAccessibleName', () => {
         text: false,
       }),
     ).toBe(false);
+  });
+});
+
+describe('readAccessibleName', () => {
+  afterEach(() => document.body.replaceChildren());
+
+  it.each([
+    ['aria-label, collapsed', '<div data-target aria-label="  Rest   timer "></div>', 'Rest timer'],
+    [
+      'aria-labelledby over aria-label, ids in order',
+      '<i id="a">One</i><i id="b">Two</i><div data-target aria-label="Nope" aria-labelledby="b a"></div>',
+      'Two One',
+    ],
+    [
+      'a missing labelledby id falls through to aria-label',
+      '<div data-target aria-labelledby="nope" aria-label="Fallback"></div>',
+      'Fallback',
+    ],
+    [
+      'a blank labelledby target is skipped',
+      '<i id="a"> </i><div data-target aria-labelledby="a">Text</div>',
+      'Text',
+    ],
+    [
+      'the text of a label',
+      '<label for="f">Body <b>weight</b></label><input id="f" data-target />',
+      'Body weight',
+    ],
+    [
+      'a label over the title',
+      '<label for="f">Weight</label><input id="f" data-target title="Hint" />',
+      'Weight',
+    ],
+    [
+      'readable content with spaces between elements',
+      '<button data-target><b>A</b><i>B</i></button>',
+      'A B',
+    ],
+    [
+      'content without aria-hidden parts',
+      '<button data-target>Go<span aria-hidden="true">>></span></button>',
+      'Go',
+    ],
+    ['the title as the last resort', '<button data-target title=" Tip "></button>', 'Tip'],
+    ['nothing', '<button data-target></button>', ''],
+    ['a blank aria-label', '<button data-target aria-label="   "></button>', ''],
+  ])('reads %s', (_name, html, expected) => {
+    expect(readAccessibleName(make(html))).toBe(expected);
   });
 });

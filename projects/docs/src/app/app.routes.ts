@@ -27,6 +27,12 @@ export const routes: Routes = [
     title: 'Field · ckui',
   },
   {
+    path: 'components/radio',
+    loadComponent: () =>
+      import('./pages/components/radio/radio-page').then((module) => module.RadioPage),
+    title: 'Radio · ckui',
+  },
+  {
     path: 'components/segmented',
     loadComponent: () =>
       import('./pages/components/segmented/segmented-page').then((module) => module.SegmentedPage),
@@ -103,6 +109,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/components/tabs/tabs-page').then((module) => module.TabsPage),
     title: 'Tabs · ckui',
+  },
+  {
+    path: 'components/tooltip',
+    loadComponent: () =>
+      import('./pages/components/tooltip/tooltip-page').then((module) => module.TooltipPage),
+    title: 'Tooltip · ckui',
   },
   {
     path: 'tokens',

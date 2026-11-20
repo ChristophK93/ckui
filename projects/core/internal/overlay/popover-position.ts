@@ -4,16 +4,6 @@ import {
   Overlay,
 } from '@angular/cdk/overlay';
 
-/** Pixels of a length token (`--ck-space-1`), resolved through a probe so `rem` and `px` both work. */
-export function tokenPixels(container: HTMLElement, token: string, fallback: number): number {
-  const probe = container.ownerDocument.createElement('div');
-  probe.style.cssText = `position:absolute;visibility:hidden;inline-size:var(${token}, ${fallback}px)`;
-  container.append(probe);
-  const pixels = probe.offsetWidth;
-  probe.remove();
-  return pixels;
-}
-
 /**
  * Below the anchor, aligned to its inline start; then above, then both again aligned to the inline
  * end. `start` and `end` follow the overlay's direction. Out of room, it shifts to stay on screen and

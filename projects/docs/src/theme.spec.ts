@@ -100,6 +100,8 @@ function buildTargets(): Target[] {
   add(['focus-ring'], ['surface-raised'], 3);
   // Badge text on the control fill (neutral is covered above; danger is on-danger on danger).
   add(['success-fg', 'warning-fg'], ['control'], 4.5);
+  // A tooltip is an inverse surface: the surface colour as text on the fg colour as fill.
+  add(['surface'], ['fg'], 4.5);
   // A progress bar's fill against its track. A switch's on track against its off track and its
   // thumbs against their tracks are the same pairs: primary/control, on-primary/primary and
   // fg-muted/control above.
@@ -262,8 +264,8 @@ describe('theme stylesheet', () => {
   }
 
   it('lists every contrast target from the contract', () => {
-    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 + 2 + 2 + 6 text pairs, 13 + 3 + 1 non-text pairs
-    expect(buildTargets().length).toBe(72);
+    // 6 + 2 + 16 + 6 + 1 + 1 + 12 + 1 + 2 + 2 + 6 + 1 (tooltip) text pairs, 13 + 3 + 1 non-text pairs
+    expect(buildTargets().length).toBe(73);
   });
 
   describe('contrast', () => {

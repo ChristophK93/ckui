@@ -69,6 +69,7 @@ describe('App', () => {
       'Field',
       'Menu',
       'Progress',
+      'Radio',
       'Segmented',
       'Select',
       'Slider',
@@ -76,6 +77,7 @@ describe('App', () => {
       'Switch',
       'Tabs',
       'Toast',
+      'Tooltip',
     ]);
     const group = element.querySelector(
       'nav[aria-label="Main"] ul[aria-labelledby="nav-components"]',
@@ -91,6 +93,7 @@ describe('App', () => {
       '/components/field',
       '/components/menu',
       '/components/progress',
+      '/components/radio',
       '/components/segmented',
       '/components/select',
       '/components/slider',
@@ -98,6 +101,7 @@ describe('App', () => {
       '/components/switch',
       '/components/tabs',
       '/components/toast',
+      '/components/tooltip',
     ]);
     expect(element.querySelector('header fieldset legend')?.textContent?.trim()).toBe('Theme');
   });
@@ -122,6 +126,8 @@ describe('App', () => {
     ['/components/chip', 'Chip'],
     ['/components/tabs', 'Tabs'],
     ['/components/drawer', 'Drawer'],
+    ['/components/radio', 'Radio'],
+    ['/components/tooltip', 'Tooltip'],
   ])('marks only the active link as the current page on %s', async (url, label) => {
     const element = await render(url);
     expect(currentLinks(element)).toEqual([label]);
@@ -159,6 +165,8 @@ describe('App', () => {
       'Chip',
       'Tabs',
       'Drawer',
+      'Radio',
+      'Tooltip',
     ]) {
       await TestBed.inject(Router).navigateByUrl(`/components/${name.toLowerCase()}`);
       expect(document.title).toBe(`${name} · ckui`);
@@ -177,6 +185,8 @@ describe('App', () => {
     'Chip',
     'Tabs',
     'Drawer',
+    'Radio',
+    'Tooltip',
   ])('shows the %s page', async (name) => {
     const element = await render(`/components/${name.toLowerCase()}`);
     expect(element.querySelector('main h1')?.textContent).toBe(name);

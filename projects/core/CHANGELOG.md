@@ -1,5 +1,17 @@
 # @ckui/core
 
+## 0.1.0-next.8
+
+### Minor Changes
+
+- Add `ck-radio-group` and `ck-radio` (`@ckui/core/radio`): one choice out of a few visible options, the WAI-ARIA radio group on native radio inputs (Tab enters at the checked radio, arrow keys move and select), with a group label, hints and errors as in `ck-checkbox-group`, `compareWith`, an `inline` layout, four sizes and the three form APIs.
+- Add `ckTooltip` (`@ckui/core/tooltip`): a short text that describes a control, shown on hover after a delay, at once on keyboard focus and on long-press, hidden on Escape. It stays open while the pointer is over it, sits above the control by default and flips when out of room, and uses the browser's top layer, so it shows above dialogs without adding overlay code to the bundle. It needs the browser's Popover API; where that is missing the tooltip stays off and the control works as before.
+
+### Patch Changes
+
+- `ck-checkbox-group` is no longer marked touched when a mouse press moves focus from one of its checkboxes to another (a press on another checkbox's text), so its error no longer shows in the middle of picking options; it is touched once focus really leaves the group. A label id written by the server render is replaced on the client, so it can't collide with an id generated later.
+- `ck-menu` reads its trigger's name in the order browsers use: `aria-labelledby` now wins over `aria-label`, and a `<label for>` that points at the trigger counts too. This name labels the menu and its phone sheet.
+
 ## 0.1.0-next.7
 
 ### Patch Changes

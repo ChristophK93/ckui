@@ -1,0 +1,221 @@
+@layer ckui {
+  .ck-radio-host {
+    display: block;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  /*
+   * A row: the circle and the text block. The circle and the first line of text share one line box
+   * of the row height minus the padding, so a one-line label is centred and a long one grows downwards.
+   */
+  .ck-radio {
+    --_ck-radio-border: 2px;
+    --_ck-radio-inner: calc(var(--_ck-radio-row) - 2 * var(--ck-space-1));
+    --_ck-radio-line: calc(var(--_ck-radio-font-size) * var(--ck-line-height-tight));
+    display: flex;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-block-size: var(--_ck-radio-row);
+    padding-block: var(--ck-space-1);
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+    font-size: var(--_ck-radio-font-size);
+    line-height: var(--ck-line-height-tight);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ck-radio--sm {
+    --_ck-radio-row: var(--ck-control-height-sm);
+    --_ck-radio-font-size: var(--ck-control-font-size-sm);
+    --_ck-radio-circle: 1.125rem;
+  }
+
+  .ck-radio--md {
+    --_ck-radio-row: var(--ck-control-height-md);
+    --_ck-radio-font-size: var(--ck-control-font-size-md);
+    --_ck-radio-circle: 1.125rem;
+  }
+
+  .ck-radio--lg {
+    --_ck-radio-row: var(--ck-control-height-lg);
+    --_ck-radio-font-size: var(--ck-control-font-size-lg);
+    --_ck-radio-circle: 1.25rem;
+  }
+
+  .ck-radio--xl {
+    --_ck-radio-row: var(--ck-control-height-xl);
+    --_ck-radio-font-size: var(--ck-control-font-size-xl);
+    --_ck-radio-circle: 1.5rem;
+  }
+
+  .ck-radio__control {
+    display: grid;
+    flex: none;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_ck-radio-circle);
+    block-size: var(--_ck-radio-inner);
+  }
+
+  /* The real control, invisible, over the circle. */
+  .ck-radio__input {
+    grid-area: 1 / 1;
+    box-sizing: border-box;
+    inline-size: var(--_ck-radio-circle);
+    block-size: var(--_ck-radio-circle);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    appearance: none;
+    cursor: inherit;
+  }
+
+  .ck-radio__circle {
+    display: grid;
+    grid-area: 1 / 1;
+    place-items: center;
+    box-sizing: border-box;
+    inline-size: var(--_ck-radio-circle);
+    block-size: var(--_ck-radio-circle);
+    border: var(--_ck-radio-border) solid var(--ck-radio-border-color, var(--ck-color-border));
+    border-radius: 50%;
+    background: var(--ck-radio-bg, var(--ck-color-control));
+    pointer-events: none;
+    transition:
+      background-color var(--ck-duration-normal) var(--ck-ease-standard),
+      border-color var(--ck-duration-normal) var(--ck-ease-standard);
+  }
+
+  /* The dot is drawn in the circle; its size is the state, so it never depends on colour alone. */
+  .ck-radio__dot {
+    box-sizing: border-box;
+    inline-size: calc((var(--_ck-radio-circle) - 2 * var(--_ck-radio-border)) / 2);
+    block-size: calc((var(--_ck-radio-circle) - 2 * var(--_ck-radio-border)) / 2);
+    border-radius: 50%;
+    background: var(--ck-radio-checked-fg, var(--ck-color-on-primary));
+    transform: scale(0);
+    transition: transform var(--ck-duration-normal) var(--ck-ease-standard);
+  }
+
+  .ck-radio__input:checked + .ck-radio__circle {
+    border-color: var(--ck-radio-checked-bg, var(--ck-color-primary));
+    background: var(--ck-radio-checked-bg, var(--ck-color-primary));
+  }
+
+  .ck-radio__input:checked + .ck-radio__circle .ck-radio__dot {
+    transform: scale(1);
+  }
+
+  .ck-radio__input[aria-invalid='true'] + .ck-radio__circle {
+    border-color: var(--ck-color-danger-fg);
+  }
+
+  .ck-radio__body {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin-inline-start: var(--ck-space-3);
+    overflow-wrap: break-word;
+  }
+
+  /* No text and no hint: the row is just the circle, not a full-width tap area. */
+  .ck-radio:not(:has(.ck-radio__body > :not(:empty))) {
+    inline-size: fit-content;
+    max-inline-size: 100%;
+  }
+
+  .ck-radio:not(:has(.ck-radio__body > :not(:empty))) .ck-radio__body {
+    flex: none;
+    margin-inline-start: 0;
+  }
+
+  .ck-radio__label {
+    display: block;
+    padding-block: calc((var(--_ck-radio-inner) - var(--_ck-radio-line)) / 2);
+  }
+
+  /* Hint is shared with other controls: styled only under this container. */
+  .ck-radio__body .ck-hint {
+    display: block;
+    margin-block-end: var(--ck-space-1);
+    color: var(--ck-color-fg-muted);
+    font-size: var(--ck-font-size-sm);
+    line-height: var(--ck-line-height-normal);
+    overflow-wrap: break-word;
+  }
+
+  .ck-radio__input:focus-visible + .ck-radio__circle {
+    outline: var(--ck-focus-ring);
+    outline-offset: var(--ck-focus-ring-offset);
+  }
+
+  /* Also inside a <fieldset disabled>, where only the input's :disabled state knows. */
+  .ck-radio--disabled,
+  .ck-radio:has(.ck-radio__input:disabled) {
+    color: var(--ck-color-fg-disabled);
+    cursor: not-allowed;
+  }
+
+  .ck-radio:has(.ck-radio__input:disabled) .ck-hint {
+    color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-radio__input:disabled + .ck-radio__circle {
+    border-color: var(--ck-color-fg-disabled);
+  }
+
+  .ck-radio__input:disabled:checked + .ck-radio__circle {
+    background: var(--ck-color-fg-disabled);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-radio__circle,
+    .ck-radio__dot {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-radio__circle {
+      border-color: CanvasText;
+      background: Canvas;
+    }
+
+    .ck-radio__dot {
+      background: HighlightText;
+    }
+
+    .ck-radio__input:checked + .ck-radio__circle {
+      border-color: Highlight;
+      background: Highlight;
+    }
+
+    .ck-radio__input:focus-visible + .ck-radio__circle {
+      outline: var(--ck-focus-ring-width) solid Highlight;
+      outline-offset: var(--ck-focus-ring-offset);
+    }
+
+    .ck-radio--disabled,
+    .ck-radio--disabled .ck-hint,
+    .ck-radio:has(.ck-radio__input:disabled),
+    .ck-radio:has(.ck-radio__input:disabled) .ck-hint {
+      color: GrayText;
+    }
+
+    .ck-radio__input:disabled + .ck-radio__circle,
+    .ck-radio__input:disabled:checked + .ck-radio__circle {
+      border-color: GrayText;
+      background: Canvas;
+    }
+
+    .ck-radio__input:disabled:checked + .ck-radio__circle .ck-radio__dot {
+      background: GrayText;
+    }
+  }
+}

@@ -12,9 +12,15 @@ import {
   afterNextRender,
   inject,
 } from '@angular/core';
-import { CkFocusTrap, CkFocusTrapFactory, CkInert, CkMedia } from '@ckui/core/internal';
+import {
+  CkFocusTrap,
+  CkFocusTrapFactory,
+  CkInert,
+  CkMedia,
+  tokenPixels,
+} from '@ckui/core/internal';
 import { CkOverlayPane } from './overlay-pane';
-import { popoverPosition, tokenPixels } from './popover-position';
+import { popoverPosition } from './popover-position';
 import { attachSheetSwipe } from './sheet-swipe';
 import { VIEWPORT_HEIGHT, createViewportFollower } from './visual-viewport';
 
@@ -826,10 +832,18 @@ export class CkOverlayHost {
     return top?.contains && top.state === 'open' && top.dismissible ? top : null;
   }
 
+  /** A press in a layer marked `data-ck-outside-ignore` (the tooltip layer) never dismisses a popover. */
+  private isIgnoredPress(path: EventTarget[]): boolean {
+    return path.some(
+      (node) => node instanceof Element && node.hasAttribute('data-ck-outside-ignore'),
+    );
+  }
+
   private readonly onPointerdown = (event: PointerEvent): void => {
     this.swallowBackdropClick = false;
     const popover = this.topPopover();
-    if (popover && !popover.contains!(event.composedPath())) {
+    const path = event.composedPath();
+    if (popover && !popover.contains!(path) && !this.isIgnoredPress(path)) {
       this.swallowBackdropClick = true;
       popover.dismiss('outside');
     }
@@ -847,7 +861,8 @@ export class CkOverlayHost {
       return;
     }
     const popover = this.topPopover();
-    if (popover && !popover.contains!(event.composedPath())) {
+    const path = event.composedPath();
+    if (popover && !popover.contains!(path) && !this.isIgnoredPress(path)) {
       popover.dismiss('focusout');
     }
   };

@@ -28,6 +28,7 @@ export class App {
     { path: '/components/field', label: 'Field' },
     { path: '/components/menu', label: 'Menu' },
     { path: '/components/progress', label: 'Progress' },
+    { path: '/components/radio', label: 'Radio' },
     { path: '/components/segmented', label: 'Segmented' },
     { path: '/components/select', label: 'Select' },
     { path: '/components/slider', label: 'Slider' },
@@ -35,6 +36,7 @@ export class App {
     { path: '/components/switch', label: 'Switch' },
     { path: '/components/tabs', label: 'Tabs' },
     { path: '/components/toast', label: 'Toast' },
+    { path: '/components/tooltip', label: 'Tooltip' },
   ] as const;
 
   /** A plain `#main` link would resolve against the base href and leave the current route. */

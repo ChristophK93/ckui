@@ -1,3 +1,5 @@
+import { collapseText, readableText } from './text';
+
 export interface CkNameSources {
   /** Count `title` as a name. */
   readonly title: boolean;
@@ -38,4 +40,31 @@ function visibleText(node: Node): string {
     return '';
   }
   return Array.from(node.childNodes, visibleText).join('');
+}
+
+/**
+ * The name of the element as text, whitespace collapsed: the elements `aria-labelledby` names,
+ * `aria-label`, the text of its `<label>`s, its readable content, then `title`. Empty when it has none.
+ */
+export function readAccessibleName(element: Element): string {
+  const named = (element.getAttribute('aria-labelledby') ?? '')
+    .split(/\s+/)
+    .filter((id) => id !== '')
+    .map((id) => collapseText(readableText(element.ownerDocument.getElementById(id))))
+    .filter((text) => text !== '')
+    .join(' ');
+  if (named !== '') {
+    return named;
+  }
+  const label = collapseText(element.getAttribute('aria-label'));
+  if (label !== '') {
+    return label;
+  }
+  const labelled = Array.from((element as Partial<HTMLInputElement>).labels ?? [])
+    .map((node) => collapseText(readableText(node)))
+    .filter((text) => text !== '')
+    .join(' ');
+  return (
+    labelled || collapseText(readableText(element)) || collapseText(element.getAttribute('title'))
+  );
 }

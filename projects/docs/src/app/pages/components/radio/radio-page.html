@@ -1,0 +1,499 @@
+<h1>Radio</h1>
+<p>
+  <code>ck-radio-group</code> picks one option out of a few that are all visible, each a
+  <code>ck-radio</code>: a weight unit, a view, a plan. The group holds the value, the radios are
+  native <code>&lt;input type="radio"&gt;</code> inputs under labels, so the whole row is the tap
+  target and the arrow keys, Tab and Space come from the browser. It works with Reactive Forms,
+  <code>ngModel</code> and Signal Forms. Import <code>CK_RADIO_IMPORTS</code> (the group, the radio,
+  <code>ck-hint</code> and <code>ck-error</code>) from <code>&#64;ckui/core/radio</code>. For two or
+  three short options that act like a toggle bar, a
+  <a routerLink="/components/segmented">segmented control</a> is more compact; for a list of many
+  options, use a <a routerLink="/components/select">select</a>.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="basics">Basics</h3>
+<p>
+  The value is the <code>option</code> of the checked radio and works two-way with
+  <code>[(value)]</code>. The first <code>&lt;label&gt;</code> names the group
+  (<code>role="radiogroup"</code>). The text inside <code>ck-radio</code> names the radio, and a
+  <code>ck-hint</code> inside it describes that radio; a <code>ck-hint</code> that is a direct child
+  of the group describes the whole group. A click anywhere on a row checks it, and the hint is part
+  of the row.
+</p>
+<div class="demo demo-column">
+  <ck-radio-group class="wide" [(value)]="unit">
+    <label>Weight unit</label>
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="lb">
+      Pounds
+      <ck-hint>Imperial</ck-hint>
+    </ck-radio>
+    <ck-radio option="st" disabled>Stone</ck-radio>
+    <ck-hint>Used for every lift.</ck-hint>
+  </ck-radio-group>
+  <p class="status">
+    Unit: <output>{{ unit() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="inline">Inline</h3>
+<p>
+  <code>inline</code> lays the radios in a row that wraps at the width of the group, so it also fits
+  a phone. The gap is <code>--ck-radio-group-gap</code>. The arrow keys behave the same in both
+  layouts.
+</p>
+<div class="demo demo-column">
+  <ck-radio-group class="wide" inline [(value)]="view">
+    <label>View</label>
+    <ck-radio option="day">Day</ck-radio>
+    <ck-radio option="week">Week</ck-radio>
+    <ck-radio option="month">Month</ck-radio>
+  </ck-radio-group>
+  <p class="status">
+    View: <output>{{ view() ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.inline }}</code></pre>
+
+<h3 id="required">A required choice</h3>
+<p>
+  Nothing is checked until the user picks: <code>null</code> is "no answer", and
+  <code>Validators.required</code> fails it. A <code>ck-error</code> stays hidden until the control
+  is invalid and touched, or its form was submitted. Touched means focus left the whole group, not
+  that it moved between the radios. While the error shows, every input is
+  <code>aria-invalid</code> and the error is part of the group's description, so a screen reader
+  reads it when focus enters the group. <code>required</code> on the group draws the marker on the
+  label and sets <code>aria-required</code> on the radiogroup; validation is your form's job.
+</p>
+<div class="demo">
+  <form class="form" [formGroup]="plan" (ngSubmit)="submitPlan()">
+    <ck-radio-group formControlName="unit" required>
+      <label>Weight unit</label>
+      <ck-radio option="kg">Kilograms</ck-radio>
+      <ck-radio option="lb">Pounds</ck-radio>
+      <ck-radio option="st">Stone</ck-radio>
+      <ck-hint>Used for every lift.</ck-hint>
+      <ck-error>Pick a unit.</ck-error>
+    </ck-radio-group>
+    <button ckButton type="submit">Save</button>
+  </form>
+  <p class="status">
+    Value: <output>{{ plan.controls.unit.value ?? 'none' }}</output
+    >, result: <output>{{ planResult() }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.form }}</code></pre>
+<p>
+  The <code>required</code> attribute next to <code>formControl</code> or <code>ngModel</code> adds
+  <code>Validators.required</code> too. In Signal Forms use <code>required()</code>. A value that no
+  radio has as its option checks nothing, and development builds warn once. Hint and error must be
+  direct children of the group, and so must the radios for the gap between rows.
+</p>
+
+<h3 id="objects">Options that are objects</h3>
+<p>
+  Options are compared with <code>Object.is</code>: objects by identity. When the value is a copy,
+  for example from a server, pass <code>compareWith</code>. The click writes the radio's own
+  <code>option</code> object.
+</p>
+<div class="demo demo-column">
+  <ck-radio-group class="wide" [(value)]="chosenZone" [compareWith]="sameZone">
+    <label>Zone</label>
+    @for (zone of zones; track zone.id) {
+      <ck-radio [option]="zone">{{ zone.name }}</ck-radio>
+    }
+  </ck-radio-group>
+  <p class="status">
+    Chosen: <output>{{ chosenZone()?.name ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.objects }}</code></pre>
+
+<h3 id="forms">One control, three form APIs</h3>
+<p>
+  The same group three times. A programmatic write (<code>setValue</code>, a model change,
+  <code>reset</code>) moves the radio and never counts as a change by the user; only a click or a
+  key does. <code>null</code> and <code>undefined</code> from a form check nothing.
+</p>
+
+<h4 id="reactive-forms">Reactive Forms</h4>
+<div class="demo">
+  <ck-radio-group class="wide" [formControl]="reactiveUnit">
+    <label>Weight unit, Reactive Forms</label>
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="lb">Pounds</ck-radio>
+  </ck-radio-group>
+  <p class="status">
+    Value: <output>{{ reactiveUnit.value ?? 'none' }}</output
+    >, touched: <output>{{ reactiveUnit.touched ? 'yes' : 'no' }}</output>
+  </p>
+  <div class="actions">
+    <button ckButton type="button" size="sm" (click)="reactiveUnit.setValue('kg')">
+      Set kilograms in code
+    </button>
+    <button ckButton type="button" size="sm" (click)="reactiveUnit.setValue(null)">Set null</button>
+    <button
+      ckButton
+      type="button"
+      size="sm"
+      (click)="reactiveUnit.disabled ? reactiveUnit.enable() : reactiveUnit.disable()"
+    >
+      {{ reactiveUnit.disabled ? 'Enable' : 'Disable' }}
+    </button>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.reactive }}</code></pre>
+
+<h4 id="ng-model">ngModel</h4>
+<div class="demo">
+  <ck-radio-group class="wide" [(ngModel)]="templateUnit">
+    <label>Weight unit, ngModel</label>
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="lb">Pounds</ck-radio>
+  </ck-radio-group>
+  <p class="status">
+    Value: <output>{{ templateUnit ?? 'none' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.template }}</code></pre>
+
+<h4 id="signal-forms">Signal Forms</h4>
+<div class="demo">
+  <ck-radio-group class="wide" [formField]="signalForm.unit">
+    <label>Weight unit, Signal Forms</label>
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="lb">Pounds</ck-radio>
+    <ck-error>Pick a unit.</ck-error>
+  </ck-radio-group>
+  <p class="status">
+    Value: <output>{{ signalForm.unit().value() ?? 'none' }}</output
+    >, touched: <output>{{ signalForm.unit().touched() ? 'yes' : 'no' }}</output>
+  </p>
+</div>
+<pre class="code"><code>{{ samples.signal }}</code></pre>
+
+<h3 id="sizes">Sizes</h3>
+<p>
+  The size follows <code>provideCkui()</code> unless the group sets it, and every radio takes the
+  group's size. The circle grows from 1.125rem to 1.5rem, and the row is never lower than the
+  control height of its size, so it is 44px or more on a coarse pointer and 60px at <code>xl</code>.
+</p>
+<div class="demo demo-column">
+  <ck-radio-group class="wide" size="sm" aria-label="Small">
+    <ck-radio option="a">Small</ck-radio>
+  </ck-radio-group>
+  <ck-radio-group class="wide" size="md" aria-label="Medium">
+    <ck-radio option="a">Medium</ck-radio>
+  </ck-radio-group>
+  <ck-radio-group class="wide" size="lg" aria-label="Large">
+    <ck-radio option="a">Large</ck-radio>
+  </ck-radio-group>
+  <ck-radio-group class="wide" size="xl" aria-label="Extra large">
+    <ck-radio option="a">Extra large</ck-radio>
+  </ck-radio-group>
+</div>
+<pre class="code"><code>{{ samples.sizes }}</code></pre>
+
+<h3 id="states">Disabled</h3>
+<p>
+  A disabled radio is blocked, greyed and skipped by the arrow keys, and it keeps showing its state
+  by the dot. A disabled group disables every radio in it, and a
+  <code>&lt;fieldset disabled&gt;</code> around a group does the same without any input.
+</p>
+<div class="demo demo-column">
+  <ck-radio-group class="wide" value="kg" aria-label="Weight unit, one disabled">
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="st" disabled>Stone</ck-radio>
+  </ck-radio-group>
+  <ck-radio-group class="wide" disabled value="lb">
+    <label>Weight unit, disabled</label>
+    <ck-radio option="kg">Kilograms</ck-radio>
+    <ck-radio option="lb">Pounds</ck-radio>
+    <ck-radio option="st">Stone</ck-radio>
+  </ck-radio-group>
+  <fieldset class="group" disabled>
+    <legend>Locked group</legend>
+    <ck-radio-group value="kg" aria-label="Locked unit">
+      <ck-radio option="kg">Kilograms</ck-radio>
+      <ck-radio option="lb">Pounds</ck-radio>
+    </ck-radio-group>
+  </fieldset>
+</div>
+<pre class="code"><code>{{ samples.states }}</code></pre>
+
+<h3 id="rtl">Right-to-left text</h3>
+<p>
+  Rows and circles use logical properties: in right-to-left text the circle is on the right and the
+  text follows it. Nothing is configured.
+</p>
+<div class="demo demo-column">
+  <div dir="rtl" class="wide">
+    <ck-radio-group [(value)]="rtlUnit" aria-label="الوحدة">
+      <ck-radio option="kg">كيلوغرام</ck-radio>
+      <ck-radio option="lb">رطل</ck-radio>
+    </ck-radio-group>
+  </div>
+</div>
+<pre class="code"><code>{{ samples.rtl }}</code></pre>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the radio group">
+  <table class="table">
+    <caption>
+      Inputs of ck-radio-group
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of groupInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of the radio">
+  <table class="table">
+    <caption>
+      Inputs of ck-radio
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of inputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Inputs of hint and error">
+  <table class="table">
+    <caption>
+      Inputs of ck-hint and ck-error
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of messageInputs; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            <code>{{ row.defaultValue }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the radio group">
+  <table class="table">
+    <caption>
+      Parts of a radio group
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The group gets the classes <code>ck-radio-group</code>,
+  <code>ck-radio-group--&#123;size&#125;</code> and, while they apply,
+  <code>ck-radio-group--inline</code> and <code>ck-radio-group--disabled</code>. The row gets
+  <code>ck-radio</code>, <code>ck-radio--&#123;size&#125;</code> and, while it applies,
+  <code>ck-radio--disabled</code>. The value is also available as <code>(valueChange)</code>, which
+  reports every write to the value: a user change, and a write from a form (<code>setValue</code>,
+  <code>reset</code>) too; a <code>[value]</code> binding from the parent does not emit. A radio
+  outside a group, a standalone radio, a card or tile variant and a radio inside
+  <code>ck-field</code> are not part of this component.
+</p>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  The radios are native inputs that share one <code>name</code>, so the keys are the browser's and
+  match the WAI-ARIA radio group pattern. Nothing is written by hand.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Keys in a radio group">
+  <table class="table">
+    <caption>
+      Keys in a radio group
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Key</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    It follows the WAI-ARIA radio group pattern with native
+    <code>&lt;input type="radio"&gt;</code> inputs inside a <code>role="radiogroup"</code> named by
+    its label. The text names each radio and a <code>ck-hint</code> describes it; the name does not
+    repeat the hint. <code>aria-required</code> is set on the group when it is
+    <code>required</code>.
+  </li>
+  <li>
+    The state is never colour alone: the checked circle is filled and holds a dot, and the border of
+    the unchecked circle is at least 3:1 from the surface, in both shipped themes.
+  </li>
+  <li>
+    Errors: while the group shows its error, every input is <code>aria-invalid="true"</code> and the
+    error is in the group's <code>aria-describedby</code>. A radiogroup is not shown with
+    <code>aria-invalid</code> itself, so each radio carries it. The error appears after focus left
+    the group or the form was submitted, never while the user is still on the first pass.
+  </li>
+  <li>
+    The row is the tap target: at least the control height of the size, so 44px or more on a coarse
+    pointer and 60px at <code>xl</code>. A long label wraps in its own block, with the circle next
+    to its first line.
+  </li>
+  <li>
+    The focus ring is drawn around the circle for keyboard focus only. In forced-colors mode the
+    circle's border is <code>CanvasText</code>, the focus ring is <code>Highlight</code>, a checked
+    circle is <code>Highlight</code> with a <code>HighlightText</code> dot, and a disabled one is
+    <code>GrayText</code>.
+  </li>
+  <li>
+    The dot scales in over <code>--ck-duration-normal</code>, and not at all under
+    <code>prefers-reduced-motion</code>.
+  </li>
+  <li>
+    <strong>Linting.</strong> angular-eslint's <code>label-has-associated-control</code> flags the
+    <code>&lt;label&gt;</code> that names a group, because it labels no control by <code>for</code>.
+    Turn the rule off for templates that use <code>ck-radio-group</code>, or name the group with
+    <code>aria-label</code>.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The parts are a plain <code>label</code> and
+    <code>input</code>. An unlayered rule such as <code>input &#123; border: … &#125;</code> beats
+    the layered control. Keep those rules off the radio (<code>input:not(.ck-radio__input)</code>)
+    or put resets in a layer declared before ckui. The first rule below really breaks the radio; the
+    rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. Set them
+  anywhere.
+  <a routerLink="/theming">Theming</a> explains the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ck-radio">
+  <table class="table">
+    <caption>
+      Component tokens of ck-radio
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The radio also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

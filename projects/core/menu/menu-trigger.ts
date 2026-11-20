@@ -18,20 +18,15 @@ import {
 import {
   AttributeClaim,
   CkMedia,
-  collapseText,
   createCkId,
   hasAccessibleName,
-  readableText,
+  readAccessibleName,
 } from '@ckui/core/internal';
 import { CkOverlayHandle, CkOverlayHost } from '@ckui/core/internal/overlay';
 import { CK_MENU_SESSION, CkMenuSession } from './menu-context';
 import { CkMenuPanel } from './menu-panel';
 
 declare const ngDevMode: unknown;
-
-function tokens(value: string | null): string[] {
-  return (value ?? '').split(/\s+/).filter((token) => token !== '');
-}
 
 /**
  * Turns a native `<button>` into a menu button (development builds warn about any other element): it opens the template it is given, a `ck-menu`,
@@ -128,7 +123,7 @@ export class CkMenuTrigger {
     const session: CkMenuSession = {
       template,
       sheet,
-      name: this.readName(),
+      name: readAccessibleName(this.element),
       triggerId: this.ensureId(),
       menuId: signal<string | null>(null),
       edge,
@@ -237,24 +232,6 @@ export class CkMenuTrigger {
       this.renderer.removeAttribute(this.element, 'id');
     }
     this.ownId = null;
-  }
-
-  /** The name of the button as text: `aria-label`, the elements `aria-labelledby` names, its text, `title`. */
-  private readName(): string {
-    const label = collapseText(this.element.getAttribute('aria-label'));
-    if (label !== '') {
-      return label;
-    }
-    const named = tokens(this.element.getAttribute('aria-labelledby'))
-      .map((id) => collapseText(readableText(this.document.getElementById(id))))
-      .filter((text) => text !== '')
-      .join(' ');
-    if (named !== '') {
-      return named;
-    }
-    return (
-      collapseText(readableText(this.element)) || collapseText(this.element.getAttribute('title'))
-    );
   }
 
   /** Sets the attribute, or gives the consumer's own value back when `value` is null. */

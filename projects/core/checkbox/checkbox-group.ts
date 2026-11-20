@@ -41,6 +41,7 @@ import { CK_CHECKBOX_GROUP, CK_NO_OPTION, CkCheckboxGroupContext } from './group
 declare const ngDevMode: unknown;
 
 const LABEL_CLASS = 'ck-checkbox-group__label';
+const OWN_LABEL_ID = /^ck-checkbox-group-label-[0-9]+$/;
 const REQUIRED_CLASS = 'ck-checkbox-group__required';
 
 /**
@@ -103,6 +104,7 @@ export class CkCheckboxGroup<T = unknown>
   /** More ids that describe the group, after the hints and errors. */
   readonly ariaDescribedby = input<string | null>(null, { alias: 'aria-describedby' });
 
+  private readonly destroyRef = inject(DestroyRef);
   private readonly config = inject(CK_CONFIG);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly container = inject(ControlContainer, { optional: true });
@@ -164,7 +166,7 @@ export class CkCheckboxGroup<T = unknown>
     renderer.removeAttribute(this.element, 'aria-describedby');
 
     const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-    const destroyRef = inject(DestroyRef);
+    const destroyRef = this.destroyRef;
     if (isBrowser) {
       effect(() => this.formState.refresh());
       afterEveryRender(() => {
@@ -206,7 +208,8 @@ export class CkCheckboxGroup<T = unknown>
       return;
     }
     label.classList.add(LABEL_CLASS);
-    if (label.id === '') {
+    // A server-generated id of the library's own pattern is replaced; any other id is the consumer's.
+    if (label.id === '' || (label.id !== this.generatedLabelId && OWN_LABEL_ID.test(label.id))) {
       label.setAttribute('id', this.generatedLabelId);
     }
     this.labelId.set(label.id);
@@ -246,6 +249,16 @@ export class CkCheckboxGroup<T = unknown>
   protected onFocusOut(event: FocusEvent): void {
     const next = event.relatedTarget;
     if (next instanceof Node && this.element.contains(next)) {
+      return;
+    }
+    if (next === null) {
+      // A press on a label, hint or gap blurs before the next radio takes focus: decide afterwards.
+      setTimeout(() => {
+        const active = this.element.ownerDocument.activeElement;
+        if (!this.destroyRef.destroyed && !(active !== null && this.element.contains(active))) {
+          this.markTouched();
+        }
+      });
       return;
     }
     this.markTouched();

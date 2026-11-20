@@ -1,0 +1,375 @@
+<h1>Tooltip</h1>
+<p>
+  <code>ckTooltip</code> shows a short supplementary text for a control: after a short delay on
+  mouse hover, at once on keyboard focus, and on a long-press on a touch screen. Import
+  <code>CK_TOOLTIP_IMPORTS</code> from <code>&#64;ckui/core/tooltip</code>; it holds
+  <code>CkTooltip</code>. The text is plain text only and <em>describes</em> the control; it never
+  names it. The bubble is a native popover in the top layer, so it also shows above a dialog, a
+  drawer or a menu, and it needs no overlay code.
+</p>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="icon-buttons">Icon-only buttons</h3>
+<p>
+  The usual place: a row of icon buttons. A button with no text needs a name of its own, an
+  <code>aria-label</code>; the tooltip adds what the name cannot say, and a screen reader reads it
+  as the description. Hover the first button and wait, then move along the row: once one tooltip has
+  shown, the next ones show at once, until the pointer has been away for 300 ms. A tooltip that only
+  repeats the name is shown to sighted users but not wired to <code>aria-describedby</code>, so it
+  is not read twice.
+</p>
+<div class="demo">
+  <button
+    ckButton
+    variant="ghost"
+    iconOnly
+    aria-label="Rest timer"
+    ckTooltip="Starts after each set"
+  >
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2.5 2.5M9 2h6" />
+    </svg>
+  </button>
+  <button
+    ckButton
+    variant="ghost"
+    iconOnly
+    aria-label="Edit workout"
+    ckTooltip="Changes blocks and targets"
+  >
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
+    </svg>
+  </button>
+  <button
+    ckButton
+    variant="ghost"
+    iconOnly
+    aria-label="Copy workout"
+    ckTooltip="Makes a copy you can change"
+  >
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15V6a2 2 0 012-2h9" />
+    </svg>
+  </button>
+  <button ckButton variant="ghost" iconOnly aria-label="Delete workout" ckTooltip="Delete workout">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+    </svg>
+  </button>
+</div>
+<pre class="code"><code>{{ samples.basics }}</code></pre>
+
+<h3 id="positions">Positions</h3>
+<p>
+  The bubble is <code>above</code> by default. Without room on the chosen side it flips to the
+  opposite one, and along the other axis it shifts to stay inside the screen: the buttons at the
+  edge of a phone still get a whole tooltip. <code>start</code> and <code>end</code> follow the text
+  direction, so in an Arabic or Hebrew page <code>start</code> is the right.
+</p>
+<div class="demo">
+  <button ckButton ckTooltip="Above the button" ckTooltipPosition="above">Above</button>
+  <button ckButton ckTooltip="Below the button" ckTooltipPosition="below">Below</button>
+  <button ckButton ckTooltip="At the start" ckTooltipPosition="start">Start</button>
+  <button ckButton ckTooltip="At the end" ckTooltipPosition="end">End</button>
+</div>
+<pre class="code"><code>{{ samples.positions }}</code></pre>
+
+<h3 id="dialog">In a dialog</h3>
+<p>
+  A tooltip inside a dialog sits above the dialog and stays usable although the page behind it is
+  inert. <kbd>Escape</kbd> hides the tooltip and nothing else; the next <kbd>Escape</kbd> closes the
+  dialog. Open it, press <kbd>Tab</kbd> to the settings button and try it.
+</p>
+<div class="demo">
+  <button ckButton (click)="openSettings()">Timer settings</button>
+</div>
+<pre class="code"><code>{{ samples.dialog }}</code></pre>
+
+<h3 id="control">Text, delay and control</h3>
+<p>
+  The text, the delay and the disabled state can be bound. The open tooltip follows a text that
+  changes, and <code>ckTooltipDisabled</code> hides it. <code>#tip="ckTooltip"</code> gives you
+  <code>show()</code>, <code>hide()</code> and the <code>isVisible</code> signal.
+</p>
+<div class="demo">
+  <button
+    ckButton
+    #tip="ckTooltip"
+    [ckTooltip]="hint()"
+    [ckTooltipDisabled]="muted()"
+    [ckTooltipShowDelay]="200"
+  >
+    Rest timer
+  </button>
+  <button ckButton (click)="tip.isVisible() ? tip.hide() : tip.show()">Toggle</button>
+  <button ckButton (click)="toggleHint()">Change text</button>
+  <button ckButton (click)="muted.set(!muted())">
+    {{ muted() ? 'Unmute tooltips' : 'Mute tooltips' }}
+  </button>
+</div>
+<pre class="code"><code>{{ samples.control }}</code></pre>
+
+<h3 id="disabled-buttons">Disabled buttons</h3>
+<p>
+  A disabled <code>ckButton</code> sets the native <code>disabled</code> attribute, so it cannot
+  take focus and a tooltip on it is <strong>mouse-only</strong>: a keyboard or touch user never sees
+  it. Never explain why something is disabled only in a tooltip. Put the reason where everyone reads
+  it, next to the button.
+</p>
+<div class="demo">
+  <button ckButton disabled ckTooltip="Needs a connected trainer">Start ride</button>
+  <span>Connect a trainer to start a ride.</span>
+</div>
+
+<h3 id="touch">On a touch screen</h3>
+<p>
+  There is no hover on a phone, so the tooltip shows on a long-press: hold the button for half a
+  second without moving. The press does not click the button, the native callout and text selection
+  stay away, and the bubble hides 1.5 seconds after the finger lifts or on the next press anywhere.
+  A tap is a tap and does nothing tooltip-related. Because a phone user may never find the
+  long-press, the tooltip is never the only carrier of information.
+</p>
+
+<h2 id="api">API</h2>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Members of the tooltip">
+  <table class="table">
+    <caption>
+      Members of ckTooltip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Member</th>
+        <th scope="col">Type</th>
+        <th scope="col">Default</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of members; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.type }}</code>
+          </td>
+          <td>
+            @if (row.defaultValue !== '') {
+              <code>{{ row.defaultValue }}</code>
+            }
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Parts of the tooltip">
+  <table class="table">
+    <caption>
+      Parts
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Part</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of parts; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="keyboard">Keyboard</h2>
+<p>
+  The behaviour follows the tooltip pattern of the WAI-ARIA Authoring Practices: focus shows it,
+  Escape hides it, and it is <code>role="tooltip"</code> pointed at by
+  <code>aria-describedby</code>. There are no arrow keys, so right-to-left text changes nothing here
+  except the side that <code>start</code> and <code>end</code> mean.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Ways to show and hide a tooltip">
+  <table class="table">
+    <caption>
+      Ways to show and hide a tooltip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Input</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of keys; track row.keys[0]) {
+        <tr>
+          <th scope="row">
+            @for (key of row.keys; track key; let last = $last) {
+              <kbd>{{ key }}</kbd>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </th>
+          <td>{{ row.action }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 id="accessibility">Accessibility</h2>
+<ul>
+  <li>
+    <strong>A description, never the name.</strong> While the tooltip is on, the id of the bubble is
+    added to the host's <code>aria-describedby</code> (your own ids stay, and are given back exactly
+    when the tooltip goes away). The host's name is never touched: an icon-only button needs its own
+    <code>aria-label</code>, and development builds warn once when the host has no accessible name.
+    When the tooltip text equals the name (case and spacing aside) it is not wired at all, so a
+    screen reader does not read it twice.
+  </li>
+  <li>
+    The bubble is mounted, hidden, for as long as the tooltip is enabled, so the description is
+    there for a screen reader that reaches the control without keyboard focus (virtual cursor, touch
+    exploration). It is shown on keyboard focus too, which is when most screen readers read the
+    description.
+  </li>
+  <li>
+    <strong>Hoverable and dismissable (WCAG 1.4.13).</strong> The pointer can move onto the bubble
+    without it vanishing, Escape hides it without moving focus, and it stays until the pointer
+    leaves, the focus moves on or it is dismissed.
+  </li>
+  <li>
+    <strong>Never the only carrier of information.</strong> Plain text only, no links or buttons in
+    the bubble, and no way to reach it on a touch screen but a long-press. Anything a user needs to
+    know belongs on the page. That includes why a button is disabled.
+  </li>
+  <li>
+    The text is white on dark in the light theme and dark on white in the dark theme, at least
+    4.5:1. In forced-colors mode the bubble is <code>Canvas</code> with <code>CanvasText</code> text
+    and a <code>CanvasText</code> border. Under reduced motion it appears without a fade.
+  </li>
+  <li>
+    <strong>Browser support.</strong> The bubble is a native popover, so the tooltip needs the
+    Popover API (Chrome and Edge 114, Safari 17, Firefox 125). Without it the tooltip is simply off:
+    nothing is mounted, nothing is wired to <code>aria-describedby</code>, no key or pointer is
+    handled. The host keeps working as if it had no tooltip, so never depend on it.
+  </li>
+  <li>
+    Nothing is shown for a host inside an inert page (behind a modal dialog). A tooltip that
+    keyboard focus showed stays while the mouse crosses its host; hovering another host shows that
+    one meanwhile and the focused one returns when the hover ends. On a text input only keyboard
+    focus shows it, not a click or a tap.
+  </li>
+  <li>
+    The bubble sits on the page body in a layer marked <code>data-ck-inert-exempt</code>, so it
+    keeps working above a modal dialog. It does not repeat the host's styles: a nested
+    <code>data-ck-theme</code> or a class-scoped token on a wrapper does not reach it. Set the
+    tokens on <code>:root</code> or on a theme selector.
+  </li>
+  <li>
+    <strong>Global element styles.</strong> The bubble is a plain <code>&lt;div&gt;</code> styled by
+    a class in a layer. An unlayered reset such as <code>* &#123; padding: 0 &#125;</code> or
+    <code>div &#123; background: none &#125;</code> beats it: the text loses its padding and its
+    fill. Keep those rules off <code>.ck-tooltip</code> or put resets in a layer declared before
+    ckui. The first rule below really breaks the tooltip; the rest scope it.
+  </li>
+</ul>
+<pre class="code"><code>{{ samples.reset }}</code></pre>
+
+<h2 id="tokens">Tokens</h2>
+<p>
+  The component tokens are read with a fallback and never declared by the library. The bubble sits
+  on the page body, outside the button, so its tokens have to be set on <code>:root</code> or a
+  theme selector, not on a wrapper around the button. <a routerLink="/theming">Theming</a> explains
+  the three layers.
+</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Component tokens of ckTooltip">
+  <table class="table">
+    <caption>
+      Component tokens of ckTooltip
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Token</th>
+        <th scope="col">Fallback</th>
+        <th scope="col">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tokens; track row.name) {
+        <tr>
+          <th scope="row">
+            <code>{{ row.name }}</code>
+          </th>
+          <td>
+            <code>{{ row.fallback }}</code>
+          </td>
+          <td>{{ row.description }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+<p>
+  The tooltip also reads these semantic tokens, listed on the
+  <a routerLink="/tokens">token reference</a>:
+</p>
+<ul>
+  @for (token of semanticTokens; track token) {
+    <li>
+      <code>{{ token }}</code>
+    </li>
+  }
+</ul>
+<pre class="code"><code>{{ samples.tokens }}</code></pre>

@@ -56,8 +56,9 @@ export const CUSTOM_THEME_CSS = `/* your stylesheet, after @ckui/core/styles.css
   /* component tokens: the control border is transparent here, so the segmented indicator needs a fill of its own */
   --ck-segmented-indicator-bg: var(--ck-color-primary);
   --ck-segmented-indicator-fg: var(--ck-color-on-primary);
-  /* the page line colour is too quiet for a box outline, which must stay 3:1 from the page */
+  /* the page line colour is too quiet for a box or circle outline, which must stay 3:1 from the page */
   --ck-checkbox-border-color: #8a8a92;
+  --ck-radio-border-color: #8a8a92;
   /* and the border of a standalone select, whose fill is as close to the page */
   --ck-select-border-color: #8a8a92;
 

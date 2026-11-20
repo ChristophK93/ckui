@@ -9,6 +9,7 @@ import { CK_DRAWER_IMPORTS, CkDrawer } from '@ckui/core/drawer';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CK_MENU_IMPORTS } from '@ckui/core/menu';
 import { CkProgress } from '@ckui/core/progress';
+import { CK_RADIO_IMPORTS } from '@ckui/core/radio';
 import { CK_SEGMENTED_IMPORTS } from '@ckui/core/segmented';
 import { CK_SELECT_IMPORTS } from '@ckui/core/select';
 import { CkSlider } from '@ckui/core/slider';
@@ -16,6 +17,7 @@ import { CkStepper } from '@ckui/core/stepper';
 import { CK_SWITCH_IMPORTS } from '@ckui/core/switch';
 import { CK_TABS_IMPORTS } from '@ckui/core/tabs';
 import { CkToast } from '@ckui/core/toast';
+import { CK_TOOLTIP_IMPORTS } from '@ckui/core/tooltip';
 import { cdp, userEvent } from 'vitest/browser';
 import { contrastRatio, resolveToken } from '../../core/testing/contrast';
 import { CUSTOM_THEME_CSS } from './app/pages/theming/theming-samples';
@@ -36,10 +38,12 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
     CkStepper,
     CK_SWITCH_IMPORTS,
     CK_CHECKBOX_IMPORTS,
+    CK_RADIO_IMPORTS,
     CK_CHIP_IMPORTS,
     CK_TABS_IMPORTS,
     CK_SELECT_IMPORTS,
     CK_MENU_IMPORTS,
+    CK_TOOLTIP_IMPORTS,
   ],
   template: `
     <button id="before" type="button">Before</button>
@@ -97,6 +101,14 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
         <ck-checkbox option="endurance">Endurance</ck-checkbox>
         <ck-checkbox option="vo2">VO2max</ck-checkbox>
       </ck-checkbox-group>
+      <ck-radio-group id="radio-group" aria-label="Unit" value="lb">
+        <ck-radio id="radio-off" option="kg">Kilograms</ck-radio>
+        <ck-radio id="radio-on" option="lb">
+          Pounds
+          <ck-hint>Imperial</ck-hint>
+        </ck-radio>
+        <ck-radio id="radio-disabled" option="st" disabled>Stone</ck-radio>
+      </ck-radio-group>
       <ck-chip-group id="chips" aria-label="Category">
         <button ckChip id="chip-off">Threshold</button>
         <button ckChip id="chip-on" [selected]="true">Endurance</button>
@@ -124,6 +136,15 @@ const FIELD_FILL = 'rgb(22, 22, 24)';
           <button ckMenuItem id="menu-delete" tone="danger">Delete</button>
         </ck-menu>
       </ng-template>
+      <button
+        id="tooltip-host"
+        type="button"
+        ckTooltip="Starts after each set"
+        aria-label="Rest timer"
+        [ckTooltipShowDelay]="0"
+      >
+        Rest
+      </button>
       <ck-tabs id="tabs" value="mine">
         <ck-tab-list aria-label="Source">
           <ck-tab id="tab-off" value="predefined">Predefined</ck-tab>
@@ -708,6 +729,86 @@ describe('custom theme', () => {
         expect(box('checkbox-on').backgroundColor).toBe('rgb(1, 2, 3)');
         expect(box('checkbox-on').color).toBe('rgb(4, 5, 6)');
         expect(box('checkbox-on').borderTopLeftRadius).toBe('9px');
+      });
+    });
+
+    describe('radio', () => {
+      const circle = (id: string) => getComputedStyle(query(`#${id} .ck-radio__circle`));
+      const dot = (id: string) => getComputedStyle(query(`#${id} .ck-radio__dot`));
+      const SURFACE = 'rgb(11, 11, 12)';
+
+      it('paints the unchecked circle with the control colour and the checked one with the white primary', () => {
+        expect(circle('radio-off').backgroundColor).toBe('rgb(36, 36, 39)');
+        expect(circle('radio-on').backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(circle('radio-on').borderTopColor).toBe('rgb(255, 255, 255)');
+      });
+
+      it('keeps the unchecked border 3:1 from the page, because the sample line colour is too quiet for it', () => {
+        expect(circle('radio-off').borderTopColor).toBe('rgb(138, 138, 146)');
+        expect(contrastRatio(circle('radio-off').borderTopColor, SURFACE)).toBeGreaterThanOrEqual(
+          3,
+        );
+      });
+
+      it('keeps the checked fill 3:1 from the unchecked fill and border, and the dot 3:1 from the fill', () => {
+        const fill = circle('radio-on').backgroundColor;
+        expect(contrastRatio(fill, circle('radio-off').backgroundColor)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(fill, circle('radio-off').borderTopColor)).toBeGreaterThanOrEqual(3);
+        expect(contrastRatio(fill, SURFACE)).toBeGreaterThanOrEqual(3);
+        expect(dot('radio-on').backgroundColor).toBe('rgb(11, 11, 12)');
+        expect(contrastRatio(dot('radio-on').backgroundColor, fill)).toBeGreaterThanOrEqual(3);
+      });
+
+      it('shows the state with a dot as well as the colour', () => {
+        const width = (id: string) => query(`#${id} .ck-radio__dot`).getBoundingClientRect().width;
+        expect(width('radio-on')).toBe(7);
+        expect(width('radio-off')).toBe(0);
+      });
+
+      it('uses 18px round circles with a 2px border', () => {
+        expect(circle('radio-off').borderTopLeftRadius).toBe('50%');
+        expect(circle('radio-off').borderTopWidth).toBe('2px');
+        expect(query('#radio-off .ck-radio__circle').getBoundingClientRect().width).toBe(18);
+      });
+
+      it('writes the label white, the hint muted at 4.5:1, in the custom font', () => {
+        const label = getComputedStyle(query('#radio-on .ck-radio'));
+        const hint = getComputedStyle(query('#radio-on ck-hint'));
+        expect(label.color).toBe('rgb(255, 255, 255)');
+        expect(label.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(hint.color).toBe('rgb(185, 185, 190)');
+        expect(contrastRatio(hint.color, SURFACE)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('draws a disabled circle in the disabled text colour', () => {
+        const disabled = circle('radio-disabled');
+        expect(disabled.borderTopColor).toBe(
+          getComputedStyle(query('#radio-disabled .ck-radio')).color,
+        );
+      });
+
+      it('draws the 3px yellow ring around the circle on keyboard focus', async () => {
+        await keyboardFocus(query<HTMLInputElement>('#radio-on .ck-radio__input'));
+        const ring = circle('radio-on');
+        expect(ring.outlineColor).toBe(FOCUS_YELLOW);
+        expect(ring.outlineWidth).toBe('3px');
+        expect(ring.outlineOffset).toBe('3px');
+      });
+
+      it('is 60px high at size xl', () => {
+        query('#radio-off .ck-radio').classList.replace('ck-radio--md', 'ck-radio--xl');
+        expect(query('#radio-off .ck-radio').getBoundingClientRect().height).toBeGreaterThanOrEqual(
+          60,
+        );
+      });
+
+      it('restyles with its own tokens, over the theme', async () => {
+        const element = query('#radio-on');
+        element.style.setProperty('--ck-radio-checked-bg', 'rgb(1, 2, 3)');
+        element.style.setProperty('--ck-radio-checked-fg', 'rgb(4, 5, 6)');
+        await settleAnimations();
+        expect(circle('radio-on').backgroundColor).toBe('rgb(1, 2, 3)');
+        expect(dot('radio-on').backgroundColor).toBe('rgb(4, 5, 6)');
       });
     });
 
@@ -1407,6 +1508,60 @@ describe('custom theme', () => {
         const selected = getComputedStyle(popup.querySelectorAll('ck-option')[1]);
         expect(selected.backgroundColor).toBe('rgb(40, 50, 60)');
         expect(selected.color).toBe('rgb(70, 80, 90)');
+      });
+    });
+
+    describe('tooltip', () => {
+      const bubble = () => document.querySelector<HTMLElement>('.ck-tooltip')!;
+
+      async function showTooltip(): Promise<HTMLElement> {
+        const host = query('#tooltip-host');
+        // One Tab makes the next focus a keyboard focus, so the tooltip shows.
+        document.querySelector<HTMLElement>('#before')!.focus();
+        await userEvent.tab();
+        host.focus();
+        expect(host.matches(':focus-visible')).toBe(true);
+        await settleAnimations();
+        return bubble();
+      }
+
+      afterEach(async () => {
+        await userEvent.keyboard('{Escape}');
+        document.documentElement.removeAttribute('style');
+      });
+
+      it('inverts the sample theme: white fill, the near-black surface as text, 4px corners, the custom font', async () => {
+        const tip = getComputedStyle(await showTooltip());
+        expect(tip.backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(tip.color).toBe('rgb(22, 22, 24)');
+        expect(tip.borderTopLeftRadius).toBe('4px');
+        expect(tip.fontFamily).toMatch(/^"Fira Sans"/);
+        expect(tip.colorScheme).toBe('dark');
+      });
+
+      it('keeps the text 4.5:1 on the fill', async () => {
+        const tip = getComputedStyle(await showTooltip());
+        expect(contrastRatio(tip.color, tip.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+      });
+
+      it('sits on the layer of the page body, outside the themed area, and is still themed', async () => {
+        await showTooltip();
+        expect(bubble().closest('.area')).toBeNull();
+        expect(bubble().parentElement!.hasAttribute('data-ck-inert-exempt')).toBe(true);
+        expect(getComputedStyle(bubble()).fontFamily).toMatch(/^"Fira Sans"/);
+      });
+
+      it('restyles the bubble with its own tokens, over the theme', async () => {
+        const root = document.documentElement.style;
+        root.setProperty('--ck-tooltip-bg', 'rgb(10, 20, 30)');
+        root.setProperty('--ck-tooltip-fg', 'rgb(240, 240, 200)');
+        root.setProperty('--ck-tooltip-radius', '12px');
+        root.setProperty('--ck-tooltip-font-size', '18px');
+        const tip = getComputedStyle(await showTooltip());
+        expect(tip.backgroundColor).toBe('rgb(10, 20, 30)');
+        expect(tip.color).toBe('rgb(240, 240, 200)');
+        expect(tip.borderTopLeftRadius).toBe('12px');
+        expect(tip.fontSize).toBe('18px');
       });
     });
 

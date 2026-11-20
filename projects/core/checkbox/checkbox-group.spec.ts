@@ -49,6 +49,24 @@ describe('CkCheckboxGroup', () => {
       expect(label.classList.contains('ck-checkbox-group__label')).toBe(true);
     });
 
+    it('replaces a server-generated label id with the client one, and keeps a consumer id', async () => {
+      const generated = mount(GROUP(), undefined, (rendered) => {
+        query(rendered, 'label').id = 'ck-checkbox-group-label-9999';
+      });
+      await settle(generated.fixture);
+      const label = query(generated.root, 'label');
+      expect(label.id).not.toBe('ck-checkbox-group-label-9999');
+      expect(label.id).toMatch(/^ck-checkbox-group-label-[0-9]+$/);
+      expect(groupOf(generated.root).getAttribute('aria-labelledby')).toBe(label.id);
+      document.body.replaceChildren();
+      TestBed.resetTestingModule();
+      const own = mount(GROUP(), undefined, (rendered) => {
+        query(rendered, 'label').id = 'my-label';
+      });
+      await settle(own.fixture);
+      expect(groupOf(own.root).getAttribute('aria-labelledby')).toBe('my-label');
+    });
+
     it('keeps the id a consumer gave the label, static or bound', async () => {
       const { fixture, host, root } = mount(
         `<ck-checkbox-group [(value)]="zones"><label [id]="hintId()">Zones</label>${OPTIONS}</ck-checkbox-group>`,
@@ -316,6 +334,26 @@ describe('CkCheckboxGroup', () => {
       await settle(fixture);
       expect(host.zonesControl.touched).toBe(false);
       expect(errorOf(root).hidden).toBe(true);
+    });
+
+    it('is not touched, and shows no error, while a press lands on the text of another checkbox', async () => {
+      const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 30));
+      const { fixture, host, root } = mount(ZONES);
+      await settle(fixture);
+      inputOf(root, 0).focus();
+      await userEvent.click(query(root, 'ck-checkbox:nth-of-type(3) .ck-checkbox__text'));
+      await pause();
+      await settle(fixture);
+      expect(host.zonesControl.touched).toBe(false);
+      expect(errorOf(root).hidden).toBe(true);
+      await userEvent.click(query(root, 'ck-checkbox:nth-of-type(2) .ck-checkbox__text'));
+      await pause();
+      await settle(fixture);
+      expect(host.zonesControl.touched).toBe(false);
+      await userEvent.click(query(root, '#after'));
+      await pause();
+      await settle(fixture);
+      expect(host.zonesControl.touched).toBe(true);
     });
 
     it('is touched, and shows the error, when focus leaves the whole group', async () => {

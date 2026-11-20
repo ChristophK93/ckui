@@ -144,6 +144,62 @@ templates that use `ck-checkbox-group`, or name the group with `aria-label`.
 Global element styles: an unlayered `input { … }` or `label { … }` beats the layered parts. Keep them off the checkbox
 (`input:not(.ck-checkbox__input)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
+## Radio group
+
+```ts
+import { CK_RADIO_IMPORTS } from '@ckui/core/radio';
+```
+
+```html
+<ck-radio-group [(value)]="unit" required>
+  <label>Weight unit</label>
+  <ck-radio option="kg">Kilograms</ck-radio>
+  <ck-radio option="lb">
+    Pounds
+    <ck-hint>Imperial</ck-hint>
+  </ck-radio>
+  <ck-hint>Used for every lift.</ck-hint>
+  <ck-error>Pick a unit.</ck-error>
+</ck-radio-group>
+```
+
+`ck-radio-group` picks one option out of a few that are all visible (`CkRadioGroup`, `CkRadio`; a form control for
+Reactive Forms, `ngModel` and Signal Forms). `CK_RADIO_IMPORTS` is `[CkRadioGroup, CkRadio, CkHint, CkError]`. The value
+is the `option` of the checked radio; `null` or `undefined` means nothing is checked, and so does a value that matches
+no radio (development builds warn once). Options are compared with `compareWith` (default `Object.is`, never given
+`null`), so an option of `null` or `undefined` can never be checked. Inputs of `ck-radio-group`: `size` (`sm`, `md`,
+`lg`, `xl`, default from `provideCkui`; every radio takes it), `required` (draws the marker on the label and sets
+`aria-required="true"`; validation comes from your form), `inline` (a wrapping row instead of a column), `name` (the
+name the native inputs share, default a generated one; a fixed name must be unique per form or document, or two groups uncheck each other natively), `compareWith`, `disabled` and `aria-label` / `aria-labelledby` /
+`aria-describedby` (inputs that move onto the group element; bind them as `[aria-label]`). Inputs of `ck-radio`:
+`option` (required), `disabled` and `aria-label` / `aria-labelledby` (they move onto the input element).
+`(valueChange)` reports every write to the value: a user change, and a write from a form (`setValue`, `reset`) too; a
+`[value]` binding from the parent does not emit. A `ck-radio` outside a `ck-radio-group` throws.
+
+Each row is a `<label>` around one native `<input type="radio">`, and every input of a group shares one `name`, so the
+browser provides the WAI-ARIA radio group keys: Tab enters at the checked radio (or the first enabled one), the arrow keys
+move and check, skip disabled radios and wrap, Space checks the focused one (in right-to-left text ArrowLeft is next and ArrowRight previous). Nothing is handled by hand, and
+`<fieldset disabled>` blocks and styles the radios like `disabled`. The projected text names a radio; a `<ck-hint>` inside
+it describes that radio. A radio has no error of its own.
+
+The group is `role="radiogroup"`, named by its first `<label>` child (or `aria-label` / `aria-labelledby`), and its
+direct `ck-hint` and `ck-error` children describe it. The error shows when the form control is invalid and touched
+(focus left the whole group, not just a radio) or its form was submitted; while it shows, every input is `aria-invalid`.
+`Validators.required` fails `null`; in Signal Forms use `required()`.
+
+The row is at least the control height of its size (44px or more on a coarse pointer, 60px at `xl`); the circle is
+1.125rem at `sm` and `md`, 1.25rem at `lg` and 1.5rem at `xl`, with a dot that scales in. Component tokens:
+`--ck-radio-bg` (unchecked fill, default `--ck-color-control`), `--ck-radio-border-color` (default `--ck-color-border`;
+keep it 3:1 from the surface), `--ck-radio-checked-bg` (default `--ck-color-primary`), `--ck-radio-checked-fg` (the dot,
+default `--ck-color-on-primary`) and `--ck-radio-group-gap` (default `--ck-space-1`; a value you set replaces both the row gap and the column gap between inline rows, whose default is `--ck-space-4`). In forced colors the circle's border is `CanvasText`, the focus ring `Highlight`, a checked circle is `Highlight` with a `HighlightText` dot and a
+disabled one `GrayText`; the dot's motion stops under `prefers-reduced-motion`.
+
+Linting: angular-eslint's `label-has-associated-control` flags the `<label>` that names a group. Turn the rule off for
+templates that use `ck-radio-group`, or name the group with `aria-label`.
+
+Global element styles: an unlayered `input { … }` or `label { … }` beats the layered parts. Keep them off the radio
+(`input:not(.ck-radio__input)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
+
 ## Chip
 
 ```ts
@@ -824,6 +880,61 @@ does not read the `--ck-dialog-*` tokens.
 Global element styles: as for the dialog, scope a global `h2`, `p` or `button:focus-visible` rule with
 `:not(.ck-dialog__title)`, `:not(.ck-dialog__description)` and `:not(.ck-button)`, or put resets in a layer declared
 before ckui: `@layer reset, ckui;`.
+
+## Tooltip
+
+```ts
+import { CK_TOOLTIP_IMPORTS } from '@ckui/core/tooltip';
+```
+
+```html
+<button ckButton variant="ghost" aria-label="Rest timer" ckTooltip="Starts after each set">
+  …
+</button>
+<button ckButton [ckTooltip]="hint()" ckTooltipPosition="below">Save</button>
+```
+
+`ckTooltip` shows a short supplementary text for a control on hover, keyboard focus and long-press (`CkTooltip`).
+`CK_TOOLTIP_IMPORTS` is `[CkTooltip]`. The text is plain text only (no markup, nothing to click in the bubble) and goes on a
+focusable element; an empty, blank, `null` or `undefined` text shows and wires nothing. Inputs: `ckTooltipPosition`
+(`'above'` by default, `'below'`, `'start'`, `'end'`; the side flips to the opposite one without room and shifts to stay a
+margin inside the viewport, and `start` / `end` follow `dir`), `ckTooltipShowDelay` (500 ms) and `ckTooltipDisabled`. With
+`#tip="ckTooltip"` you get `show()`, `hide()` and the `isVisible` signal. The bubble is a native popover (`popover="manual"`)
+in the top layer, so it also shows above a dialog, drawer or menu, and it needs no overlay code: it sits in one
+`.ck-tooltip-layer` element on `body`, marked `data-ck-inert-exempt`.
+
+Browser support: the bubble is a native popover, so the tooltip needs the Popover API (Chrome and Edge 114, Safari 17,
+Firefox 125). Without it the tooltip is off: nothing is mounted or wired and no key or pointer is handled. Nothing is shown
+for a host inside an inert page (behind a modal). On a text input only keyboard focus shows it, not a click or a tap.
+
+Naming: a description, never the name. While the tooltip is on, the bubble's id is added to the host's `aria-describedby`
+(your own ids stay and come back exactly afterwards); the host's name is never touched, so an icon-only button needs its own
+`aria-label` and development builds warn once about a host without an accessible name. A text that equals the name (case and
+spacing aside) is shown but not wired, so it is not read twice. The bubble stays mounted, hidden, while the tooltip is
+enabled, so a screen reader that reaches the control without keyboard focus still reads the description.
+
+Showing and hiding: the mouse shows it after the delay, keyboard focus shows it at once (`:focus-visible` only, a mouse
+click's focus does not), and moving to another tooltip within 300 ms of one hiding skips the delay. It hides 100 ms after the
+pointer leaves both the host and the bubble (the bubble can be hovered, WCAG 1.4.13), on blur, on a press on the host, when
+the host scrolls out of view and on `Escape`. `Escape` stops there (`preventDefault`, no propagation): a dialog, menu or sheet
+around the tooltip stays open, and a second `Escape` reaches it. Without a visible tooltip the key is not touched.
+
+Touch: a long-press (500 ms, a finger that moves 10 px is a scroll) shows it, the click that ends the press does not reach the
+host, and the native callout and text selection stay away while the finger is down. It hides 1.5 s after the finger lifts or
+on the next press anywhere. A plain tap does nothing tooltip-related. A tooltip is never the only carrier of information.
+
+A disabled `ckButton` sets the native `disabled` attribute, so it cannot take focus and a tooltip on it is mouse-only. Never
+explain a disabled state only in a tooltip.
+
+Component tokens: `--ck-tooltip-bg` (falls back to `--ck-color-fg`), `--ck-tooltip-fg` (`--ck-color-surface`: an inverse
+surface, at least 4.5:1 in both themes), `--ck-tooltip-radius` (`--ck-radius-sm`), `--ck-tooltip-max-width`
+(`min(20rem, 100% - 2 * var(--ck-space-2))`) and `--ck-tooltip-font-size` (`--ck-font-size-sm`). The bubble sits on `body`, so
+set them on `:root` or a theme selector, not on a wrapper; a nested `data-ck-theme` does not reach it. Text wraps and is never
+cut with an ellipsis. In forced colors the bubble is `Canvas` with `CanvasText` text and border; it fades in over
+`--ck-duration-fast` and without a fade under reduced motion.
+
+Global element styles: an unlayered `* { padding: 0 }` or `div { background: none }` beats the layered bubble. Keep them off
+`.ck-tooltip` (`div:not(.ck-tooltip)`) or put resets in a layer declared before ckui: `@layer reset, ckui;`.
 
 ## Status
 

@@ -3,18 +3,19 @@ import { RouterOutlet } from '@angular/router';
 import { CkButton } from '@ckui/core/button';
 import { CK_FIELD_IMPORTS } from '@ckui/core/field';
 import { CkToast } from '@ckui/core/toast';
+import { CK_TOOLTIP_IMPORTS } from '@ckui/core/tooltip';
 
-/** Uses button, field and toast in the initial bundle; the dialog and the drawer live behind lazy routes. */
+/** Uses button, field, tooltip and toast in the initial bundle; the dialog and the drawer live behind lazy routes. */
 @Component({
   selector: 'probe-root',
-  imports: [CkButton, CK_FIELD_IMPORTS, RouterOutlet],
+  imports: [CkButton, CK_FIELD_IMPORTS, CK_TOOLTIP_IMPORTS, RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ck-field>
       <label for="probe-name">Name</label>
       <input ckInput id="probe-name" />
     </ck-field>
-    <button ckButton type="button" (click)="notify()">Notify</button>
+    <button ckButton type="button" ckTooltip="Shows a toast" (click)="notify()">Notify</button>
     <router-outlet />
   `,
 })

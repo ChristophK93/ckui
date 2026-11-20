@@ -1,0 +1,68 @@
+@layer ckui {
+  .ck-radio-group {
+    display: block;
+    color: var(--ck-color-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: inherit;
+  }
+
+  .ck-radio-group--sm {
+    --_ck-radio-group-font-size: var(--ck-control-font-size-sm);
+  }
+
+  .ck-radio-group--md {
+    --_ck-radio-group-font-size: var(--ck-control-font-size-md);
+  }
+
+  .ck-radio-group--lg {
+    --_ck-radio-group-font-size: var(--ck-control-font-size-lg);
+  }
+
+  .ck-radio-group--xl {
+    --_ck-radio-group-font-size: var(--ck-control-font-size-xl);
+  }
+
+  .ck-radio-group__label {
+    display: block;
+    margin-block-end: var(--ck-space-1);
+    color: var(--ck-color-fg);
+    font-size: var(--_ck-radio-group-font-size);
+    font-weight: var(--ck-font-weight-medium, 500);
+    line-height: var(--ck-line-height-tight);
+  }
+
+  /* The rows are the radios; wrappers around them lose the gap, so keep them direct children. */
+  .ck-radio-group__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ck-radio-group-gap, var(--ck-space-1));
+  }
+
+  /* Side by side while there is room, wrapping at the group's width. */
+  .ck-radio-group--inline .ck-radio-group__list {
+    flex-flow: row wrap;
+    column-gap: var(--ck-radio-group-gap, var(--ck-space-4));
+  }
+
+  /* Hint and error are shared with other controls: styled only under this container. */
+  .ck-radio-group__messages .ck-hint,
+  .ck-radio-group__messages .ck-error {
+    display: block;
+    margin-block-start: var(--ck-space-1);
+    font-size: var(--ck-font-size-sm);
+    line-height: var(--ck-line-height-normal);
+    overflow-wrap: break-word;
+  }
+
+  .ck-radio-group__messages .ck-hint {
+    color: var(--ck-color-fg-muted);
+  }
+
+  .ck-radio-group__messages .ck-error {
+    color: var(--ck-color-danger-fg);
+  }
+
+  .ck-radio-group__messages .ck-error[hidden] {
+    display: none;
+  }
+}

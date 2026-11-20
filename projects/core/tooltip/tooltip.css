@@ -1,0 +1,62 @@
+@layer ckui {
+  /* No box of its own: an extra empty child of body would become a flex or grid item there. */
+  .ck-tooltip-layer {
+    display: contents;
+  }
+
+  .ck-tooltip {
+    --_ck-tooltip-bg: var(--ck-tooltip-bg, var(--ck-color-fg));
+    --_ck-tooltip-fg: var(--ck-tooltip-fg, var(--ck-color-surface));
+    box-sizing: border-box;
+    /* The placement helper sets `translate` from the top-left corner, in viewport pixels. */
+    position: fixed;
+    inset: auto;
+    left: 0;
+    top: 0;
+    inline-size: max-content;
+    max-inline-size: var(--ck-tooltip-max-width, min(20rem, 100% - 2 * var(--ck-space-2)));
+    margin: 0;
+    padding-block: var(--ck-space-1);
+    padding-inline: var(--ck-space-2);
+    /* Transparent, not none: forced colors paints it, and the box stays the same size. */
+    border: 1px solid transparent;
+    border-radius: var(--ck-tooltip-radius, var(--ck-radius-sm));
+    background: var(--_ck-tooltip-bg);
+    color: var(--_ck-tooltip-fg);
+    color-scheme: var(--ck-color-scheme);
+    font-family: var(--ck-font-sans);
+    font-size: var(--ck-tooltip-font-size, var(--ck-font-size-sm));
+    font-weight: var(--ck-font-weight-medium);
+    line-height: var(--ck-line-height-normal);
+    text-align: start;
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: break-word;
+    pointer-events: auto;
+  }
+
+  .ck-tooltip:popover-open {
+    opacity: 1;
+    transition: opacity var(--ck-duration-fast) var(--ck-ease-standard);
+  }
+
+  @starting-style {
+    .ck-tooltip:popover-open {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ck-tooltip:popover-open {
+      transition-duration: 0s;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .ck-tooltip {
+      border-color: CanvasText;
+      background: Canvas;
+      color: CanvasText;
+    }
+  }
+}
